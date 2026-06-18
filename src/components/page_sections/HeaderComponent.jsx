@@ -9,6 +9,7 @@ const HeaderComponent = ({Link}) => {
               <Link to="/">Home</Link>
               <Link to="/inventory">Inventory</Link>
               <Link to="/contacts">Contacts</Link>
+              <Link to="/requests">Requests</Link>
             </nav>
           </header>
         </div>

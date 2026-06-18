@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Routes, Route } from 'react-router-dom'
 import Home from './components/pages/Home'
 import Inventory from './components/pages/Inventory'
 import Contacts from './components/pages/Contacts'
+import RequestPg from './components/pages/RequestsPg'
 import HeaderComponent from './components/page_sections/HeaderComponent'
 import FooterComponent from './components/page_sections/FooterComponent'
 
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/contacts" element={<Contacts />} />
+        <Route path="/requests" element={<RequestPg />} />
       </Routes>
 
       <FooterComponent />
