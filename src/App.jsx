@@ -10,15 +10,15 @@ const App = () => {
   return (
     <BrowserRouter>
     {/* App must be wrapped in BrowserRouter to allow routing */}
-
-      <header className="container">
+    
+      <header>
         <h1>Gananoque Food Bank App</h1>
 
         {/* Use the "to" parameter to set which route a link will use */}
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/inventory">Inventory</Link>
-          <Link to="/contacts">Contacts</Link>
+        <nav className='navBar'>
+          <Link className='navLink' to="/">Home</Link>
+          <Link className='navLink' to="/inventory">Inventory</Link>
+          <Link className='navLink' to="/contacts">Contacts</Link>
         </nav>
       </header>
 
@@ -29,8 +29,8 @@ const App = () => {
         <Route path="/contacts" element={<Contacts />} />
       </Routes>
 
-      <footer className="container">
-        <p>Developed by Bright Path Tech Initiative <br></br> 2026</p>
+      <footer className="footContainer">
+        <p>© 2026 BrightPath Tech. All Rights Reserved</p>
       </footer>
 
     </BrowserRouter>
