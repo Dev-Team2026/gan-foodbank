@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Routes, Route } from 'react-router-dom'
 import Home from './components/pages/Home'
 import Inventory from './components/pages/Inventory'
 import Contacts from './components/pages/Contacts'
+import Camera from './components/pages/Camera'
 
 import './styles/App.css'
 
@@ -19,7 +20,7 @@ const App = () => {
           <Link to="/">Home</Link>
           <Link to="/inventory">Inventory</Link>
           <Link to="/contacts">Contacts</Link>
-          <link to="/camera">Camera</link>
+          <Link to="/camera">Camera</Link>
         </nav>
       </header>
 
