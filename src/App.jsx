@@ -19,6 +19,7 @@ const App = () => {
           <Link to="/">Home</Link>
           <Link to="/inventory">Inventory</Link>
           <Link to="/contacts">Contacts</Link>
+          <link to="/camera">Camera</link>
         </nav>
       </header>
 
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/contacts" element={<Contacts />} />
+        <Route path="/camera" element={<Camera />} />
       </Routes>
 
       <footer className="container">
