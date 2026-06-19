@@ -1,10 +1,11 @@
 import RequestCard from "./RequestCard";
 //{request.requestFulfilled === true && 
-const RequestContainer = (requests) => {
+//  amount={request.amount} item={request.item} recipient={request.recipient}
+const RequestContainer = ({requests, handleFulfillRequest}) => {
     return (
         <div>
             {requests.map((request)=>(
-                <RequestCard key={request.requestId} amount={request.amount} item={request.item} recipient={request.recipient} />
+                <RequestCard key={request.requestId} {...request} handleFulfillRequest={handleFulfillRequest} />
             ))}
         </div>
     )
