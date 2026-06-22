@@ -1,12 +1,11 @@
 import { useState } from "react";
 import Cookies from "js-cookie";
-import jwtEncode from "jwt-encode";
-//const jwt = require("jsonwebtoken")
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
 const LoginPg = () => {
     const navigate = useNavigate();
-    const [users] = useState([{name: "maxwell", password:123}])
+    //const [users] = useState([{name: "maxwell", password:123}])
     const [loginData, setLoginData] = useState({
         name: "",
         password: ""
@@ -22,23 +21,39 @@ const LoginPg = () => {
     const handleOnSubmitLogin = (e) => {
         e.preventDefault()
         //console.log(users)
-        users.map((user) => {
-            if(loginData.name === user.name)
-            {
-                //console.log(loginData.password + " " + user.password)
-                if(loginData.password == user.password)
-                {
-                    setLoginResponse("welcome in")
-                    navigate("/home")
-                    Cookies.set("jwt-authorization", jwtEncode({name: user.name, password: user.password}, "test"))
-                }else {
-                    setLoginResponse("Invalid Password!")
-                }
-            } else {
-                setLoginResponse("Invalid Username")
-            }
-        })
+        handleLogin()
+        //users.map((user) => {
+        //    if(loginData.name === user.name)
+        //    {
+        //        //console.log(loginData.password + " " + user.password)
+        //        if(loginData.password == user.password)
+        //        {
+        //            setLoginResponse("welcome in")
+        //            navigate("/home")
+        //            Cookies.set("jwt-authorization", jwtEncode({name: user.name, password: user.password}, "test"))
+        //        }else {
+        //            setLoginResponse("Invalid Password!")
+        //        }
+        //    } else {
+        //        setLoginResponse("Invalid Username")
+        //    }
+        //})
         setLoginData({name: "",password: ""})
+    }
+
+    const handleLogin = async () => {
+        try {
+            console.log("test")
+            const response = await axios.post("http://localhost:3000/", loginData);
+            setLoginResponse(response.data.message);
+            if (response.status === 201)
+            {
+                navigate("/home");
+                Cookies.set("jwt-authorization", response.data.token);
+            }
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     return (

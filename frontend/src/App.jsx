@@ -1,5 +1,5 @@
 import { BrowserRouter, Link, Routes, Route } from 'react-router-dom'
-
+import Cookies from "js-cookie";
 
 import Home from './components/pages/Home'
 import Inventory from './components/pages/Inventory'
@@ -10,6 +10,11 @@ import LoginPg from './components/pages/LoginPg'
 import './styles/App.css'
 
 const App = () => {
+  const handleLogout = (e)=>{
+    e.preventDefault()
+    Cookies.remove("jwt-authorization")
+  }
+
   return (
     <BrowserRouter>
     {/* App must be wrapped in BrowserRouter to allow routing */}
@@ -17,6 +22,7 @@ const App = () => {
       {/* Use the "to" parameter to set which route a link will use */}
       <header className="container">
         <h1>Gananoque Food Bank App</h1>
+        <button onClick={handleLogout}><Link to="/">Logout</Link></button>
         <nav>
           <Link to="/home">Home</Link>
           <Link to="/inventory">Inventory</Link>
