@@ -1,8 +1,14 @@
 const Camera = () => {
+
 return (
     <>
- <input type="file" accept="image/*" capture="camera">
+    <form>
+        <label>Press to activate camera.</label>
+ <input type="file" accept="image/*" 
+        capture="camera" required 
+        id="docImg">
  </input>
+ </form>
     </>
 )
 }
