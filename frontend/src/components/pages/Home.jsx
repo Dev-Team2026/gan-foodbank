@@ -1,7 +1,31 @@
 import logo from '../../assets/GananoqueFoodBank.png'
+import Cookies from "js-cookie";
+import {useNavigate} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { jwtDecode} from "jwt-decode";
 
 const Home = ({PageHeader, Link}) => {
-  return (
+  const navigate =useNavigate();
+  const [currentUser] = useState(()=>{
+    const jwtToken = Cookies.get("jwt-authorization");
+    if (!jwtToken)
+    {
+        return "";
+    }
+    try{
+        const decodedToken = jwtDecode(jwtToken);
+        return decodedToken.name;
+    }catch{
+        return "";
+    }
+  });
+  useEffect(()=>{
+    if (!currentUser)
+    {
+        navigate("/unauthorized");
+    }
+  })
+  return(
     <div className="container">
       <PageHeader Link={Link} />
       <title>Home</title>
@@ -12,7 +36,7 @@ const Home = ({PageHeader, Link}) => {
         <p>We are an emergency community service providing food to our community as needed and as available.</p>
         <p>We are a registered non-profit charitable organization governed by a volunteer Board of Directors who are assisted by a group of committed volunteers. We are a non-denominational, non-political organization sustained solely by private donations and we do not receive any government funding.</p>
       </div>
-      <img src={logo}></img>  
+      <img src={logo}></img> 
     </div>
   )
 }
