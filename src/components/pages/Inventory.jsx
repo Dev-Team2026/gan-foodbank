@@ -1,6 +1,6 @@
 import React from "react";
 
-const Inventory = () => {
+const Inventory = ({PageHeader, Link}) => {
 
     const exportTable = () => {
       const table = document.getElementById('stockTable');
@@ -27,6 +27,7 @@ const Inventory = () => {
 
   return (
     <div className="container">
+      <PageHeader Link={Link} />
       <title>Inventory</title>
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>

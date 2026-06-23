@@ -1,8 +1,9 @@
 import logo from '../../assets/GananoqueFoodBank.png'
 
-const Home = () => {
-  return(
+const Home = ({PageHeader, Link}) => {
+  return (
     <div className="container">
+      <PageHeader Link={Link} />
       <title>Home</title>
       
       <h1>Home Page</h1>
