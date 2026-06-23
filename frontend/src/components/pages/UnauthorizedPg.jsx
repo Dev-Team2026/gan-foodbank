@@ -4,7 +4,7 @@ const UnauthorizedPg = () => {
         <div>
             <h1>Unauthorized Access</h1>
             <h3>Please Sign In</h3>
-            <Link to="/">Go back to Login</Link>
+            <Link to="/login">Go back to Login</Link>
         </div>
     )
 }
