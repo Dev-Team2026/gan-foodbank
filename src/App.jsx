@@ -11,8 +11,8 @@ const App = () => {
   return (
     <BrowserRouter>
     {/* App must be wrapped in BrowserRouter to allow routing */}
-
-      <header className="container">
+    
+      <header>
         <h1>Gananoque Food Bank App</h1>
 
         {/* Use the "to" parameter to set which route a link will use */}
@@ -32,8 +32,8 @@ const App = () => {
         <Route path="/camera" element={<Camera />} />
       </Routes>
 
-      <footer className="container">
-        <p>Developed by Bright Path Tech Initiative <br></br> 2026</p>
+      <footer className="footContainer">
+        <p>© 2026 BrightPath Tech. All Rights Reserved</p>
       </footer>
 
     </BrowserRouter>
