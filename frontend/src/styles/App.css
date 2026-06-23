@@ -1,30 +1,80 @@
-.container {
-  background-color: grey;
-  text-align: center;
-
+:root {
+  --COLOR: #00a54f;
+}
+header{
+  border-bottom: 2px solid var(--COLOR);
   padding-top: 1em;
   padding-bottom: 2em;
-
   margin-top: 1em;
 }
 
+header h1 {
+  text-align: left;
+  padding-left: 25px;
+  padding-bottom: 10px;
+}
+
+.container {
+  text-align: center;
+}
+
+.navBar {
+  text-align: left;
+  align-content: center;
+  margin-top: -50px;
+  margin-left: 50%;
+  width: 50%;
+  border-bottom: 2px solid var(--COLOR);
+}
+
+.navLink {
+  text-decoration: none;
+  color: black;
+  font-size: 20px;
+}
+
 table {
-  border-style: groove;
-  border-width: 0.5em;
-
   margin: auto;
+  border-collapse: collapse;
 }
 
-th, td {
-  border-style: solid;
+th {
+  width: 150px;
+  background-color: var(--COLOR);
   padding: 1em;
+  color: white;
+  border: 1px solid #006430;
 }
 
-footer {
+td {
+  border: 1px solid black;
+}
+
+.footContainer {
   text-align: right !important;
+  background-color: var(--COLOR);
   padding-right: 1em;
+  position: absolute;
+  bottom:0;
+  left:0;
+  right: 0;
 }
 
 a {
   margin: 1em;
+}
+
+.orgInfo {
+  width: 50%;
+  display: flexbox;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: auto;
+  text-align: left;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.exportBtn {
+  margin-bottom: 10px;
 }
