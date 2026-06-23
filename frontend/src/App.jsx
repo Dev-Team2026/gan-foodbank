@@ -1,5 +1,4 @@
 import { BrowserRouter, Link, Routes, Route } from 'react-router-dom'
-import Cookies from "js-cookie";
 
 import Home from './components/pages/Home'
 import Inventory from './components/pages/Inventory'
