@@ -1,8 +1,8 @@
 const express = require("express");
 const server = express();
 const port = 3000;
-require("dotenv").config(); //import dotenv
-const { SECRET_KEY } = process.env; 
+//require("dotenv").config(); //import dotenv
+//const { SECRET_KEY } = process.env; 
 const cors = require("cors"); //For disabling default browser security
 const jwt = require("jsonwebtoken")
 
@@ -37,7 +37,7 @@ server.post("/", (request, response) => {
         {
             return response.status(403).send({message: "Incorrect credentials"})
         }
-        const jwtToken = jwt.sign({role: user.role, name, }, SECRET_KEY);
+        const jwtToken = jwt.sign({role: user.role, name, }, "temp");
         return response.status(201).send({message: "User Authenticated", token: jwtToken});
     }catch(err){
         response.status(500).send({message: err.message})
