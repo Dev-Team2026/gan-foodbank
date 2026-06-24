@@ -13,6 +13,7 @@ server.use(cors());
 
 
 const users = [{name: "maxwell", password:123, role: "staff"}]
+const requests = []
 
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`);
@@ -43,3 +44,19 @@ server.post("/", (request, response) => {
         response.status(500).send({message: err.message})
     }
 });
+
+server.get("/requests", (request, response) => {
+    response.send({data: requests});
+})
+
+server.post("/requests", (request, response) => {
+    const {newRequest} = request.body
+    try {
+        requests.push({...newRequest, requestId: requests.length})
+        return response.status(200).send({
+            message: `Contact is added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: err.message})
+    }
+})

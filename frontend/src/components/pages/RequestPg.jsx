@@ -2,7 +2,8 @@ import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { jwtDecode} from "jwt-decode";
-import RequestContainer from "../page_sections/RequestContainer";
+import axios from "axios";
+import RequestContainer from "../pageFeatures/RequestContainer";
 
 const RequestPg = ({PageHeader, Link}) => {
     const navigate = useNavigate();
@@ -19,25 +20,54 @@ const RequestPg = ({PageHeader, Link}) => {
           return "";
       }
     });
+    const [productRequest, setProductRequest] = useState({item: "", amount: "", recipient: ""})
+    const [currentRequests, setCurrentRequests] = useState([])
+    const [requestPostResponse, setRequestPostResponse] = useState("")
+
     useEffect(()=>{
       if (!currentUser)
       {
           navigate("/unauthorized");
       }
     })
-    const [productRequest, setProductRequest] = useState({item: "", amount: "", recipient: ""})
-    const [currentRequests, setCurrentRequests] = useState([])
-    //{requestId: "0", item: "Items", amount: "Amount", recipient: "Recipient", requestFulfilled: false}
+
+    const handleRequestsDB = async () => {
+        try {
+            const response = await axios.get("http://localhost:3000/requests")
+            .then(() => {console.log(response.data)})
+            .then(() => {
+                setCurrentRequests(() => response.data)
+            })
+        } catch(error) {
+            console.log(error.message)
+        }
+    }
+
+    useEffect(() => {
+        handleRequestsDB();
+    }, [requestPostResponse])
+
+    
 
     const handleOnChangeProductRequest = (e) => {
         setProductRequest({...productRequest, [e.target.name]: e.target.value})
     }
-    const handleOnSubmitProductRequest = (e) => {
+    const handleOnSubmitProductRequest = async (e) => {
         e.preventDefault();
-        const newRequestList = currentRequests
-        newRequestList.push({...productRequest, requestId: currentRequests.length})
-        setCurrentRequests(newRequestList)
-        setProductRequest({item: "", amount: "", recipient: ""})
+        //const newRequestList = currentRequests
+        //newRequestList.push({...productRequest, requestId: currentRequests.length})
+        //setCurrentRequests(newRequestList)
+        try {
+            await axios
+                .post("http://localhost:3000/requests", productRequest)
+                .then((response) => {
+                    setRequestPostResponse(response.data)
+                })
+                .then(() => setProductRequest({item: "", amount: "", recipient: ""}))
+        } catch (error) {
+            console.log(error.message)
+        }
+        
     }
     const handleFulfillRequest = (requestId) => {
         const newRequestList = []
