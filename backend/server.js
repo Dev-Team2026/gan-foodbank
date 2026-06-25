@@ -13,6 +13,7 @@ server.use(cors());
 
 
 const users = [{name: "maxwell", password:123, role: "staff"}]
+let requestFilters = {itemFilter: "", amountFilter: "", recipientFilter: "", activeFilters: false}
 let requests = []
 
 server.listen(port, () => {
@@ -78,6 +79,29 @@ server.delete("/requests/:id", (request, response) => {
         response.status(200).send({
             message: `Request completed!`
         });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+server.post("/filterRequests", (request, response) => {
+    const {itemFilter, amountFilter, recipientFilter} = request.body
+    try {
+        if (itemFilter === "" && amountFilter === "" && recipientFilter=== ""){
+            requestFilters.itemFilter = itemFilter
+            requestFilters.amountFilter = amountFilter
+            requestFilters.recipientFilter = recipientFilter
+            requestFilters.activeFilters = false
+        } else{
+            requestFilters.itemFilter = itemFilter
+            requestFilters.amountFilter = amountFilter
+            requestFilters.recipientFilter = recipientFilter
+            requestFilters.activeFilters = true
+        }
+        return response.status(200).send({
+            message: `Filters added successfully!`
+        });
+        console.log(requestFilters)
     } catch(error){
         response.status(500).send({message: error.message})
     }

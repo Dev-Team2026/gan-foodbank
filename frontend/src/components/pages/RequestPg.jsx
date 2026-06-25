@@ -23,6 +23,7 @@ const RequestPg = ({PageHeader, Link}) => {
     const [productRequest, setProductRequest] = useState({item: "", amount: "", recipient: ""})
     const [currentRequests, setCurrentRequests] = useState([])
     const [requestPostResponse, setRequestPostResponse] = useState("")
+    const [filters, setFilters] = useState({itemFilters: "", amountFilters: "", amountFilterType: "", recipientFilters: ""})
 
     useEffect(()=>{
       if (!currentUser)
@@ -71,19 +72,26 @@ const RequestPg = ({PageHeader, Link}) => {
         
     }
     const handleFulfillRequest = async (requestId) => {
-        //const newRequestList = []
-        //currentRequests.map((request)=>(
-        //    request.requestId != requestId && newRequestList.push({...request, requestId: newRequestList.length})
-        //))
-        //setCurrentRequests(newRequestList)
-        //let currentIterations = requestId;
-        //while(currentIterations < newRequestList.length){
-        //    newRequestList[currentIterations] = newRequestList[currentIterations+1]
-        //    currentIterations++
-        //}
         try {
             await axios
                 .delete(`http://localhost:3000/requests/${requestId}`)
+                .then((response) => {
+                    //console.log("test2")
+                    setRequestPostResponse(response.data)
+                })
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    const handleOnChangeFilters = (e) => {
+        setFilters({...filters, [e.target.name]: e.target.value})
+    }
+    const handleOnSubmitFilters = async (e) => {
+        e.preventDefault();
+        try {
+            await axios
+                .post("http://localhost:3000/filterRequests", filters)
                 .then((response) => {
                     //console.log("test2")
                     setRequestPostResponse(response.data)
@@ -96,6 +104,42 @@ const RequestPg = ({PageHeader, Link}) => {
     return (
         <div>
             <PageHeader Link={Link} />
+
+            <form onSubmit={handleOnSubmitFilters}>
+                <input 
+                    type="text"
+                    id="itemFilter"
+                    name="itemFilter"
+                    placeholder="Product Name"
+                    value={filters.itemFilter}
+                    onChange={handleOnChangeFilters}
+                />
+                <input 
+                    type="text"
+                    id="amountFilter"
+                    name="amountFilter"
+                    placeholder="Amount filtered by"
+                    value={filters.amountFilter}
+                    onChange={handleOnChangeFilters}
+                />
+                <input 
+                    type="text"
+                    id="amountFilterType"
+                    name="amountFilterType"
+                    placeholder="<, >, or ="
+                    value={filters.amountFilterType}
+                    onChange={handleOnChangeFilters}
+                />
+                <input 
+                    type="text"
+                    id="recipientFilters"
+                    name="recipientFilters"
+                    placeholder="Recipient Name"
+                    value={filters.recipientFilters}
+                    onChange={handleOnChangeFilters}
+                />
+                <button type="submit">Search</button>
+            </form>
             <h1>Current Request</h1>
             {currentRequests.length > 0 && <RequestContainer requests={currentRequests} handleFulfillRequest={handleFulfillRequest} /> }
             {currentRequests.length <= 0 && <p>No Current Requests</p> }
