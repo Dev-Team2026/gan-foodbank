@@ -1,10 +1,41 @@
+import fetch from 'fetch';
+import * as fs from 'fs';
 import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { jwtDecode} from "jwt-decode";
 
+const GetUploadUrl = () => {
+const uploadUrl = fetch('https://api.ocrwell.com/v1/uploads', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': process.env['ocrw_MUvLGJfTL3FvO2X8PXmhSsR01Uj0Bn0ZUCwqRn8xCsACaEFO'],
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    'filename': 'contract.pdf'
+  })
+})
+console.log('Got ', uploadUrl)
+return uploadUrl
+}
+
+const UploadFile = (props) => {
+fetch(props.uploadUrl, {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/pdf'
+  },
+  body: fs.readFileSync('contract.pdf')
+})
+}
+
+
+
 const Camera = () => {
-    const navigate =useNavigate();
+const url = GetUploadUrl
+UploadFile(uploadUrl = url)    
+const navigate =useNavigate();
     const [currentUser] = useState(()=>{
     const jwtToken = Cookies.get("jwt-authorization");
     if (!jwtToken)
