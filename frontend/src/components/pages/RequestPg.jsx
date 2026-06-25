@@ -33,9 +33,9 @@ const RequestPg = ({PageHeader, Link}) => {
 
     const handleRequestsDB = async () => {
         try {
-            const response = await axios.get("http://localhost:3000/requests")
-            .then(() => {console.log(response.data)})
-            .then(() => {
+            await axios.get("http://localhost:3000/requests")
+            //.then((response) => {console.log(response.data)})
+            .then((response) => {
                 setCurrentRequests(() => response.data)
             })
         } catch(error) {
@@ -61,6 +61,7 @@ const RequestPg = ({PageHeader, Link}) => {
             await axios
                 .post("http://localhost:3000/requests", productRequest)
                 .then((response) => {
+                    //console.log("test2")
                     setRequestPostResponse(response.data)
                 })
                 .then(() => setProductRequest({item: "", amount: "", recipient: ""}))
@@ -69,25 +70,35 @@ const RequestPg = ({PageHeader, Link}) => {
         }
         
     }
-    const handleFulfillRequest = (requestId) => {
-        const newRequestList = []
-        currentRequests.map((request)=>(
-            request.requestId != requestId && newRequestList.push({...request, requestId: newRequestList.length})
-        ))
-        setCurrentRequests(newRequestList)
+    const handleFulfillRequest = async (requestId) => {
+        //const newRequestList = []
+        //currentRequests.map((request)=>(
+        //    request.requestId != requestId && newRequestList.push({...request, requestId: newRequestList.length})
+        //))
+        //setCurrentRequests(newRequestList)
         //let currentIterations = requestId;
         //while(currentIterations < newRequestList.length){
         //    newRequestList[currentIterations] = newRequestList[currentIterations+1]
         //    currentIterations++
         //}
+        try {
+            await axios
+                .delete(`http://localhost:3000/requests/${requestId}`)
+                .then((response) => {
+                    //console.log("test2")
+                    setRequestPostResponse(response.data)
+                })
+        } catch (error) {
+            console.log(error.message)
+        }
     }
     
     return (
         <div>
             <PageHeader Link={Link} />
             <h1>Current Request</h1>
-            {currentRequests.length > 1 && <RequestContainer requests={currentRequests} handleFulfillRequest={handleFulfillRequest} /> }
-            {currentRequests.length <= 1 && <p>No Current Requests</p> }
+            {currentRequests.length > 0 && <RequestContainer requests={currentRequests} handleFulfillRequest={handleFulfillRequest} /> }
+            {currentRequests.length <= 0 && <p>No Current Requests</p> }
             <br />
 
             <form onSubmit={handleOnSubmitProductRequest}>

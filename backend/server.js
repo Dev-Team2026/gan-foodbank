@@ -13,7 +13,7 @@ server.use(cors());
 
 
 const users = [{name: "maxwell", password:123, role: "staff"}]
-const requests = []
+let requests = []
 
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`);
@@ -40,23 +40,45 @@ server.post("/", (request, response) => {
         }
         const jwtToken = jwt.sign({role: user.role, name, }, "temp");
         return response.status(201).send({message: "User Authenticated", token: jwtToken});
-    }catch(err){
-        response.status(500).send({message: err.message})
+    }catch(error){
+        response.status(500).send({message: error.message})
     }
 });
 
 server.get("/requests", (request, response) => {
-    response.send({data: requests});
+    response.send(requests);
 })
 
 server.post("/requests", (request, response) => {
-    const {newRequest} = request.body
+    const {item,amount,recipient} = request.body
+    //console.log("test")
     try {
-        requests.push({...newRequest, requestId: requests.length})
+        requests.push({item: item, amount: amount, recipient: recipient, requestId: requests.length})
         return response.status(200).send({
-            message: `Contact is added successfully!`
+            message: `Request added successfully!`
         });
     } catch(error){
-        response.status(500).send({message: err.message})
+        response.status(500).send({message: error.message})
+    }
+})
+
+server.delete("/requests/:id", (request, response) => {
+    const {id} = request.params;
+    const newRequestsList = []
+    try {
+        for(let i = 0; i < requests.length; i++)
+        {
+            console.log(requests[i])
+            if (requests[i].requestId != id)
+            {
+                newRequestsList.push(requests[i])
+            }
+        }
+        requests = newRequestsList
+        response.status(200).send({
+            message: `Request completed!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
     }
 })
