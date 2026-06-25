@@ -1,5 +1,3 @@
-import fetch from 'fetch';
-import * as fs from 'fs';
 import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -29,8 +27,6 @@ fetch(props.uploadUrl, {
   body: fs.readFileSync('contract.pdf')
 })
 }
-
-
 
 const Camera = () => {
 const url = GetUploadUrl
