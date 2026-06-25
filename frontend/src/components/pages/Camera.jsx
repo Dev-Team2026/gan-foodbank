@@ -18,8 +18,8 @@ console.log('Got ', uploadUrl)
 return uploadUrl
 }
 
-const UploadFile = (props) => {
-fetch(props.uploadUrl, {
+const UploadFile = (uploadUrl) => {
+fetch(uploadUrl, {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/pdf'
@@ -30,7 +30,7 @@ fetch(props.uploadUrl, {
 
 const Camera = () => {
 const url = GetUploadUrl
-UploadFile(uploadUrl = url)    
+UploadFile(url)    
 const navigate =useNavigate();
     const [currentUser] = useState(()=>{
     const jwtToken = Cookies.get("jwt-authorization");
