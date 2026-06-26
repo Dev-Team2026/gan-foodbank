@@ -13,8 +13,8 @@ server.use(cors());
 
 
 const users = [{name: "maxwell", password:123, role: "staff"}]
-let requestFilters = {itemFilter: "", amountFilter: "", recipientFilter: "", activeFilters: false}
-let requests = []
+let requestFilters = {itemFilter: "", amountFilter: "", amountFilterType: "", recipientFilter: "", activeFilters: false}
+let requests = [{item: "Soup", amount: 4, recipient: "Max", requestId: 0}, {item: "Carrot", amount: 12, recipient: "Max", requestId: 1}, {item: "Beans", amount: 23, recipient: "Max", requestId: 2}]
 
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`);
@@ -47,14 +47,70 @@ server.post("/", (request, response) => {
 });
 
 server.get("/requests", (request, response) => {
-    response.send(requests);
+    try {
+        if (requestFilters.activeFilters){
+            const filteredRequests = []
+            //if (requestFilters.itemFilter != ""){
+            //    //
+            //} else {
+            //    if (requestFilters.amountFilter != "") {
+            //        //
+            //    } else {
+            //        
+            //    }
+            //}
+            requests.forEach((targetRequest) => {
+                let filterPass = true
+                if (requestFilters.itemFilter != targetRequest.item && requestFilters.itemFilter != "")
+                {
+                    filterPass = false
+                }
+                if (requestFilters.amountFilter != "")
+                {
+                    if (requestFilters.amountFilterType == "greater") {
+                        console.log(targetRequest )
+                        console.log( requestFilters)
+                        //console.log(targetRequest.amount > requestFilters.amountFilter)
+                        //console.log(12 > 6)
+                        if (targetRequest.amount <= requestFilters.amountFilter){
+                            filterPass = false
+                        }
+                    }
+                    else if (requestFilters.amountFilterType == "lesser") {
+                        console.log("test2")
+                        if (targetRequest.amount >= requestFilters.amountFilter ){
+                            filterPass = false
+                        }
+                    }
+                    else {
+                        console.log("test3")
+                        if (targetRequest.amount != requestFilters.amountFilter){
+                            filterPass = false
+                        }
+                    }
+                }
+                if (requestFilters.recipientFilter != targetRequest.recipient && requestFilters.recipientFilter != "")
+                {
+                    filterPass = false
+                }
+                if (filterPass){
+                    filteredRequests.push(targetRequest)
+                }
+            })
+            response.send(filteredRequests);
+        } else {
+            response.send(requests);
+        }
+    } catch (error) {
+        response.status(500).send({message: error.message})
+    }
 })
 
 server.post("/requests", (request, response) => {
     const {item,amount,recipient} = request.body
     //console.log("test")
     try {
-        requests.push({item: item, amount: amount, recipient: recipient, requestId: requests.length})
+        requests.push({item: item, amount: int(amount), recipient: recipient, requestId: requests.length})
         return response.status(200).send({
             message: `Request added successfully!`
         });
@@ -85,23 +141,26 @@ server.delete("/requests/:id", (request, response) => {
 })
 
 server.post("/filterRequests", (request, response) => {
-    const {itemFilter, amountFilter, recipientFilter} = request.body
+    const {itemFilter, amountFilter, amountFilterType, recipientFilter} = request.body
     try {
         if (itemFilter === "" && amountFilter === "" && recipientFilter=== ""){
             requestFilters.itemFilter = itemFilter
-            requestFilters.amountFilter = amountFilter
+            requestFilters.amountFilter = int(amountFilter)
+            requestFilters.amountFilterType = amountFilterType
             requestFilters.recipientFilter = recipientFilter
             requestFilters.activeFilters = false
         } else{
             requestFilters.itemFilter = itemFilter
             requestFilters.amountFilter = amountFilter
+            requestFilters.amountFilterType = amountFilterType
             requestFilters.recipientFilter = recipientFilter
             requestFilters.activeFilters = true
         }
+        //console.log(requestFilters)
         return response.status(200).send({
             message: `Filters added successfully!`
         });
-        console.log(requestFilters)
+        
     } catch(error){
         response.status(500).send({message: error.message})
     }

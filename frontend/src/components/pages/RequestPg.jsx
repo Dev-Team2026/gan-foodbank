@@ -23,7 +23,7 @@ const RequestPg = ({PageHeader, Link}) => {
     const [productRequest, setProductRequest] = useState({item: "", amount: "", recipient: ""})
     const [currentRequests, setCurrentRequests] = useState([])
     const [requestPostResponse, setRequestPostResponse] = useState("")
-    const [filters, setFilters] = useState({itemFilters: "", amountFilters: "", amountFilterType: "", recipientFilters: ""})
+    const [filters, setFilters] = useState({itemFilter: "", amountFilter: "", amountFilterType: "", recipientFilter: ""})
 
     useEffect(()=>{
       if (!currentUser)
@@ -115,27 +115,25 @@ const RequestPg = ({PageHeader, Link}) => {
                     onChange={handleOnChangeFilters}
                 />
                 <input 
-                    type="text"
+                    type="number"
                     id="amountFilter"
                     name="amountFilter"
                     placeholder="Amount filtered by"
                     value={filters.amountFilter}
                     onChange={handleOnChangeFilters}
                 />
+                <select name="amountFilterType" id="amountFilterType" onChange={handleOnChangeFilters}>
+                    <option value="">- - -</option>
+                    <option value="greater">Greater Then</option>
+                    <option value="equal">Equal To</option>
+                    <option value="lesser">Less Then</option>
+                </select>
                 <input 
                     type="text"
-                    id="amountFilterType"
-                    name="amountFilterType"
-                    placeholder="<, >, or ="
-                    value={filters.amountFilterType}
-                    onChange={handleOnChangeFilters}
-                />
-                <input 
-                    type="text"
-                    id="recipientFilters"
-                    name="recipientFilters"
+                    id="recipientFilter"
+                    name="recipientFilter"
                     placeholder="Recipient Name"
-                    value={filters.recipientFilters}
+                    value={filters.recipientFilter}
                     onChange={handleOnChangeFilters}
                 />
                 <button type="submit">Search</button>
@@ -155,7 +153,7 @@ const RequestPg = ({PageHeader, Link}) => {
                     onChange={handleOnChangeProductRequest}
                 />
                 <input 
-                    type="text"
+                    type="number"
                     id="amount"
                     name="amount"
                     placeholder="Amount"
