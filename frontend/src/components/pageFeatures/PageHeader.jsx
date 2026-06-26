@@ -10,6 +10,7 @@ const PageHeader = ({Link}) => {
                 <Link className='navLink' to="/inventory">Inventory</Link>
                 <Link className='navLink' to="/contacts">Contacts</Link>
                 <Link className='navLink' to="/camera">Camera</Link>
+                <Link className='navLink' to="/requests">Requests</Link>
               </nav>
             </header>
         </div>

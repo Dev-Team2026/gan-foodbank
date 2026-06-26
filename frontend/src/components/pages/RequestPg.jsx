@@ -2,7 +2,8 @@ import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { jwtDecode} from "jwt-decode";
-import RequestContainer from "../page_sections/RequestContainer";
+import axios from "axios";
+import RequestContainer from "../pageFeatures/RequestContainer";
 
 const RequestPg = ({PageHeader, Link}) => {
     const navigate = useNavigate();
@@ -19,45 +20,127 @@ const RequestPg = ({PageHeader, Link}) => {
           return "";
       }
     });
+    const [productRequest, setProductRequest] = useState({item: "", amount: "", recipient: ""})
+    const [currentRequests, setCurrentRequests] = useState([])
+    const [requestPostResponse, setRequestPostResponse] = useState("")
+    const [filters, setFilters] = useState({itemFilter: "", amountFilter: "", amountFilterType: "", recipientFilter: ""})
+
     useEffect(()=>{
       if (!currentUser)
       {
           navigate("/unauthorized");
       }
     })
-    const [productRequest, setProductRequest] = useState({item: "", amount: "", recipient: ""})
-    const [currentRequests, setCurrentRequests] = useState([])
-    //{requestId: "0", item: "Items", amount: "Amount", recipient: "Recipient", requestFulfilled: false}
+
+    const handleRequestsDB = async () => {
+        try {
+            await axios.get("http://localhost:3000/requests")
+            //.then((response) => {console.log(response.data)})
+            .then((response) => {
+                setCurrentRequests(() => response.data)
+            })
+        } catch(error) {
+            console.log(error.message)
+        }
+    }
+
+    useEffect(() => {
+        handleRequestsDB();
+    }, [requestPostResponse])
+
+    
 
     const handleOnChangeProductRequest = (e) => {
         setProductRequest({...productRequest, [e.target.name]: e.target.value})
     }
-    const handleOnSubmitProductRequest = (e) => {
+    const handleOnSubmitProductRequest = async (e) => {
         e.preventDefault();
-        const newRequestList = currentRequests
-        newRequestList.push({...productRequest, requestId: currentRequests.length})
-        setCurrentRequests(newRequestList)
-        setProductRequest({item: "", amount: "", recipient: ""})
+        //const newRequestList = currentRequests
+        //newRequestList.push({...productRequest, requestId: currentRequests.length})
+        //setCurrentRequests(newRequestList)
+        try {
+            await axios
+                .post("http://localhost:3000/requests", productRequest)
+                .then((response) => {
+                    //console.log("test2")
+                    setRequestPostResponse(response.data)
+                })
+                .then(() => setProductRequest({item: "", amount: "", recipient: ""}))
+        } catch (error) {
+            console.log(error.message)
+        }
+        
     }
-    const handleFulfillRequest = (requestId) => {
-        const newRequestList = []
-        currentRequests.map((request)=>(
-            request.requestId != requestId && newRequestList.push({...request, requestId: newRequestList.length})
-        ))
-        setCurrentRequests(newRequestList)
-        //let currentIterations = requestId;
-        //while(currentIterations < newRequestList.length){
-        //    newRequestList[currentIterations] = newRequestList[currentIterations+1]
-        //    currentIterations++
-        //}
+    const handleFulfillRequest = async (requestId) => {
+        try {
+            await axios
+                .delete(`http://localhost:3000/requests/${requestId}`)
+                .then((response) => {
+                    //console.log("test2")
+                    setRequestPostResponse(response.data)
+                })
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    const handleOnChangeFilters = (e) => {
+        setFilters({...filters, [e.target.name]: e.target.value})
+    }
+    const handleOnSubmitFilters = async (e) => {
+        e.preventDefault();
+        try {
+            await axios
+                .post("http://localhost:3000/filterRequests", filters)
+                .then((response) => {
+                    //console.log("test2")
+                    setRequestPostResponse(response.data)
+                })
+        } catch (error) {
+            console.log(error.message)
+        }
     }
     
     return (
         <div>
             <PageHeader Link={Link} />
+
+            <form onSubmit={handleOnSubmitFilters}>
+                <input 
+                    type="text"
+                    id="itemFilter"
+                    name="itemFilter"
+                    placeholder="Product Name"
+                    value={filters.itemFilter}
+                    onChange={handleOnChangeFilters}
+                />
+                <input 
+                    type="number"
+                    id="amountFilter"
+                    name="amountFilter"
+                    placeholder="Amount filtered by"
+                    value={filters.amountFilter}
+                    onChange={handleOnChangeFilters}
+                />
+                <select name="amountFilterType" id="amountFilterType" onChange={handleOnChangeFilters}>
+                    <option value="">- - -</option>
+                    <option value="greater">Greater Then</option>
+                    <option value="equal">Equal To</option>
+                    <option value="lesser">Less Then</option>
+                </select>
+                <input 
+                    type="text"
+                    id="recipientFilter"
+                    name="recipientFilter"
+                    placeholder="Recipient Name"
+                    value={filters.recipientFilter}
+                    onChange={handleOnChangeFilters}
+                />
+                <button type="submit">Search</button>
+            </form>
             <h1>Current Request</h1>
-            {currentRequests.length > 1 && <RequestContainer requests={currentRequests} handleFulfillRequest={handleFulfillRequest} /> }
-            {currentRequests.length <= 1 && <p>No Current Requests</p> }
+            {currentRequests.length > 0 && <RequestContainer requests={currentRequests} handleFulfillRequest={handleFulfillRequest} /> }
+            {currentRequests.length <= 0 && <p>No Current Requests</p> }
             <br />
 
             <form onSubmit={handleOnSubmitProductRequest}>
@@ -70,7 +153,7 @@ const RequestPg = ({PageHeader, Link}) => {
                     onChange={handleOnChangeProductRequest}
                 />
                 <input 
-                    type="text"
+                    type="number"
                     id="amount"
                     name="amount"
                     placeholder="Amount"

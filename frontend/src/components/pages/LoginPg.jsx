@@ -31,7 +31,7 @@ const LoginPg = () => {
             setLoginResponse(response.data.message);
             if (response.status === 201)
             {
-                navigate("/unauthorized");
+                navigate("/");
                 Cookies.set("jwt-authorization", response.data.token);
             }
         } catch (err) {
