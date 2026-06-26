@@ -6,11 +6,24 @@ const port = 3000;
 const cors = require("cors"); //For disabling default browser security
 const jwt = require("jsonwebtoken")
 
+const db = require('better-sqlite3')('test.db')
+db.pragma('journal_mode = WAL')
+
 //Middleware
 server.use(express.json()); //to ensure data is trasmitted as json
 server.use(express.urlencoded({ extended: true })); //to ensure data is encoded and decoded while transmission
 server.use(cors());
 
+//get all from users table
+const getUsers = () =>{
+    const stmt = db.prepare('SELECT * FROM users')
+    const users = stmt.all()
+    return (users)
+}
+
+//store user list
+const users = getUsers()
+//const users = [{name: "maxwell", password:123, role: "staff"}]
 
 const users = [{name: "maxwell", password:123, role: "staff"}]
 let requestFilters = {itemFilter: "", amountFilter: "", amountFilterType: "", recipientFilter: "", activeFilters: false}
@@ -22,6 +35,7 @@ server.listen(port, () => {
     });
 
 server.get("/", (request, response) => {
+    console.log("main endpoint")
     response.send("Server is Live!");
 });
 
@@ -165,3 +179,8 @@ server.post("/filterRequests", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+//endpoint for showing all users
+server.get("/users", (request, response) => {
+    response.send(getUsers())
+});
+
