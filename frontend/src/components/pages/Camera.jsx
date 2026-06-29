@@ -1,41 +1,32 @@
-import Cookies from "js-cookie";
-import {useNavigate} from "react-router-dom";
-import { useState, useEffect } from "react";
-import { jwtDecode} from "jwt-decode";
+import Tesseract from 'tesseract.js';
+import {useState} from "react";
+
 
 const Camera = () => {
-    const navigate =useNavigate();
-    const [currentUser] = useState(()=>{
-    const jwtToken = Cookies.get("jwt-authorization");
-    if (!jwtToken)
-    {
-        return "";
-    }
-    try{
-        const decodedToken = jwtDecode(jwtToken);
-        return decodedToken.name;
-    }catch{
-        return "";
-    }
-  });
-  useEffect(()=>{
-    if (!currentUser)
-    {
-        navigate("/unauthorized");
-    }
-  })
+    const [text, setText] = useState(null);
 
-return (
-    <>
-    <form>
-        <label>Press to activate camera.</label>
- <input type="file" accept="image/*" 
-        capture="camera" required 
-        id="docImg">
- </input>
- </form>
-    </>
-)
+    const processImg = async (e) => {
+        e.preventDefault();
+        const image = e.target.files[0];
+        if (!image) {
+            return;
+        }
+
+        const { data: { text } } = await Tesseract.recognize(image, 'eng');
+        setText(text);
+
+    }
+
+    return (
+        <div>
+            <form>
+                <label>Press to activate camera.</label>
+                <input type="file" accept="image/*" capture="camera" required id="docImg" onChange={processImg}/>
+                <p>{ text }</p>
+                <button onClick={processImg} type="button">Process Image</button>
+            </form>
+        </div>
+    )
 }
 
 export default Camera
