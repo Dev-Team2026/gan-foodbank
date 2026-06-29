@@ -18,6 +18,7 @@ server.use(cors());
 const getUsers = () =>{
     const stmt = db.prepare('SELECT * FROM users')
     const users = stmt.all()
+    console.log(users)
     return (users)
 }
 
@@ -25,9 +26,22 @@ const getUsers = () =>{
 const users = getUsers()
 //const users = [{name: "maxwell", password:123, role: "staff"}]
 
-const users = [{name: "maxwell", password:123, role: "staff"}]
+const getRequests = () =>{
+    const stmt = db.prepare('SELECT * FROM requests')
+    const requests = stmt.all()
+    return (requests)
+}
+
+let requests = getRequests()
 let requestFilters = {itemFilter: "", amountFilter: "", amountFilterType: "", recipientFilter: "", activeFilters: false}
-let requests = [{item: "Soup", amount: 4, recipient: "Max", requestId: 0}, {item: "Carrot", amount: 12, recipient: "Max", requestId: 1}, {item: "Beans", amount: 23, recipient: "Max", requestId: 2}]
+//let requests = [{item: "Soup", amount: 4, recipient: "Max", requestId: 0}, {item: "Carrot", amount: 12, recipient: "Max", requestId: 1}, {item: "Beans", amount: 23, recipient: "Max", requestId: 2}]
+
+const addRequest = (requestId, item, amount, recipient) => {
+    const stmt = db.prepare('INSERT INTO requests (requestId, item, amount, recipient) VALUES (@requestId, @item, @amount, @recipient)')
+    stmt.run({requestId: requestId, item: item, amount: amount, recipient: recipient})
+    console.log(getRequests())
+    return (getRequests())
+}
 
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`);
@@ -122,9 +136,8 @@ server.get("/requests", (request, response) => {
 
 server.post("/requests", (request, response) => {
     const {item,amount,recipient} = request.body
-    //console.log("test")
     try {
-        requests.push({item: item, amount: int(amount), recipient: recipient, requestId: requests.length})
+        requests = addRequest(requests.length, item, parseInt(amount), recipient)
         return response.status(200).send({
             message: `Request added successfully!`
         });
