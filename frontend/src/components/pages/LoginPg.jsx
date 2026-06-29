@@ -20,24 +20,7 @@ const LoginPg = () => {
 
     const handleOnSubmitLogin = (e) => {
         e.preventDefault()
-        //console.log(users)
         handleLogin()
-        //users.map((user) => {
-        //    if(loginData.name === user.name)
-        //    {
-        //        //console.log(loginData.password + " " + user.password)
-        //        if(loginData.password == user.password)
-        //        {
-        //            setLoginResponse("welcome in")
-        //            navigate("/home")
-        //            Cookies.set("jwt-authorization", jwtEncode({name: user.name, password: user.password}, "test"))
-        //        }else {
-        //            setLoginResponse("Invalid Password!")
-        //        }
-        //    } else {
-        //        setLoginResponse("Invalid Username")
-        //    }
-        //})
         setLoginData({name: "",password: ""})
     }
 
@@ -48,7 +31,7 @@ const LoginPg = () => {
             setLoginResponse(response.data.message);
             if (response.status === 201)
             {
-                navigate("/home");
+                navigate("/");
                 Cookies.set("jwt-authorization", response.data.token);
             }
         } catch (err) {

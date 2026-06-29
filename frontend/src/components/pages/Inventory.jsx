@@ -1,7 +1,6 @@
 import React from "react";
 
-const Inventory = ({PageHeader, Link}) => {
-
+const Inventory = ({PageHeader, Link, AuthenticationChecker}) => {
     const exportTable = () => {
       const table = document.getElementById('stockTable');
       if (!table) {
@@ -28,6 +27,7 @@ const Inventory = ({PageHeader, Link}) => {
   return (
     <div className="container">
       <PageHeader Link={Link} />
+      <AuthenticationChecker />
       <title>Inventory</title>
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>

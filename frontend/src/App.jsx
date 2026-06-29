@@ -1,5 +1,4 @@
 import { BrowserRouter, Link, Routes, Route } from 'react-router-dom'
-import Cookies from "js-cookie";
 
 import Home from './components/pages/Home'
 import Inventory from './components/pages/Inventory'
@@ -8,6 +7,7 @@ import PageHeader from './components/pageFeatures/PageHeader'
 import Camera from './components/pages/Camera'
 import UnauthorizedPg from './components/pages/UnauthorizedPg'
 import LoginPg from './components/pages/LoginPg'
+import AuthenticationChecker from './components/pageFeatures/authenticationChecker'
 
 import './styles/App.css'
 
@@ -20,9 +20,9 @@ const App = () => {
 
       {/* "path" sets the url route goes to and "element" sets which component is rendered on the new page */}
       <Routes>
-        <Route path="/" element={<Home PageHeader={PageHeader} Link={Link} />} />
-        <Route path="/inventory" element={<Inventory PageHeader={PageHeader} Link={Link} />} />
-        <Route path="/contacts" element={<Contacts PageHeader={PageHeader} Link={Link} />} />
+        <Route path="/" element={<Home PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} />} />
+        <Route path="/inventory" element={<Inventory PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker}/>} />
+        <Route path="/contacts" element={<Contacts PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker}/>} />
         <Route path="/camera" element={<Camera />} />
         <Route path="/login" element={<LoginPg />} />
         <Route path="/unauthorized" element={<UnauthorizedPg/>} />
