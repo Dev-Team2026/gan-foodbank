@@ -1,8 +1,16 @@
-const PageHeader = ({Link}) => {
+import Cookies from "js-cookie";
+
+const PageHeader = ({Link, username}) => {
+  const handleLogout = (e)=>{
+    e.preventDefault()
+    Cookies.remove("jwt-authorization")
+  }
   return (
     <div>
       <header>
         <h1>Gananoque Food Bank App</h1>
+        <p>Hello {username}</p>
+        <button onClick={handleLogout}><Link to="/login">Logout</Link></button>
         {/* Use the "to" parameter to set which route a link will use */}
         <nav className='navBar'>
           <Link className='navLink' to="/">Home</Link>

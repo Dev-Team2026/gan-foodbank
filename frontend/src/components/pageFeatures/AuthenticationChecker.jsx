@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { jwtDecode} from "jwt-decode";
 
-const AuthenticationChecker = () => {
+const AuthenticationChecker = ({updateUser}) => {
   const navigate =useNavigate();
   const [currentUser] = useState(()=>{
     const jwtToken = Cookies.get("jwt-authorization");
@@ -13,7 +13,7 @@ const AuthenticationChecker = () => {
     }
     try{
         const decodedToken = jwtDecode(jwtToken);
-        return decodedToken.name;
+        return [decodedToken.name, decodedToken.role];
     }catch{
         return "";
     }
@@ -22,6 +22,8 @@ const AuthenticationChecker = () => {
     if (!currentUser)
     {
         navigate("/unauthorized");
+    } else {
+      updateUser(currentUser)
     }
   })
   return(
