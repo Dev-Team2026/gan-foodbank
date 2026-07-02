@@ -42,6 +42,11 @@ const addRequest = (requestId, item, amount, recipient) => {
     console.log(getRequests())
     return (getRequests())
 }
+const deleteRequest = (requestId) => {
+    const stmt = db.prepare('DELETE FROM requests WHERE requestId=@requestId')
+    stmt.run({requestId: requestId})
+    return (getRequests())
+}
 
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`);
@@ -89,7 +94,7 @@ server.get("/requests", (request, response) => {
             //}
             requests.forEach((targetRequest) => {
                 let filterPass = true
-                if (requestFilters.itemFilter != targetRequest.item && requestFilters.itemFilter != "")
+                if (requestFilters.itemFilter.toLowerCase() != targetRequest.item.toLowerCase() && requestFilters.itemFilter != "")
                 {
                     filterPass = false
                 }
@@ -117,7 +122,7 @@ server.get("/requests", (request, response) => {
                         }
                     }
                 }
-                if (requestFilters.recipientFilter != targetRequest.recipient && requestFilters.recipientFilter != "")
+                if (requestFilters.recipientFilter.toLowerCase() != targetRequest.recipient.toLowerCase() && requestFilters.recipientFilter != "")
                 {
                     filterPass = false
                 }
@@ -137,7 +142,7 @@ server.get("/requests", (request, response) => {
 server.post("/requests", (request, response) => {
     const {item,amount,recipient} = request.body
     try {
-        requests = addRequest(requests.length, item, parseInt(amount), recipient)
+        requests = addRequest(requests[requests.length-1].requestId+1, item, parseInt(amount), recipient)
         return response.status(200).send({
             message: `Request added successfully!`
         });
@@ -148,17 +153,9 @@ server.post("/requests", (request, response) => {
 
 server.delete("/requests/:id", (request, response) => {
     const {id} = request.params;
-    const newRequestsList = []
+    //const newRequestsList = []
     try {
-        for(let i = 0; i < requests.length; i++)
-        {
-            console.log(requests[i])
-            if (requests[i].requestId != id)
-            {
-                newRequestsList.push(requests[i])
-            }
-        }
-        requests = newRequestsList
+        requests = deleteRequest(id)
         response.status(200).send({
             message: `Request completed!`
         });
@@ -169,21 +166,24 @@ server.delete("/requests/:id", (request, response) => {
 
 server.post("/filterRequests", (request, response) => {
     const {itemFilter, amountFilter, amountFilterType, recipientFilter} = request.body
+    console.log(itemFilter, amountFilter, amountFilterType, recipientFilter)
     try {
         if (itemFilter === "" && amountFilter === "" && recipientFilter=== ""){
+            console.log("test1")
+            requestFilters.itemFilter = ""
+            requestFilters.amountFilter = ""
+            requestFilters.amountFilterType = ""
+            requestFilters.recipientFilter = ""
+            requestFilters.activeFilters = false
+        } else{
+            console.log("test2")
             requestFilters.itemFilter = itemFilter
             requestFilters.amountFilter = int(amountFilter)
             requestFilters.amountFilterType = amountFilterType
             requestFilters.recipientFilter = recipientFilter
-            requestFilters.activeFilters = false
-        } else{
-            requestFilters.itemFilter = itemFilter
-            requestFilters.amountFilter = amountFilter
-            requestFilters.amountFilterType = amountFilterType
-            requestFilters.recipientFilter = recipientFilter
             requestFilters.activeFilters = true
         }
-        //console.log(requestFilters)
+        console.log(requestFilters)
         return response.status(200).send({
             message: `Filters added successfully!`
         });
