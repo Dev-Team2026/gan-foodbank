@@ -1,7 +1,4 @@
-
-
 const Contacts = ({PageHeader, Link, AuthenticationChecker}) => {
-  
   return (
     <div className="container">
       <PageHeader Link={Link} />
