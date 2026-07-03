@@ -26,6 +26,13 @@ const getUsers = () =>{
 //store user list
 const users = getUsers()
 
+const addUser = (id, name, role, password) => {
+    const stmt = db.prepare('INSERT INTO users (id, name, role, password) VALUES (@id, @name, @role, @password)')
+    stmt.run({id: id, name: name, role: role, password: password})
+    console.log(getUsers())
+    return (getUsers())
+}
+
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`)
       console.log(new Date(Date.now()))
@@ -60,5 +67,17 @@ server.post("/", (request, response) => {
 //endpoint for showing all users
 server.get("/users", (request, response) => {
     response.send(getUsers())
+})
+
+server.post("/users", (request, response) => {
+    const {name, role, password} = request.body
+    try {
+        requests = addUser(users[users.length-1].id+1, name, role, password)
+        return response.status(200).send({
+            message: `user added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
 })
 
