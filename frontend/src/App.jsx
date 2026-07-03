@@ -22,8 +22,8 @@ const App = () => {
       {/* "path" sets the url route goes to and "element" sets which component is rendered on the new page */}
       <Routes>
         <Route path="/" element={<Home PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
-        <Route path="/contacts" element={<Contacts PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker}/>} />
-        <Route path="/camera" element={<Camera />} />
+        <Route path="/contacts" element={<Contacts PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
+        <Route path="/camera" element={<Camera PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
         <Route path="/login" element={<LoginPg />} />
         <Route path="/unauthorized" element={<UnauthorizedPg/>} />
       </Routes>

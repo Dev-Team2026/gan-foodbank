@@ -2,7 +2,7 @@ import Tesseract from 'tesseract.js';
 import {useState} from "react";
 
 
-const Camera = () => {
+const Camera = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   const [text, setText] = useState(null);
   const processImg = async (e) => {
   e.preventDefault();
@@ -15,6 +15,8 @@ const Camera = () => {
   }
   return (
     <div>
+      <PageHeader Link={Link} username={currentUser[0]} />
+      <AuthenticationChecker updateUser={updateUser} />
       <form>
         <label>Press to activate camera.</label>
         <input type="file" accept="image/*" capture="camera" required id="docImg" onChange={processImg}/>
