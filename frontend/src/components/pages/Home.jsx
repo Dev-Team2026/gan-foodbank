@@ -1,11 +1,11 @@
 import logo from '../../assets/GananoqueFoodBank.png'
 
-const Home = ({PageHeader, Link, AuthenticationChecker}) => {
+const Home = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   
   return(
     <div className="container">
-      <PageHeader Link={Link} />
-      <AuthenticationChecker />
+      <PageHeader Link={Link} username={currentUser[0]} />
+      <AuthenticationChecker updateUser={updateUser} />
       <title>Home</title>
       
       <h1>Home Page</h1>
