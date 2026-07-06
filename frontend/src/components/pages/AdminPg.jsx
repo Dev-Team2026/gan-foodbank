@@ -4,11 +4,12 @@ import axios from "axios";
 
 import UserContainer from "../pageFeatures/UserContainer";
 import AddUserForm from "../pageFeatures/AddUserForm";
+import EditUserForm from "../pageFeatures/EditUserForm";
 
 const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   const navigate = useNavigate()
   const [users, setUsers] = useState([])
-  const [userForm, setUserForm] = useState({})
+  const [userForm, setUserForm] = useState({name: "", password: "", role: ""})
   const [userPostResponse, setUserPostResponse] = useState("")
   const [currentAction, setCurrentAction] = useState("")
   useEffect(()=>{
@@ -34,9 +35,9 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
     handleUserDB()
   }, [userPostResponse])
 
-  const setAction = (action) => {
-    setCurrentAction(action)
-  }
+  //const setAction = (action) => {
+  //  setCurrentAction(action)
+  //}
   const handleOnChangeUser = (e) => {
     setUserForm({...userForm, [e.target.name]: e.target.value})
   }
@@ -48,10 +49,31 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
         .then((response) => {
           setUserPostResponse(response.data)
         })
-      setUserForm({})
+      setUserForm({name: "", password: "", role: ""})
+      setCurrentAction("")
     } catch (error) {
       console.log(error.message)
     }
+  }
+
+  const handleOnSubmitEditedUser = async (e) => {
+    e.preventDefault();
+    try {
+      await axios
+        .patch("http://localhost:3000/users", userForm)
+        .then((response) => {
+          setUserPostResponse(response.data)
+        })
+      setUserForm({name: "", password: "", role: ""})
+      setCurrentAction("")
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  const prepUserEdit = (id) => {
+    setCurrentAction("edit")
+    setUserForm({id: id, name: users[id-1].name, password: users[id-1].password, role: users[id-1].role})
   }
 
   return(
@@ -61,11 +83,12 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
       <title>Admin</title>
       
       <h1>Welcome Back</h1>
-      <button onClick={()=>setAction("add")} >Add User</button>
+      <button onClick={()=>setCurrentAction("add")} >Add User</button>
       {currentAction === "add" && <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser} newUser={userForm} /> }
+      {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitEditedUser={handleOnSubmitEditedUser} user={userForm} /> }
       
       <h2>Registered Users</h2>
-      <UserContainer users={users} />
+      <UserContainer users={users} prepUserEdit={prepUserEdit} />
     </div>
   )
 }

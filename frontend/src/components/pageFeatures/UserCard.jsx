@@ -1,7 +1,7 @@
-const UserCard = ({name, role}) => {
+const UserCard = ({id, name, role, prepUserEdit}) => {
     return (
         <div>
-            <p>{name} | {role}</p>
+            <p>{name} | {role}  <button onClick={()=>prepUserEdit(id)} >edit</button></p>
         </div>
     )
 }

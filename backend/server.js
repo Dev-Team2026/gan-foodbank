@@ -24,10 +24,17 @@ const getUsers = () =>{
 }
 
 //store user list
-const users = getUsers()
+let users = getUsers()
 
 const addUser = (id, name, role, password) => {
     const stmt = db.prepare('INSERT INTO users (id, name, role, password) VALUES (@id, @name, @role, @password)')
+    stmt.run({id: id, name: name, role: role, password: password})
+    console.log(getUsers())
+    return (getUsers())
+}
+
+const editUser = (id, name, role, password) => {
+    const stmt = db.prepare('UPDATE users SET name = @name, role = @role, password = @password WHERE id = @id')
     stmt.run({id: id, name: name, role: role, password: password})
     console.log(getUsers())
     return (getUsers())
@@ -72,9 +79,21 @@ server.get("/users", (request, response) => {
 server.post("/users", (request, response) => {
     const {name, role, password} = request.body
     try {
-        requests = addUser(users[users.length-1].id+1, name, role, password)
+        users = addUser(users[users.length-1].id+1, name, role, password)
         return response.status(200).send({
             message: `user added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+server.patch("/users", (request, response) => {
+    const {id, name, role, password} = request.body
+    try {
+        users = editUser(id, name, role, password)
+        return response.status(200).send({
+            message: `user updated successfully!`
         });
     } catch(error){
         response.status(500).send({message: error.message})
