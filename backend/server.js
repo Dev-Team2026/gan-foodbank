@@ -16,19 +16,29 @@ server.use(express.json()) //to ensure data is trasmitted as json
 server.use(express.urlencoded({ extended: true })) //to ensure data is encoded and decoded while transmission
 server.use(cors())
 
+const indexDbResults = (dbTable) => {
+    let i = 0
+    dbTable.forEach((option)=>{
+        option.index = i
+        i++
+    })
+    console.log(dbTable)
+    return(dbTable)
+}
 //get all users from db
 const getUsers = () =>{
     const stmt = db.prepare('SELECT * FROM users')
     const users = stmt.all()
-    return (users)
+    return (indexDbResults(users))
 }
 
 //store user list
 let users = getUsers()
 
-const addUser = (id, name, role, password) => {
-    const stmt = db.prepare('INSERT INTO users (id, name, role, password) VALUES (@id, @name, @role, @password)')
-    stmt.run({id: id, name: name, role: role, password: password})
+
+const addUser = (name, role, password) => {
+    const stmt = db.prepare('INSERT INTO users (name, role, password) VALUES (@name, @role, @password)')
+    stmt.run({name: name, role: role, password: password})
     console.log(getUsers())
     return (getUsers())
 }
@@ -36,6 +46,13 @@ const addUser = (id, name, role, password) => {
 const editUser = (id, name, role, password) => {
     const stmt = db.prepare('UPDATE users SET name = @name, role = @role, password = @password WHERE id = @id')
     stmt.run({id: id, name: name, role: role, password: password})
+    console.log(getUsers())
+    return (getUsers())
+}
+
+const deleteUser = (id) => {
+    const stmt = db.prepare('DELETE FROM users WHERE id = @id')
+    stmt.run({id: id})
     console.log(getUsers())
     return (getUsers())
 }
@@ -79,7 +96,7 @@ server.get("/users", (request, response) => {
 server.post("/users", (request, response) => {
     const {name, role, password} = request.body
     try {
-        users = addUser(users[users.length-1].id+1, name, role, password)
+        users = addUser(name, role, password)
         return response.status(200).send({
             message: `user added successfully!`
         });
@@ -99,4 +116,16 @@ server.patch("/users", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+
+server.delete("/users/:id", (request, response) => {
+  const { id } = request.params;
+  try {
+        users = deleteUser(id);
+        return response.status(200).send({
+            message: `user deleted successfully!`
+        });
+  } catch (error) {
+    response.status(400).send({ message: error.message });
+  }
+});
 

@@ -71,9 +71,29 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
     }
   }
 
-  const prepUserEdit = (id) => {
+  const handleOnDeleteUser = async (e) => {
+    e.preventDefault();
+    try {
+      await axios
+        .delete(`http://localhost:3000/users/${userForm.id}`, userForm)
+        .then((response) => {
+          setUserPostResponse(response.data)
+        })
+      setUserForm({name: "", password: "", role: ""})
+      setCurrentAction("")
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  const prepUserEdit = (index) => {
     setCurrentAction("edit")
-    setUserForm({id: id, name: users[id-1].name, password: users[id-1].password, role: users[id-1].role})
+    setUserForm({id: users[index].id, name: users[index].name, password: users[index].password, role: users[index].role})
+  } 
+
+  const prepUserDelete = (index) => {
+    setCurrentAction("delete")
+    setUserForm({id: users[index].id, name: users[index].name, password: users[index].password, role: users[index].role})
   }
 
   return(
@@ -86,9 +106,10 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
       <button onClick={()=>setCurrentAction("add")} >Add User</button>
       {currentAction === "add" && <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser} newUser={userForm} /> }
       {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitEditedUser={handleOnSubmitEditedUser} user={userForm} /> }
-      
+      {currentAction === "delete" && 
+        <p>Are you sure you want to delete this user<button onClick={handleOnDeleteUser} >Yes</button></p> }
       <h2>Registered Users</h2>
-      <UserContainer users={users} prepUserEdit={prepUserEdit} />
+      <UserContainer users={users} prepUserEdit={prepUserEdit} prepUserDelete={prepUserDelete} />
     </div>
   )
 }
