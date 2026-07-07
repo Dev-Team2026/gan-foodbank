@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import Database from 'better-sqlite3'
+import bcrypt from 'bcrypt'
 
 //Express
 const server = express()
@@ -67,16 +68,17 @@ server.get("/", (request, response) => {
     response.send("Server is Live!")
 });
 
-server.post("/", (request, response) => {
+server.post("/", async (request, response) => {
     const {name, password} = request.body
     try{
         //const user = await User.findOne({name});
-        const user = users.find(user => user.name === name);
+        const user = users.find(user => user.name.toLowerCase() === name.toLowerCase());
+        //console.log(user)
         if (!user){
             return response.status(404).send({message: "User does not exist"})
         }
-        //const match = await bcrypt.compare(password, user.password);
-        const match = user.password == password
+        const match = await bcrypt.compare(password, user.password);
+        //console.log(match)
         if (!match)
         {
             return response.status(403).send({message: "Incorrect credentials"})
@@ -93,10 +95,11 @@ server.get("/users", (request, response) => {
     response.send(getUsers())
 })
 
-server.post("/users", (request, response) => {
+server.post("/users", async (request, response) => {
     const {name, role, password} = request.body
     try {
-        users = addUser(name, role, password)
+        const hashedPassword = await bcrypt.hash(password, 10)
+        users = addUser(name, role, hashedPassword)
         return response.status(200).send({
             message: `user added successfully!`
         });
@@ -105,10 +108,11 @@ server.post("/users", (request, response) => {
     }
 })
 
-server.patch("/users", (request, response) => {
+server.patch("/users", async (request, response) => {
     const {id, name, role, password} = request.body
     try {
-        users = editUser(id, name, role, password)
+        const hashedPassword = await bcrypt.hash(password, 10)
+        users = editUser(id, name, role, hashedPassword)
         return response.status(200).send({
             message: `user updated successfully!`
         });
