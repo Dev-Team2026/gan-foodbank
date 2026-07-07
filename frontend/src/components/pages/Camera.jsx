@@ -15,7 +15,7 @@ const Camera = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUse
   }
   return (
     <div>
-      <PageHeader Link={Link} username={currentUser[0]} />
+      <PageHeader Link={Link} user={currentUser} />
       <AuthenticationChecker updateUser={updateUser} />
       <form>
         <label>Press to activate camera.</label>

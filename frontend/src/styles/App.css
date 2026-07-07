@@ -54,7 +54,7 @@ td {
   text-align: right !important;
   background-color: var(--COLOR);
   padding-right: 1em;
-  position: absolute;
+  position: sticky;
   bottom:0;
   left:0;
   right: 0;

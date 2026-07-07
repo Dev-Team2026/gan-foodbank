@@ -1,7 +1,7 @@
 const Contacts = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   return (
     <div className="container">
-      <PageHeader Link={Link} username={currentUser[0]} />
+      <PageHeader Link={Link} user={currentUser} />
       <AuthenticationChecker updateUser={updateUser} />
       <title>Contacts</title>
       <h1>Contacts page</h1>
