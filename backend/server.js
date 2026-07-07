@@ -9,7 +9,7 @@ const server = express()
 const port = 3000
 
 //Database
-const db = new Database('test.db')
+const db = new Database('invtest.db')
 db.pragma('journal_mode = WAL')
 
 //Middleware
@@ -23,7 +23,7 @@ const indexDbResults = (dbTable) => {
         option.index = i
         i++
     })
-    console.log(dbTable)
+    //console.log(dbTable)
     return(dbTable)
 }
 //get all users from db
@@ -33,8 +33,15 @@ const getUsers = () =>{
     return (indexDbResults(users))
 }
 
+const getInventory = () =>{
+    const stmt = db.prepare('SELECT * FROM inventory')
+    const inventory = stmt.all()
+    return (indexDbResults(inventory))
+}
+
 //store user list
 let users = getUsers()
+let inventory = getInventory()
 
 
 const addUser = (name, role, password) => {
@@ -133,3 +140,6 @@ server.delete("/users/:id", (request, response) => {
   }
 });
 
+server.get("/inventory", (request, response) => {
+    response.send(getInventory())
+})

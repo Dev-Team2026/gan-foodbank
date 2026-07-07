@@ -16,6 +16,7 @@ const PageHeader = ({Link, user}) => {
           <Link className='navLink' to="/">Home</Link>
           <Link className='navLink' to="/contacts">Contacts</Link>
           <Link className='navLink' to="/camera">Camera</Link>
+          <Link className='navLink' to="/inventory">Inventory</Link>
           {user[1] === "admin" && <Link className='navLink' to="/admin">Admin Dashboard</Link>}
         </nav>
       </header>
