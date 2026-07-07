@@ -28,8 +28,14 @@ const indexDbResults = (dbTable) => {
         option.index = i
         i++
     })
-    console.log(dbTable)
+    //console.log(dbTable)
     return(dbTable)
+}
+
+const getInventory = () =>{
+    const stmt = db.prepare('SELECT * FROM inventory')
+    const inventory = stmt.all()
+    return (indexDbResults(inventory))
 }
 
 //store user list
@@ -121,3 +127,6 @@ server.delete("/users/:id", (request, response) => {
   }
 });
 
+server.get("/inventory", (request, response) => {
+    response.send(getInventory())
+})
