@@ -1,10 +1,10 @@
 import UserCard from "./UserCard"
 
-const UserContainer = ({users, prepUserEdit, prepUserDelete}) => {
+const UserContainer = ({users, prepAction}) => {
     return (
         <div>
             {users.map((user)=>(
-                <UserCard key={user.id} {...user} prepUserEdit={prepUserEdit} prepUserDelete={prepUserDelete} />
+                <UserCard key={user.id} {...user} prepAction={prepAction} />
             ))}
         </div>
     )
