@@ -38,6 +38,12 @@ const getInventory = () =>{
     return (indexDbResults(inventory))
 }
 
+const getInventory = () =>{
+    const stmt = db.prepare('SELECT * FROM inventory')
+    const inventory = stmt.all()
+    return (indexDbResults(inventory))
+}
+
 //store user list
 let users = indexDbResults(db.getAllUsers())
 
