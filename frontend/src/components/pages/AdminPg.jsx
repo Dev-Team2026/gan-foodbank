@@ -88,7 +88,7 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
 
   const prepAction = (index, actionType) => {
     setCurrentAction(actionType)
-    setUserForm({id: users[index].id, name: users[index].name, password: users[index].password, role: users[index].role})
+    setUserForm({id: users[index].user_id, name: users[index].first_name, password: users[index].password, role: users[index].role})
   }
 
   return(
