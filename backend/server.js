@@ -3,19 +3,24 @@ import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import Database from 'better-sqlite3'
 import bcrypt from 'bcrypt'
+import * as db from './dbFunctions.js'
 
 //Express
 const server = express()
 const port = 3000
 
-//Database
-const db = new Database('test.db')
-db.pragma('journal_mode = WAL')
-
 //Middleware
 server.use(express.json()) //to ensure data is trasmitted as json
 server.use(express.urlencoded({ extended: true })) //to ensure data is encoded and decoded while transmission
 server.use(cors())
+
+//close db connection on shutdown
+process.on('exit', () => {return db.close()})
+//catches "interrupt signal" (ctrl + C)
+process.on('SIGINT', () => {
+    db.close()
+    process.exit()
+})
 
 const indexDbResults = (dbTable) => {
     let i = 0
@@ -26,38 +31,18 @@ const indexDbResults = (dbTable) => {
     console.log(dbTable)
     return(dbTable)
 }
-//get all users from db
-const getUsers = () =>{
-    const stmt = db.prepare('SELECT * FROM users')
-    const users = stmt.all()
-    return (indexDbResults(users))
-}
 
 //store user list
-let users = getUsers()
+let users = indexDbResults(db.getAllUsers())
 
-
-const addUser = (name, role, password) => {
-    const stmt = db.prepare('INSERT INTO users (name, role, password) VALUES (@name, @role, @password)')
-    stmt.run({name: name, role: role, password: password})
-    console.log(getUsers())
-    return (getUsers())
+//updates stored user list after db update
+const refreshUserList= () => {
+    users =  indexDbResults(db.getAllUsers())
 }
 
-const editUser = (id, name, role, password) => {
-    const stmt = db.prepare('UPDATE users SET name = @name, role = @role, password = @password WHERE id = @id')
-    stmt.run({id: id, name: name, role: role, password: password})
-    console.log(getUsers())
-    return (getUsers())
-}
-
-const deleteUser = (id) => {
-    const stmt = db.prepare('DELETE FROM users WHERE id = @id')
-    stmt.run({id: id})
-    console.log(getUsers())
-    return (getUsers())
-}
-
+//
+// Endpoints
+//
 server.listen(port, () => {
       console.log(`Database is connected\nServer is listening on ${port}`)
       console.log(new Date(Date.now()))
@@ -92,14 +77,15 @@ server.post("/", async (request, response) => {
 
 //endpoint for showing all users
 server.get("/users", (request, response) => {
-    response.send(getUsers())
+    response.send(db.getAllUsers())
 })
 
 server.post("/users", async (request, response) => {
     const {name, role, password} = request.body
     try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        users = addUser(name, role, hashedPassword)
+        users = db.addUser(name, "Lnameplaceholder", role, hashedPassword) //update place holder last name!
+        refreshUserList()
         return response.status(200).send({
             message: `user added successfully!`
         });
@@ -112,7 +98,8 @@ server.patch("/users", async (request, response) => {
     const {id, name, role, password} = request.body
     try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        users = editUser(id, name, role, hashedPassword)
+        users = db.updateUser(id, name, "Lnameplaceholder", role, hashedPassword) //update place holder last name!
+        refreshUserList()
         return response.status(200).send({
             message: `user updated successfully!`
         });
@@ -124,7 +111,8 @@ server.patch("/users", async (request, response) => {
 server.delete("/users/:id", (request, response) => {
   const { id } = request.params;
   try {
-        users = deleteUser(id);
+        users = db.deleteUser(id);
+        refreshUserList()
         return response.status(200).send({
             message: `user deleted successfully!`
         });

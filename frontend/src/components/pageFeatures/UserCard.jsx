@@ -1,7 +1,7 @@
-const UserCard = ({index, name, role, prepAction}) => {
+const UserCard = ({index, first_name, role, prepAction}) => {
     return (
         <div>
-            <p>{name} | {role}  <button onClick={()=>prepAction(index, "edit")} >edit</button> <button onClick={()=>prepAction(index, "delete")} >delete</button></p>
+            <p>{first_name} | {role}  <button onClick={()=>prepAction(index, "edit")} >edit</button> <button onClick={()=>prepAction(index, "delete")} >delete</button></p>
         </div>
     )
 }
