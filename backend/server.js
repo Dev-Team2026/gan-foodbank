@@ -31,10 +31,16 @@ const indexDbResults = (dbTable) => {
     //console.log(dbTable)
     return(dbTable)
 }
+const addInventorySelectedValue = (dbTable) => {
+    dbTable.forEach((option)=>{
+        option.selected = false
+    })
+    //console.log(dbTable)
+    return(dbTable)
+}
 
 //store user list
 let users = indexDbResults(db.getAllUsers())
-
 //updates stored user list after db update
 const refreshUserList= () => {
     users =  indexDbResults(db.getAllUsers())
@@ -42,7 +48,6 @@ const refreshUserList= () => {
 
 //store inventory list
 let inventory = indexDbResults(db.getInventory())
-
 //updates stored inventory list after db update
 const refreshInventoryList= () => {
     inventory =  indexDbResults(db.getInventory())
@@ -85,7 +90,7 @@ server.post("/", async (request, response) => {
 
 //endpoint for showing all users
 server.get("/users", (request, response) => {
-    response.send(db.getAllUsers())
+    response.send(users)
 })
 
 server.post("/users", async (request, response) => {
@@ -130,13 +135,13 @@ server.delete("/users/:id", (request, response) => {
 });
 
 server.get("/inventory", (request, response) => {
-    response.send(db.getInventory())
+    response.send(addInventorySelectedValue(inventory))
 })
 
 server.post("/inventory", (request, response) => {
     const {name, category, stock} = request.body
     try {
-        users = db.AddInvItem(name, category, stock) 
+        inventory = db.AddInvItem(name, category, stock) 
         refreshInventoryList()
         return response.status(200).send({
             message: `item added successfully!`
@@ -145,3 +150,15 @@ server.post("/inventory", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+server.delete("/inventory/:id", (request, response) => {
+  const { id } = request.params;
+  try {
+        users = db.deleteInvItem(id);
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `item deleted successfully!`
+        });
+  } catch (error) {
+    response.status(400).send({ message: error.message });
+  }
+});

@@ -75,7 +75,7 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
     e.preventDefault();
     try {
       await axios
-        .delete(`http://localhost:3000/users/${userForm.id}`, userForm)
+        .delete(`http://localhost:3000/users/${userForm.id}`)
         .then((response) => {
           setUserPostResponse(response.data)
         })

@@ -9,7 +9,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   const [inventoryItemForm, setInventoryItemForm] = useState({name: "", category: "", stock: ""})
   const [currentAction, setCurrentAction] = useState("")
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
-  const [pageResponse, setPageResponse] = useState("")
+  const [itemsSelected, setItemsSelected] = useState(false)
 
   const handleInventoryDB = async ()=>{
     try {
@@ -21,7 +21,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       console.log(error.message)
     }
   }
-
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
@@ -37,7 +36,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
             .then((response)=>{
                 setInventoryPostResponse(()=>response.data)
             })
-        resetItemForm()
+        resetAction()
     } catch (error) {
         console.log(error.message)
     }
@@ -61,13 +60,13 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       }
     })
     setInventory(updatedInventory)
-    setPageResponse("")
-    resetItemForm()
+    resetAction()
   }
 
-  const resetItemForm = () => {
+  const resetAction = () => {
     setInventoryItemForm({})
     setCurrentAction("")
+    unselectAll()
   }
 
   
@@ -94,6 +93,19 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   }
   const DeleteItem = (e) => {
     e.preventDefault();
+    inventory.forEach(async(item)=>{
+      try {
+        if (item.selected){
+          await axios.delete(`http://localhost:3000/inventory/${item.item_id}`,)
+            .then((response)=>{
+              setInventoryPostResponse(()=>response.data)
+            })
+        }
+      } catch (error) {
+        console.log(error.message)
+      }
+    })
+    resetAction()
     //const updatedInventory = []
     //inventory.map((item)=>{
     //  if(!item.selected)
@@ -107,20 +119,31 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     //  setInventory(updatedInventory)
     //}
   }
-
-  const handleOnSelect = (item_id) => {
-    //console.log(itemId)
+  const unselectAll = () => {
     const updatedInventory = []
     inventory.map((item)=>{
-      if(item.item_id === item_id)
-      {
-        updatedInventory.push({...item, selected: item.selected ? false : true})
-        //console.log(item.selected ? true : false)
-      } else {
-        updatedInventory.push({...item})
-      }
+      updatedInventory.push({...item, selected: false})
     })
     setInventory(updatedInventory)
+    checkForSelection(updatedInventory)
+  }
+
+  const handleOnSelect = (index) => {
+    let updatedInventory = []
+    inventory.map((item)=>{
+      updatedInventory.push({...item})
+    })
+    updatedInventory[index].selected = updatedInventory[index].selected ? false : true
+    setInventory(updatedInventory)
+    checkForSelection(updatedInventory)
+  }
+
+  const checkForSelection = (tempInventory) => {
+    let selectedItems = 0
+    tempInventory.map((item)=>{
+      item.selected && ++selectedItems
+    })
+    selectedItems > 0 ? setItemsSelected(true) : setItemsSelected(false)
   }
 
   return (
@@ -131,13 +154,15 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
 
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>
-      <p>{pageResponse != "" && pageResponse}</p>
       <br />
-      <button onClick={()=>setupAction("add")}>Add Item</button>
-      <button onClick={setForEditAction}>Edit Item</button>
-      <button onClick={DeleteItem}>Delete Items</button>
+      {currentAction === "" ? <div>
+        <button onClick={()=>setupAction("add")}>Add Item</button>
+        <button onClick={setForEditAction}>Edit Item</button>
+        <button onClick={()=>setupAction("delete")}>Delete Items</button>
+      </div> :
+      <button onClick={resetAction}>Cancel</button>}
       <br />
-      {currentAction != "" && 
+      {currentAction === "add" && 
         <InventoryEditingCard 
           inventoryItem={inventoryItemForm} 
           currentAction={currentAction} 
@@ -145,6 +170,16 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
           handleEditItem={handleEditItem}
           handleOnChangeItemForm={handleOnChangeItemForm}
       />}
+      {currentAction === "delete" && 
+        <div>
+          {itemsSelected ? 
+            <p>
+              Are you sure you want to delete these items 
+              <button onClick={DeleteItem}>Yes</button> 
+              <button onClick={resetAction}>No</button>
+            </p> : 
+            <p>Please select items to delete</p>}
+        </div> }
       
       <table>
         <thead>
