@@ -32,24 +32,20 @@ const indexDbResults = (dbTable) => {
     return(dbTable)
 }
 
-const getInventory = () =>{
-    const stmt = db.prepare('SELECT * FROM inventory')
-    const inventory = stmt.all()
-    return (indexDbResults(inventory))
-}
-
-const getInventory = () =>{
-    const stmt = db.prepare('SELECT * FROM inventory')
-    const inventory = stmt.all()
-    return (indexDbResults(inventory))
-}
-
 //store user list
 let users = indexDbResults(db.getAllUsers())
 
 //updates stored user list after db update
 const refreshUserList= () => {
     users =  indexDbResults(db.getAllUsers())
+}
+
+//store inventory list
+let inventory = indexDbResults(db.getInventory())
+
+//updates stored inventory list after db update
+const refreshInventoryList= () => {
+    inventory =  indexDbResults(db.getInventory())
 }
 
 //
@@ -134,5 +130,18 @@ server.delete("/users/:id", (request, response) => {
 });
 
 server.get("/inventory", (request, response) => {
-    response.send(getInventory())
+    response.send(db.getInventory())
+})
+
+server.post("/inventory", (request, response) => {
+    const {name, category, stock} = request.body
+    try {
+        users = db.AddInvItem(name, category, stock) 
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `item added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
 })

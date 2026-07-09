@@ -1,13 +1,13 @@
 const InventoryEditingCard = ({inventoryItem, currentAction, handleAddNewItem, handleEditItem, handleOnChangeItemForm}) => {
     return (
         <div>
-            <form onSubmit={currentAction === "edit" ? () => handleEditItem(inventoryItem.itemId) : handleAddNewItem}>
+            <form onSubmit={currentAction === "edit" ? () => handleEditItem(inventoryItem.item_id) : handleAddNewItem}>
                 <input 
                     type="text"
-                    id="item"
-                    name="item"
+                    id="name"
+                    name="name"
                     placeholder="Item Name"
-                    value={inventoryItem.item}
+                    value={inventoryItem.name}
                     onChange={handleOnChangeItemForm}
                 />
                 <input 
@@ -20,10 +20,10 @@ const InventoryEditingCard = ({inventoryItem, currentAction, handleAddNewItem, h
                 />
                 <input 
                     type="text"
-                    id="count"
-                    name="count"
-                    placeholder="Item Count"
-                    value={inventoryItem.count}
+                    id="stock"
+                    name="stock"
+                    placeholder="Item stock"
+                    value={inventoryItem.stock}
                     onChange={handleOnChangeItemForm}
                 />
                 <button type="submit">{currentAction === "editing" ? "Save" : "Add"}</button>
