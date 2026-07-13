@@ -4,10 +4,11 @@ import axios from "axios";
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
 import EditStockForm from "../pageFeatures/EditStockForm";
+import EditItemStringForm from "../pageFeatures/EditItemStringForm";
 
 const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   const [inventory, setInventory] = useState([])
-  const [inventoryItemForm, setInventoryItemForm] = useState({name: "", category: "", stock: ""})
+  const [inventoryItemForm, setInventoryItemForm] = useState({name: "", category: "", stock: 0})
   const [currentAction, setCurrentAction] = useState("")
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
   const [itemsSelected, setItemsSelected] = useState(false)
@@ -65,7 +66,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   }
 
   const resetAction = () => {
-    setInventoryItemForm({})
+    setInventoryItemForm({name: "", category: "", stock: 0})
     setCurrentAction("")
     unselectAll()
   }
@@ -73,18 +74,32 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   
   const setUpForEditing = (editAction, index) => {
     setCurrentAction([editAction, index])
-    setInventoryItemForm({stock: 0})
+    setInventoryItemForm({name: inventory[index].name, category: inventory[index].category, stock: 0})
   }
 
   const handleOnSubmitStockEdit = async (newValue) => {
+    //console.log(newValue)
     try {
-        await axios.patch(`http://localhost:3000/inventoryStock`, {item: inventory[currentAction[1]], newValue: newValue})
-            .then((response)=>{
-              setInventoryPostResponse(()=>response.data)
-            })
+      await axios.patch(`http://localhost:3000/inventoryStock`, {item: inventory[currentAction[1]], newValue: newValue})
+        .then((response)=>{
+          setInventoryPostResponse(()=>response.data)
+        })
     } catch (error) {
         console.log(error.message)
     }
+    resetAction()
+  }
+  const handleOnSubmitStringValueEdit = async (newValue, targetValue) => {
+    //console.log(newValue)
+    try {
+      await axios.patch(`http://localhost:3000/inventoryStringValue`, {item: inventory[currentAction[1]], newValue: newValue, targetValue: targetValue})
+        .then((response)=>{
+          setInventoryPostResponse(()=>response.data)
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
+    resetAction()
   }
   const DeleteItem = (e) => {
     e.preventDefault();
@@ -152,7 +167,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
 
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>
-      <br />
       {currentAction === "add" && 
         <InventoryEditingCard 
           inventoryItem={inventoryItemForm} 
@@ -162,6 +176,8 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
           handleOnChangeItemForm={handleOnChangeItemForm}
       />}
       {currentAction[0] === "editStock" && <EditStockForm item={inventory[currentAction[1]]} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
+      {currentAction[0] === "editName" && <EditItemStringForm value={"name"} inventoryItemFormValue={inventoryItemForm.name} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} /> }
+      {currentAction[0] === "editCategory" && <EditItemStringForm value={"category"} inventoryItemFormValue={inventoryItemForm.category} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} />}
       {currentAction === "delete" && 
         <div>
           {itemsSelected ? 
@@ -185,8 +201,8 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       <table>
         <thead>
           <tr>
-            <th>Item</th>
-            <th>Category</th>
+            <th>Item <br /> <button onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button></th>
+            <th>Category <br /> <button onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button></th>
             <th>Count <br /> <button onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button></th>
           </tr>
         </thead>

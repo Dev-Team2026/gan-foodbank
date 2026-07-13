@@ -66,16 +66,17 @@ server.get("/", (request, response) => {
     response.send("Server is Live!")
 });
 
-server.post("/", async (request, response) => {
+server.post("/", (request, response) => {
     const {name, password} = request.body
     try{
         //const user = await User.findOne({name});
-        const user = users.find(user => user.name.toLowerCase() === name.toLowerCase());
+        const user = users.find(user => user.first_name.toLowerCase() === name.toLowerCase());
         //console.log(user)
         if (!user){
             return response.status(404).send({message: "User does not exist"})
         }
-        const match = await bcrypt.compare(password, user.password);
+        //const match = await bcrypt.compare(password, user.password);
+        const match = password === user.password
         //console.log(match)
         if (!match)
         {
@@ -167,6 +168,22 @@ server.patch("/inventoryStock", async (request, response) => {
     const {item, newValue} = request.body
     try {
         inventory = db.UpdateInvItem(item.item_id, item.name, item.category, newValue)
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `user updated successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+server.patch("/inventoryStringValue", async (request, response) => {
+    const {item, newValue, targetValue} = request.body
+    try {
+        if (targetValue === "name"){
+            inventory = db.UpdateInvItem(item.item_id, newValue, item.category, item.stock)
+        } else {
+            inventory = db.UpdateInvItem(item.item_id, item.name, newValue, item.stock)
+        }
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
