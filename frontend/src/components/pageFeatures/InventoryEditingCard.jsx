@@ -19,7 +19,7 @@ const InventoryEditingCard = ({inventoryItem, currentAction, handleAddNewItem, h
                     onChange={handleOnChangeItemForm}
                 />
                 <input 
-                    type="text"
+                    type="number"
                     id="stock"
                     name="stock"
                     placeholder="Item stock"
