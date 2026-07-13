@@ -23,7 +23,7 @@ export function close()
 //
 export function getAllUsers()
 {
-    return db.prepare(`SELECT * FROM Users`).all()
+    return db.prepare(`SELECT U.user_id, U.first_name, U.last_name, R.name as role, U.password FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id`).all()
 }
 
 export function getUserById(id)
@@ -62,26 +62,10 @@ export function getInventory()
     return db.prepare(`SELECT * FROM Inventory`).all()
 }
 
-export function getInvCategories()
-{
-    return db.prepare(`SELECT category_id, name FROM Categories`).all()
-} 
-
 export function getInvItemById(id)
 {
     return db.prepare(`SELECT * FROM Inventory WHERE item_id=?`).get(id)
 } 
-
-//might be better on front end for reactive UI
-export function getInvItemsByName(name){
-    return db.prepare(`SELECT * FROM Inventory WHERE name LIKE "%?%"`).all(name)
-}
-
-//narrow fields?
-export function getInvItemsByCategory(categoryID)
-{
-    return db.prepare(`SELECT * FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id WHERE C.category_id = ?`).all(categoryID)
-}
 
 export function AddInvItem(name,category,stock,par)
 {
@@ -105,3 +89,19 @@ export function deleteInvItem(id)
 {
     return db.prepare(`DELETE FROM Inventory WHERE item_id=?`).run(id)
 }
+
+//
+//Categories
+//
+export function getCategories()
+{
+    return db.prepare(`SELECT * FROM Categories`).all()
+} 
+
+//
+//Roles
+//
+export function getRoles()
+{
+    return db.prepare(`SELECT * FROM Roles`).all()
+} 
