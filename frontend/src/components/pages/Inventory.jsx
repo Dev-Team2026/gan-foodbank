@@ -3,6 +3,7 @@ import axios from "axios";
 
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
+import EditStockForm from "../pageFeatures/EditStockForm";
 
 const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   const [inventory, setInventory] = useState([])
@@ -70,26 +71,20 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   }
 
   
-  const setForEditAction = (e) => {
-    e.preventDefault();
-    //let selectedItems = 0
-    //inventory.map((item)=>{
-    //  if(item.selected)
-    //  {
-    //    selectedItems++
-    //    setInventoryItemForm({...item})
-    //  }
-    //})
-    //if (selectedItems === 0){
-    //  setPageResponse("Please select an item")
-    //  resetItemForm()
-    //} else if (selectedItems > 1){
-    //  setPageResponse("Too many items select")
-    //  resetItemForm()
-    //} else {
-    //  setCurrentAction("edit")
-    //}
+  const setUpForEditing = (editAction, index) => {
+    setCurrentAction([editAction, index])
+    setInventoryItemForm({stock: 0})
+  }
 
+  const handleOnSubmitStockEdit = async (newValue) => {
+    try {
+        await axios.patch(`http://localhost:3000/inventoryStock`, {item: inventory[currentAction[1]], newValue: newValue})
+            .then((response)=>{
+              setInventoryPostResponse(()=>response.data)
+            })
+    } catch (error) {
+        console.log(error.message)
+    }
   }
   const DeleteItem = (e) => {
     e.preventDefault();
@@ -106,18 +101,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       }
     })
     resetAction()
-    //const updatedInventory = []
-    //inventory.map((item)=>{
-    //  if(!item.selected)
-    //  {
-    //    updatedInventory.push({...item, item_id: updatedInventory.length})
-    //  } 
-    //})
-    //if(updatedInventory.length === inventory.length){
-    //  setPageResponse("Please select one or more items")
-    //} else {
-    //  setInventory(updatedInventory)
-    //}
   }
   const unselectAll = () => {
     const updatedInventory = []
@@ -155,13 +138,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>
       <br />
-      {currentAction === "" ? <div>
-        <button onClick={()=>setupAction("add")}>Add Item</button>
-        <button onClick={setForEditAction}>Edit Item</button>
-        <button onClick={()=>setupAction("delete")}>Delete Items</button>
-      </div> :
-      <button onClick={resetAction}>Cancel</button>}
-      <br />
       {currentAction === "add" && 
         <InventoryEditingCard 
           inventoryItem={inventoryItemForm} 
@@ -170,6 +146,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
           handleEditItem={handleEditItem}
           handleOnChangeItemForm={handleOnChangeItemForm}
       />}
+      {currentAction[0] === "editStock" && <EditStockForm item={inventory[currentAction[1]]} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
       {currentAction === "delete" && 
         <div>
           {itemsSelected ? 
@@ -180,18 +157,23 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
             </p> : 
             <p>Please select items to delete</p>}
         </div> }
-      
+      <br />
+      {currentAction === "" ? <div>
+        <button onClick={()=>setupAction("add")}>Add Item</button>
+        <button onClick={()=>setupAction("delete")}>Delete Items</button>
+      </div> :
+      <button onClick={resetAction}>Cancel</button>}
       <table>
         <thead>
           <tr>
             <th>Item</th>
             <th>Category</th>
-            <th>Count</th>
+            <th>Count <br /> <button onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button></th>
           </tr>
         </thead>
         <tbody>
           {inventory.map((item)=>(
-            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} />
+            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} />
           ))}
         </tbody>
       </table>
