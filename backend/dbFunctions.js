@@ -31,7 +31,7 @@ export function getUserById(id)
 
 export function getInventory()
 {
-    return db.prepare(`SELECT * FROM Inventory`).all()
+    return db.prepare(`SELECT I.item_id, I.name, C.name as category, I.stock FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id`).all()
 }
 
 export function getInvItemById(id)

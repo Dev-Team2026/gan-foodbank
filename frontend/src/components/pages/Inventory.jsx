@@ -129,6 +129,21 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     selectedItems > 0 ? setItemsSelected(true) : setItemsSelected(false)
   }
 
+  //sort and filter test
+  const masterInventory = inventory
+  const search = (event) => {
+    const regx = new RegExp(event.target.value)
+    setInventory(inventory.filter((item) => {return regx.test(item.name) }))
+  }
+
+  const testSort = () => {
+    let testInventory = inventory
+    testInventory.sort((a, b)=>{return a.stock - b.stock})
+    console.log(testInventory)
+    setInventory(testInventory)
+  }
+
+
   return (
     <div className="container">
       <PageHeader Link={Link} user={currentUser} />
@@ -163,6 +178,10 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
         <button onClick={()=>setupAction("delete")}>Delete Items</button>
       </div> :
       <button onClick={resetAction}>Cancel</button>}
+
+      <input onChange={search} />
+      <button onClick={testSort}>Sort</button>
+
       <table>
         <thead>
           <tr>
