@@ -12,8 +12,11 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   const [currentAction, setCurrentAction] = useState("")
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
   const [itemsSelected, setItemsSelected] = useState(false)
+  const [filters, setFilters] = useState({nameFilter: "", categoryFilter: ""})
 
   const handleInventoryDB = async ()=>{
+    
+    //console.log(filters.nameFilter != "")
     try {
       await axios.get("http://localhost:3000/inventory")
       .then((response)=>{
@@ -23,9 +26,24 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       console.log(error.message)
     }
   }
+  
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
+  useEffect(()=>{
+    const applyFilters = async ()=>{
+      console.log(filters)
+      try {
+        await axios.patch("http://localhost:3000/inventoryFilters", filters)
+          .then((response)=>{
+            setInventoryPostResponse(()=>response.data)
+          })
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
+    applyFilters()
+  }, [filters])
 
   const handleOnChangeItemForm = (e) => {
     setInventoryItemForm({...inventoryItemForm, [e.target.name]: e.target.value})
@@ -46,23 +64,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
 
   const setupAction = (action) => {
     setCurrentAction(action)
-  }
-
-  const handleEditItem = (item_id) => {
-    const updatedInventory = []
-    inventory.map((item)=>{
-      //console.log(item)
-      if(item.item_id === item_id)
-      {
-        //console.log("!!!")
-        updatedInventory.push({...inventoryItemForm, selected: false})
-        //console.log(item.selected ? true : false)
-      } else {
-        updatedInventory.push({...item})
-      }
-    })
-    setInventory(updatedInventory)
-    resetAction()
   }
 
   const resetAction = () => {
@@ -145,10 +146,9 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   }
 
   //sort and filter test
-  const masterInventory = inventory
-  const search = (event) => {
-    const regx = new RegExp(event.target.value)
-    setInventory(inventory.filter((item) => {return regx.test(item.name) }))
+  //const masterInventory = inventory
+  const search = async (event) => {
+    setFilters({...filters, nameFilter: event.target.value})
   }
 
   const testSort = () => {
@@ -172,7 +172,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
           inventoryItem={inventoryItemForm} 
           currentAction={currentAction} 
           handleAddNewItem={handleAddNewItem}
-          handleEditItem={handleEditItem}
           handleOnChangeItemForm={handleOnChangeItemForm}
       />}
       {currentAction[0] === "editStock" && <EditStockForm item={inventory[currentAction[1]]} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }

@@ -48,6 +48,7 @@ const refreshUserList= () => {
 
 //store inventory list
 let inventory = indexDbResults(db.getInventory())
+let inventoryFilters = {nameFilter: new RegExp(""), categoryFilter: new RegExp("")}
 //updates stored inventory list after db update
 const refreshInventoryList= () => {
     inventory =  indexDbResults(db.getInventory())
@@ -136,6 +137,7 @@ server.delete("/users/:id", (request, response) => {
 });
 
 server.get("/inventory", (request, response) => {
+    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name) })
     response.send(addInventorySelectedValue(inventory))
 })
 
@@ -187,6 +189,20 @@ server.patch("/inventoryStringValue", async (request, response) => {
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+server.patch("/inventoryFilters", async (request, response) => {
+    const {nameFilter, categoryFilter} = request.body
+    //console.log(nameFilter, categoryFilter, "ss")
+    try {
+        inventoryFilters.nameFilter = new RegExp(nameFilter)
+        inventoryFilters.categoryFilter = new RegExp(categoryFilter)
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `filters updated successfully!`
         });
     } catch(error){
         response.status(500).send({message: error.message})
