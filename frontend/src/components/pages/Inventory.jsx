@@ -12,7 +12,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   const [currentAction, setCurrentAction] = useState("")
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
   const [itemsSelected, setItemsSelected] = useState(false)
-  const [filters, setFilters] = useState({nameFilter: "", categoryFilter: ""})
+  const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
 
   const handleInventoryDB = async ()=>{
     
@@ -151,11 +151,9 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     setFilters({...filters, nameFilter: event.target.value})
   }
 
-  const testSort = () => {
-    let testInventory = inventory
-    testInventory.sort((a, b)=>{return a.stock - b.stock})
-    console.log(testInventory)
-    setInventory(testInventory)
+  const sort = (sortingTarget) => {
+    setFilters({...filters, sortBy: sortingTarget})
+    //testInventory.sort((a, b)=>{return a.stock - b.stock})
   }
 
 
@@ -195,14 +193,28 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       <button onClick={resetAction}>Cancel</button>}
 
       <input onChange={search} />
-      <button onClick={testSort}>Sort</button>
 
       <table>
         <thead>
           <tr>
-            <th>Item <br /> <button onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button></th>
-            <th>Category <br /> <button onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button></th>
-            <th>Count <br /> <button onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button></th>
+            <th>
+                <button onClick={()=>sort("nameAsc")}>Asc</button> 
+                <button onClick={()=>sort("nameDesc")}>Desc</button> <br /> 
+                Item <br /> 
+                <button onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
+            </th>
+            <th>
+                <button onClick={()=>sort("categoryAsc")}>Asc</button>
+                <button onClick={()=>sort("categoryDesc")}>Desc</button> <br /> 
+                Category <br /> 
+                <button onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
+            </th>
+            <th>
+                <button onClick={()=>sort("stockAsc")}>Asc</button>
+                <button onClick={()=>sort("stockDesc")}>Desc</button> <br /> 
+                Count <br /> 
+                <button onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
+            </th>
           </tr>
         </thead>
         <tbody>

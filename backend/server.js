@@ -48,7 +48,7 @@ const refreshUserList= () => {
 
 //store inventory list
 let inventory = indexDbResults(db.getInventory())
-let inventoryFilters = {nameFilter: new RegExp(""), categoryFilter: new RegExp("")}
+let inventoryFilters = {nameFilter: new RegExp(""), categoryFilter: new RegExp(""), sortBy: ""}
 //updates stored inventory list after db update
 const refreshInventoryList= () => {
     inventory =  indexDbResults(db.getInventory())
@@ -137,7 +137,15 @@ server.delete("/users/:id", (request, response) => {
 });
 
 server.get("/inventory", (request, response) => {
-    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name) })
+    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name.toLowerCase()) })
+    //asc
+    inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b)=>{return a.name.localeCompare(b.name)}))
+    inventoryFilters.sortBy === "categoryAsc" && (inventory = inventory.sort((a, b)=>{return a.category - b.category}))
+    inventoryFilters.sortBy === "stockAsc" && (inventory = inventory.sort((a, b)=>{return a.stock - b.stock}))
+    //desc
+    inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b)=>{return b.name.localeCompare(a.name)}))
+    inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b)=>{return b.category - a.category}))
+    inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b)=>{return b.stock - a.stock}))
     response.send(addInventorySelectedValue(inventory))
 })
 
@@ -195,11 +203,12 @@ server.patch("/inventoryStringValue", async (request, response) => {
     }
 })
 server.patch("/inventoryFilters", async (request, response) => {
-    const {nameFilter, categoryFilter} = request.body
+    const {nameFilter, categoryFilter, sortBy} = request.body
     //console.log(nameFilter, categoryFilter, "ss")
     try {
-        inventoryFilters.nameFilter = new RegExp(nameFilter)
-        inventoryFilters.categoryFilter = new RegExp(categoryFilter)
+        inventoryFilters.nameFilter = new RegExp(nameFilter.toLowerCase())
+        inventoryFilters.categoryFilter = new RegExp(categoryFilter.toLowerCase())
+        inventoryFilters.sortBy = sortBy
         refreshInventoryList()
         return response.status(200).send({
             message: `filters updated successfully!`
