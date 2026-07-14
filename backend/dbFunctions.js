@@ -23,12 +23,12 @@ export function close()
 //
 export function getAllUsers()
 {
-    return db.prepare(`SELECT U.user_id, U.first_name, U.last_name, R.name as role, U.password FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id`).all()
+    return db.prepare(`SELECT U.*, R.name as role_name FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id`).all()
 }
 
 export function getUserById(id)
 {
-    return db.prepare(`SELECT * FROM Users WHERE user_id=?`).get(id)
+    return db.prepare(`SELECT U.*, R.name as role_name FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id WHERE user_id=?`).get(id)
 }
 
 export function AddUser(firstName, lastName, role, password)
@@ -59,12 +59,12 @@ export function deleteUser(id)
 //
 export function getInventory()
 {
-    return db.prepare(`SELECT I.item_id, I.name, C.name as category, I.stock FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id`).all()
+    return db.prepare(`SELECT I.*, C.name as category_name FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id`).all()
 }
 
 export function getInvItemById(id)
 {
-    return db.prepare(`SELECT * FROM Inventory WHERE item_id=?`).get(id)
+    return db.prepare(`SELECT I.*, C.name as category_name FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id WHERE item_id=?`).get(id)
 } 
 
 export function AddInvItem(name,category,stock,par)
