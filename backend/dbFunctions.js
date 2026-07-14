@@ -12,34 +12,25 @@ export function close()
 }
 
 //
-//SQLite commands
+//SQLite commands (grouped by table)
 //
 
 //commands with parameters use binding
 //all ?'s are replaced in order with arguments to .get , .all , and .run functions
 
-//get (SELECT)
+//
+//Users
+//
 export function getAllUsers()
 {
-    return db.prepare(`SELECT * FROM Users`).all()
+    return db.prepare(`SELECT U.*, R.name as role_name FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id`).all()
 }
 
 export function getUserById(id)
 {
-    return db.prepare(`SELECT * FROM Users WHERE user_id=?`).get(id)
+    return db.prepare(`SELECT U.*, R.name as role_name FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id WHERE user_id=?`).get(id)
 }
 
-export function getInventory()
-{
-    return db.prepare(`SELECT * FROM Inventory`).all()
-}
-
-export function getInvItemById(id)
-{
-    return db.prepare(`SELECT * FROM Inventory WHERE item_id=?`).get(id)
-}
-
-//add (INSERT)
 export function AddUser(firstName, lastName, role, password)
 {
     return db.prepare(
@@ -49,16 +40,6 @@ export function AddUser(firstName, lastName, role, password)
     ).run(firstName, lastName, role, password)
 }
 
-export function AddInvItem(name,category,stock)
-{
-    return db.prepare(
-        `INSERT INTO Inventory (name, category, stock)
-         VALUES (?,?,?)
-        `
-    ).run(name,category,stock)
-}
-
-//modify (UPDATE)
 export function UpdateUser(id, newFName, newLName, newRole, newPassword)
 {
     return db.prepare(
@@ -68,22 +49,59 @@ export function UpdateUser(id, newFName, newLName, newRole, newPassword)
     ).run(newFName, newLName, newRole, newPassword, id)
 }
 
-export function UpdateInvItem(id, newName, newCategory, newStock)
-{
-    return db.prepare(
-        `UPDATE Inventory SET name=?, category=?, stock=?
-         WHERE item_id=?
-        `
-    ).run(newName, newCategory, newStock, id)
-}
-
-//remove (DELETE)
 export function deleteUser(id)
 {
     return db.prepare(`DELETE FROM Users WHERE user_id=?`).run(id)
+}
+
+//
+//Inventory
+//
+export function getInventory()
+{
+    return db.prepare(`SELECT I.*, C.name as category_name FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id`).all()
+}
+
+export function getInvItemById(id)
+{
+    return db.prepare(`SELECT I.*, C.name as category_name FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id WHERE item_id=?`).get(id)
+} 
+
+export function AddInvItem(name,category,stock,par)
+{
+    return db.prepare(
+        `INSERT INTO Inventory (name, category, stock, par)
+         VALUES (?,?,?,?)
+        `
+    ).run(name,category,stock,par)
+}
+
+export function UpdateInvItem(id, newName, newCategory, newStock, newPar)
+{
+    return db.prepare(
+        `UPDATE Inventory SET name=?, category=?, stock=?, par=?
+         WHERE item_id=?
+        `
+    ).run(newName, newCategory, newStock, newPar, id)
 }
 
 export function deleteInvItem(id)
 {
     return db.prepare(`DELETE FROM Inventory WHERE item_id=?`).run(id)
 }
+
+//
+//Categories
+//
+export function getCategories()
+{
+    return db.prepare(`SELECT * FROM Categories`).all()
+} 
+
+//
+//Roles
+//
+export function getRoles()
+{
+    return db.prepare(`SELECT * FROM Roles`).all()
+} 
