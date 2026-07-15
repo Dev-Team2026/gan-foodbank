@@ -174,10 +174,10 @@ server.delete("/inventory/:id", (request, response) => {
   }
 });
 
-server.patch("/inventoryStock", async (request, response) => {
-    const {item, newValue} = request.body
+server.patch("/inventoryIntValue", async (request, response) => {
+    const {item, newValue, targetValue} = request.body
     try {
-        inventory = db.UpdateInvItem(item.item_id, item.name, item.category, newValue)
+        targetValue === "stock" && (inventory = db.UpdateInvItem(item.item_id, item.name, item.category, newValue))
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
@@ -189,11 +189,8 @@ server.patch("/inventoryStock", async (request, response) => {
 server.patch("/inventoryStringValue", async (request, response) => {
     const {item, newValue, targetValue} = request.body
     try {
-        if (targetValue === "name"){
-            inventory = db.UpdateInvItem(item.item_id, newValue, item.category, item.stock)
-        } else {
-            inventory = db.UpdateInvItem(item.item_id, item.name, newValue, item.stock)
-        }
+        targetValue === "name" && (inventory = db.UpdateInvItem(item.item_id, newValue, item.category, item.stock))
+        targetValue === "category" && (inventory = db.UpdateInvItem(item.item_id, item.name, newValue, item.stock))
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
