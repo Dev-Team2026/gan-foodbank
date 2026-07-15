@@ -78,3 +78,14 @@ a {
 .exportBtn {
   margin-bottom: 10px;
 }
+
+.invTableBtn {
+  border: 2 px solid;
+  background-color: lime;
+  color: black;
+}
+.invOptionBtn {
+  border: 2 px solid;
+  background-color: aquamarine;
+  color: black;
+}

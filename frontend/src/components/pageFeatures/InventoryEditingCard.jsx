@@ -26,7 +26,7 @@ const InventoryEditingCard = ({inventoryItem, currentAction, handleAddNewItem, h
                     value={inventoryItem.stock}
                     onChange={handleOnChangeItemForm}
                 />
-                <button type="submit">{currentAction === "editing" ? "Save" : "Add"}</button>
+                <button className="invOptionBtn" type="submit">{currentAction === "editing" ? "Save" : "Add"}</button>
             </form>
         </div>
     )
