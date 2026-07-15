@@ -28,16 +28,30 @@ const indexDbResults = (dbTable) => {
         option.index = i
         i++
     })
-    console.log(dbTable)
+    //console.log(dbTable)
+    return(dbTable)
+}
+const addInventorySelectedValue = (dbTable) => {
+    dbTable.forEach((option)=>{
+        option.selected = false
+    })
+    //console.log(dbTable)
     return(dbTable)
 }
 
 //store user list
 let users = indexDbResults(db.getAllUsers())
-
 //updates stored user list after db update
 const refreshUserList= () => {
     users =  indexDbResults(db.getAllUsers())
+}
+
+//store inventory list
+let inventory = indexDbResults(db.getInventory())
+let inventoryFilters = {nameFilter: new RegExp(""), categoryFilter: new RegExp(""), sortBy: ""}
+//updates stored inventory list after db update
+const refreshInventoryList= () => {
+    inventory =  indexDbResults(db.getInventory())
 }
 
 //
@@ -53,16 +67,17 @@ server.get("/", (request, response) => {
     response.send("Server is Live!")
 });
 
-server.post("/", async (request, response) => {
+server.post("/", (request, response) => {
     const {name, password} = request.body
     try{
         //const user = await User.findOne({name});
-        const user = users.find(user => user.name.toLowerCase() === name.toLowerCase());
+        const user = users.find(user => user.first_name.toLowerCase() === name.toLowerCase());
         //console.log(user)
         if (!user){
             return response.status(404).send({message: "User does not exist"})
         }
-        const match = await bcrypt.compare(password, user.password);
+        //const match = await bcrypt.compare(password, user.password);
+        const match = password === user.password
         //console.log(match)
         if (!match)
         {
@@ -77,7 +92,7 @@ server.post("/", async (request, response) => {
 
 //endpoint for showing all users
 server.get("/users", (request, response) => {
-    response.send(db.getAllUsers())
+    response.send(users)
 })
 
 server.post("/users", async (request, response) => {
@@ -121,3 +136,84 @@ server.delete("/users/:id", (request, response) => {
   }
 });
 
+server.get("/inventory", (request, response) => {
+    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name.toLowerCase()) })
+    //asc
+    inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b)=>{return a.name.localeCompare(b.name)}))
+    inventoryFilters.sortBy === "categoryAsc" && (inventory = inventory.sort((a, b)=>{return a.category - b.category}))
+    inventoryFilters.sortBy === "stockAsc" && (inventory = inventory.sort((a, b)=>{return a.stock - b.stock}))
+    //desc
+    inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b)=>{return b.name.localeCompare(a.name)}))
+    inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b)=>{return b.category - a.category}))
+    inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b)=>{return b.stock - a.stock}))
+    response.send(addInventorySelectedValue(inventory))
+})
+
+server.post("/inventory", (request, response) => {
+    const {name, category, stock} = request.body
+    try {
+        inventory = db.AddInvItem(name, category, stock) 
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `item added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+server.delete("/inventory/:id", (request, response) => {
+  const { id } = request.params;
+  try {
+        users = db.deleteInvItem(id);
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `item deleted successfully!`
+        });
+  } catch (error) {
+    response.status(400).send({ message: error.message });
+  }
+});
+
+server.patch("/inventoryStock", async (request, response) => {
+    const {item, newValue} = request.body
+    try {
+        inventory = db.UpdateInvItem(item.item_id, item.name, item.category, newValue)
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `user updated successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+server.patch("/inventoryStringValue", async (request, response) => {
+    const {item, newValue, targetValue} = request.body
+    try {
+        if (targetValue === "name"){
+            inventory = db.UpdateInvItem(item.item_id, newValue, item.category, item.stock)
+        } else {
+            inventory = db.UpdateInvItem(item.item_id, item.name, newValue, item.stock)
+        }
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `user updated successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+server.patch("/inventoryFilters", async (request, response) => {
+    const {nameFilter, categoryFilter, sortBy} = request.body
+    //console.log(nameFilter, categoryFilter, "ss")
+    try {
+        inventoryFilters.nameFilter = new RegExp(nameFilter.toLowerCase())
+        inventoryFilters.categoryFilter = new RegExp(categoryFilter.toLowerCase())
+        inventoryFilters.sortBy = sortBy
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `filters updated successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
