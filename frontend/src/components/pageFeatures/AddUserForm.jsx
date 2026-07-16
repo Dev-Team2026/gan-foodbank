@@ -26,7 +26,7 @@ const AddUserForm = ({handleOnSubmitUser, handleOnChangeUser, newUser}) => {
                     value={newUser.password}
                     onChange={handleOnChangeUser}
                 />
-                <button type="submit">Add</button>
+                <button className="adminPgBtn" type="submit">Add</button>
             </form>
         </div>
     )
