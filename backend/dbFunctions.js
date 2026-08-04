@@ -15,7 +15,7 @@ export function init()
         db.prepare(table).run()
     }
     //insert default data
-    for(const data of Schema.dataDefaults){ 
+    for(const data of Schema.defaultData){ 
         db.prepare(data).run()
     }
     //insert test data

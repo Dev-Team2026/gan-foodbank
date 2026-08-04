@@ -35,7 +35,7 @@ export const tables = [
 ]
 
 //default data (categories, roles, etc.)
-export const dataDefaults = [
+export const defaultData = [
     `INSERT OR IGNORE INTO "Categories" VALUES 
         (1,'General'),
         (2,'Fridge'),
