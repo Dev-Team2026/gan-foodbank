@@ -1,10 +1,29 @@
 import Database from 'better-sqlite3'
+import * as Schema from  './dbSchema.js'
 
-//Create db object when module is loaded
-//for testing purposes can be pointed to any other ".db" file in directory
-//(will create the file if it doesnt exist)
+//create db object when module is loaded (file is created if it doesn't exist)
 const db = new Database('GanFB.db')
 db.pragma('journal_mode = WAL')
+init()
+
+//statements are pulled from dbSchema.js
+export function init()
+{
+    console.log("Checking database schema...")
+    //create tables 
+    for(const table of Schema.tables){ 
+        db.prepare(table).run()
+    }
+    //insert default data
+    for(const data of Schema.defaultData){ 
+        db.prepare(data).run()
+    }
+    //insert test data
+    for(const testData of Schema.testData){ 
+        db.prepare(testData).run()
+    }
+    console.log("Schema Updated\n")
+}
 
 export function close()
 {

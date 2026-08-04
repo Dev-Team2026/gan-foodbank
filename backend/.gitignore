@@ -1,7 +1,9 @@
 node_modules
 .env
 
-# Extra DB files: wal is for transaction rollback & shm is shared memory
+# DB files - main should now be generated in place
+GanFB.db
+# wal is for transaction rollback & shm is shared memory
 # These should be deleted when DB closes properly anyway
 GanFB.db-shm
 GanFB.db-wal
