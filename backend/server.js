@@ -54,6 +54,34 @@ const refreshInventoryList= () => {
     inventory =  indexDbResults(db.getInventory())
 }
 
+let orders = [
+    {
+        order_group_id: 1, 
+        date_sent: "2026-06-30",
+        order_items: [
+            {orders_id: 1, item_name: "Chick Peas", amount: 4, date_issued: "2026-06-10", date_recieved: "pending",}, 
+            {orders_id: 2, item_name: "Rice", amount: 4, date_issued: "2026-06-10", date_recieved: "pending"}, 
+            {orders_id: 3, item_name: "Canned Tuna", amount: 4, date_issued: "2026-06-10", date_recieved: "pending"}
+        ]
+    },
+    {
+        order_group_id: 2, 
+        date_sent: "2026-07-31",
+        order_items: [
+            {orders_id: 1, item_name: "Pasta", amount: 4, date_issued: "2026-07-11", date_recieved: "pending",}, 
+            {orders_id: 2, item_name: "Soup", amount: 4, date_issued: "2026-07-11", date_recieved: "pending"}, 
+            {orders_id: 3, item_name: "Canned Fruit", amount: 4, date_issued: "2026-07-11", date_recieved: "pending"}
+        ]
+    },
+    {
+        order_group_id: 3, 
+        date_sent: "unsent",
+        order_items: [
+            {orders_id: 1, item_name: "Sugar", amount: 4, date_issued: "2026-08-02", date_recieved: "pending",}
+        ]
+    },
+]
+let orderFilters = {}
 //
 // Endpoints
 //
@@ -213,4 +241,28 @@ server.patch("/inventoryFilters", async (request, response) => {
     } catch(error){
         response.status(500).send({message: error.message})
     }
+})
+
+server.get("/orders", (request, response) => {
+    response.send(indexDbResults(orders))
+})
+server.post("/orders", (request, response) => {
+    const {item_name, amount} = request.body
+    const currentTime = new Date(Date.now())
+    //console.log(currentTime)
+    try {
+        orders[orders.length-1].order_items.push({
+            orders_id: orders[orders.length-1].order_items[orders.length-1].orders_id+1,
+            item_name, 
+            amount, 
+            date_issued: currentTime.getFullYear() + "-" + currentTime.getMonth().toString().padStart(2,"0") + "-" + currentTime.getDate().toString().padStart(2,"0"), 
+            date_recieved: "pending"
+        })
+        return response.status(200).send({
+            message: `order added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+    response.send(indexDbResults(orders))
 })

@@ -10,6 +10,7 @@ import LoginPg from './components/pages/LoginPg'
 import AuthenticationChecker from './components/pageFeatures/authenticationChecker'
 import AdminPg from './components/pages/AdminPg'
 import Inventory from './components/pages/Inventory'
+import OrdersPg from './components/pages/OrdersPg'
 import './styles/App.css'
 
 const App = () => {
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/camera" element={<Camera PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
         <Route path="/admin" element={<AdminPg PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
         <Route path="/inventory" element={<Inventory PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
+        <Route path="/orders" element={<OrdersPg PageHeader={PageHeader} Link={Link} AuthenticationChecker={AuthenticationChecker} currentUser={currentUser} updateUser={updateUser} />} />
         <Route path="/login" element={<LoginPg />} />
         <Route path="/unauthorized" element={<UnauthorizedPg/>} />
       </Routes>

@@ -133,6 +133,16 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     })
     resetAction()
   }
+  const handleAddOrder = async (item_name, amount) => {
+    try {
+      await axios.post(`http://localhost:3000/orders`, {item_name: item_name, amount: amount})
+        .then((response)=>{
+          setInventoryPostResponse(()=>response.data)
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
+  }
   //sorting functions
   const search = async (event) => {
     setFilters({...filters, nameFilter: event.target.value})
@@ -202,7 +212,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
         </thead>
         <tbody>
           {inventory.map((item)=>(
-            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} />
+            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} handleAddOrder={handleAddOrder} />
           ))}
         </tbody>
       </table>
