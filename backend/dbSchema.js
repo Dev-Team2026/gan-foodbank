@@ -1,5 +1,6 @@
 //The purpuse of this file is to allow the creation of the DB file in place
 //All the relevant SQL commands to do so will live here (tables, data, test-data, etc.)
+//IF NOT EXITS and INSERT OR IGNORE should prevent duplicate tables and records
 
 //SQL commands for creating tables
 export const tables = [
@@ -35,7 +36,7 @@ export const tables = [
 
 //default data (categories, roles, etc.)
 export const dataDefaults = [
-    `INSERT INTO "Categories" VALUES 
+    `INSERT OR IGNORE INTO "Categories" VALUES 
         (1,'General'),
         (2,'Fridge'),
         (3,'Fresh Fruit'),
@@ -50,14 +51,14 @@ export const dataDefaults = [
         (14,'TestCategory3'),
         (15,'TestCategory4');
     `,
-    `INSERT INTO "Roles" VALUES (1,'admin'),
+    `INSERT OR IGNORE INTO "Roles" VALUES (1,'admin'),
         (2,'volunteer');
     `
 ]
 
 //stock data for testing
 export const testData = [
-    `INSERT INTO "Inventory" VALUES 
+    `INSERT OR IGNORE INTO "Inventory" VALUES 
         (1,'Soup',9,27,10),
         (2,'Chunky Soup',9,15,10),
         (3,'Canned Ham',9,7,10),
@@ -124,7 +125,7 @@ export const testData = [
         (65,'Diapers',11,12,10),
         (66,'Baby Food',11,11,10);
     `,
-    `INSERT INTO "Users" VALUES 
+    `INSERT OR IGNORE INTO "Users" VALUES 
         (1,'Jarrod','Hoddinott',2,'123'),
         (2,'Maxwell','Schriner',2,'456'),
         (3,'Bob','Bobertson',1,'789');
