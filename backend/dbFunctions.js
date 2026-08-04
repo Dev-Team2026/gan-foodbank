@@ -1,10 +1,44 @@
 import Database from 'better-sqlite3'
+import * as Schema from  './dbSchema.js'
+import fs from 'fs'
 
-//Create db object when module is loaded
-//for testing purposes can be pointed to any other ".db" file in directory
-//(will create the file if it doesnt exist)
+//check if db file exists if not set flag for creating the tables
+//(this is kinda janky but will have to do until I figure out how to do this with "EXISTS" logic in SQL)
+let dbExists = true
+if (!fs.existsSync("./GanFB.db")){
+    console.log("No Database file detected a new one will be generated")
+    dbExists = false        
+}
+
+//create db object when module is loaded (file is created if it doesn't exist)
 const db = new Database('GanFB.db')
 db.pragma('journal_mode = WAL')
+init()
+
+//statements are pulled from dbSchema.js
+export function init()
+{
+    //only add tables if the file doesnt exist
+    if (!dbExists){
+        //create tables 
+        console.log("Adding tables...")
+        for(const table of Schema.tables){ 
+            db.prepare(table).run()
+        }
+        //insert default data
+        console.log("Adding default data...")
+        for(const data of Schema.dataDefaults){ 
+            db.prepare(data).run()
+        }
+        //insert test data
+        console.log("Adding test data...")
+        for(const testData of Schema.testData){ 
+            db.prepare(testData).run()
+        }
+
+        console.log("Database file successfully created")
+    }
+}
 
 export function close()
 {
