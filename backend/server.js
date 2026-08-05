@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import Database from 'better-sqlite3'
 import bcrypt from 'bcrypt'
 import * as db from './dbFunctions.js'
+import fs from 'fs'
 
 //Express
 const server = express()
@@ -217,3 +218,88 @@ server.patch("/inventoryFilters", async (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+
+server.get("/orders", (request, response) => {
+    try {
+        let orders = db.getOrders() 
+        return response.send(orders)
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+server.get("/orders/:id", (request, response) => {
+  const { id } = request.params;
+    try {
+        let order = db.getOrderById(id)
+
+        //attach order details from matching file onto response object
+        order.items = JSON.parse(fs.readFileSync(order.path, 'utf8'))
+
+        return response.send(order)
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+//only order items are required, created date is auto filled, and status defaults to 0 (open)
+server.post("/orders", (request, response) => {
+    const { items } = request.params;
+    try {
+        let time = new Date()
+
+        //closely matches SQLite formatting "YYYY-MM-DD HH:MM:SS" (cant't put :'s in file name)
+        let formatted = time.getFullYear() + "-" + 
+        (time.getMonth() + 1).toString().padStart(2,'0') + "-" +  
+        time.getDate().toString().padStart(2,'0') + " " +
+        time.getHours().toString().padStart(2,'0') + "-" +
+        time.getMinutes().toString().padStart(2,'0') + "-" +
+        time.getSeconds().toString().padStart(2,'0')
+
+        let filePath = "./orders/" + formatted + ".json"
+
+        //create order file
+        fs.writeFileSync(filePath, items, 'utf8')
+
+        let order = db.addOrder(filePath) 
+        return response.send(response)
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+//date string is formatted as "YYYY-MM-DD HH:MM:SS"
+server.patch("/orders", async (request, response) => {
+    const {id, receivedDate, status, items} = request.body
+    try {
+        //only update order file whne items object is passed
+        if(items != null){
+            //fetch path
+            let filePath = db.getOrderById(id).path
+            fs.writeFileSync(filePath, items, 'utf8')
+        }
+
+        let order = db.updateOrder(id, receivedDate, status) 
+        return response.send(order)
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+server.delete("/order/:id", (request, response) => {
+  const { id } = request.params;
+  try {
+        //delete matching order file
+        //fetch path
+        let filePath = db.getOrderById(id).path
+
+        fs.unlinkSync(filePath)
+        
+        let order = db.deleteOrder(id)
+        return response.status(200).send({
+            message: `item deleted successfully!`
+        });
+  } catch (error) {
+    response.status(400).send({ message: error.message });
+  }
+});

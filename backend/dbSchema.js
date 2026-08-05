@@ -1,8 +1,8 @@
 //The purpuse of this file is to allow the creation of the DB file in place
 //All the relevant SQL commands to do so will live here (tables, data, test-data, etc.)
-//IF NOT EXITS and INSERT OR IGNORE should prevent duplicate tables and records
+//IF NOT EXITS and INSERT OR REPLACE should prevent duplicate tables and records and allow quick changes
 
-//SQL commands for creating tables
+//SQL commands for creating tables (DB file must be deleted to recreate tables)
 export const tables = [
     `CREATE TABLE IF NOT EXISTS "Categories" (
         "category_id"	INTEGER NOT NULL UNIQUE,
@@ -16,7 +16,7 @@ export const tables = [
         "stock"	INTEGER,
         "par"	INTEGER DEFAULT (NULL),
         PRIMARY KEY("item_id" AUTOINCREMENT),
-        FOREIGN KEY("category") REFERENCES "Categories"("category_id")
+        FOREIGN KEY("category") REFERENCES "Categories"("category_id") ON UPDATE CASCADE ON DELETE SET NULL
     );`,
     `CREATE TABLE IF NOT EXISTS "Roles" (
         "role_id"	INTEGER NOT NULL UNIQUE,
@@ -31,12 +31,26 @@ export const tables = [
         "password"	TEXT NOT NULL,
         PRIMARY KEY("user_id" AUTOINCREMENT),
         FOREIGN KEY("role") REFERENCES "Roles"("role_id") ON UPDATE CASCADE ON DELETE SET NULL
+    );`,
+    `CREATE TABLE IF NOT EXISTS "Status" (
+        "status_id"	    INTEGER NOT NULL UNIQUE,
+        "name"	        TEXT    NOT NULL UNIQUE,
+        PRIMARY KEY("status_id" AUTOINCREMENT)
+    );`,
+    `CREATE TABLE IF NOT EXISTS "Orders" (
+	    "order_id"	INTEGER NOT NULL UNIQUE,
+	    "created_date"	TEXT NOT NULL,
+	    "received_date"	TEXT,
+	    "status"	INTEGER DEFAULT 1,
+	    "path"	TEXT,
+	    PRIMARY KEY("order_id" AUTOINCREMENT),
+	    FOREIGN KEY("status") REFERENCES "Status"("status_id") ON UPDATE CASCADE ON DELETE SET NULL
     );`
 ]
 
-//default data (categories, roles, etc.)
+//default data (categories, roles, status)
 export const defaultData = [
-    `INSERT OR IGNORE INTO "Categories" VALUES 
+    `INSERT OR REPLACE INTO "Categories" VALUES 
         (1,'General'),
         (2,'Fridge'),
         (3,'Fresh Fruit'),
@@ -49,16 +63,22 @@ export const defaultData = [
         (11,'Baby'),
         (13,'TestCategory2'),
         (14,'TestCategory3'),
-        (15,'TestCategory4');
+        (15,'TestCategory5');
     `,
-    `INSERT OR IGNORE INTO "Roles" VALUES (1,'admin'),
+    `INSERT OR REPLACE INTO "Roles" VALUES 
+        (1,'admin'),
         (2,'volunteer');
+    `,
+    `INSERT OR REPLACE INTO "Status" VALUES 
+        (1,'open'),
+        (2,'partial'),
+        (3,'filled');
     `
 ]
 
-//stock data for testing
+//test data
 export const testData = [
-    `INSERT OR IGNORE INTO "Inventory" VALUES 
+    `INSERT OR REPLACE INTO "Inventory" VALUES 
         (1,'Soup',9,27,10),
         (2,'Chunky Soup',9,15,10),
         (3,'Canned Ham',9,7,10),
@@ -125,10 +145,15 @@ export const testData = [
         (65,'Diapers',11,12,10),
         (66,'Baby Food',11,11,10);
     `,
-    `INSERT OR IGNORE INTO "Users" VALUES 
+    `INSERT OR REPLACE INTO "Users" VALUES 
         (1,'Jarrod','Hoddinott',2,'123'),
         (2,'Maxwell','Schriner',2,'456'),
         (3,'Bob','Bobertson',1,'789');
     `
 ]
 
+/*
+    `INSERT OR REPLACE INTO "Orders" VALUES 
+        (1,datetime('now', 'localtime'),NULL,1,"./orders/2026-08-05 12-18-24.json"),
+    `
+*/
