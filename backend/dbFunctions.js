@@ -74,6 +74,14 @@ export function deleteUser(id)
 }
 
 //
+//Roles
+//
+export function getRoles()
+{
+    return db.prepare(`SELECT * FROM Roles`).all()
+} 
+
+//
 //Inventory
 //
 export function getInventory()
@@ -118,9 +126,37 @@ export function getCategories()
 } 
 
 //
-//Roles
+//Orders
 //
-export function getRoles()
+export function getOrders()
 {
-    return db.prepare(`SELECT * FROM Roles`).all()
+    return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id`).all()
+}
+
+export function getOrderById(id)
+{
+    return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id WHERE order_id=?`).get(id)
 } 
+
+export function addOrder(path)
+{
+    return db.prepare(
+        `INSERT INTO Orders (created_date, path) 
+        VALUES (datetime('now', 'localtime'), ?)
+        `
+    ).run(path)
+}
+
+export function updateOrder(id, newReceivedDate, newStatus)
+{
+    return db.prepare(
+        `UPDATE Orders SET received_date=?, status=?
+         WHERE order_id=?
+        `
+    ).run(newReceivedDate, newStatus, id)
+}
+
+export function deleteOrder(id)
+{
+    return db.prepare(`DELETE FROM Orders WHERE order_id=?`).run(id)
+}
