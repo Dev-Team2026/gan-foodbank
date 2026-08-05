@@ -1,4 +1,4 @@
-const OrdersCard = ({orders_id, item_name, amount, date_issued, date_recieved}) => {
+const OrdersCard = ({orders_id, item_name, amount, date_issued, date_recieved, handleRecieveOrder}) => {
     return (
         <tr>
             <td>{orders_id}</td>
@@ -6,6 +6,7 @@ const OrdersCard = ({orders_id, item_name, amount, date_issued, date_recieved}) 
             <td>{amount}</td>
             <td>{date_issued}</td>
             <td>{date_recieved}</td>
+            {date_recieved === "pending" && <td><button onClick={()=>handleRecieveOrder(orders_id)} >Recieved</button></td> }
         </tr>
     )
 }

@@ -135,7 +135,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   }
   const handleAddOrder = async (item_name, amount) => {
     try {
-      await axios.post(`http://localhost:3000/orders`, {item_name: item_name, amount: amount})
+      await axios.post(`http://localhost:3000/ordersOld`, {item_name: item_name, amount: amount})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })

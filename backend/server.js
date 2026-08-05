@@ -82,6 +82,7 @@ let orders = [
     },
 ]
 let orderFilters = {}
+let currentOrderGroupIndex = 0
 //
 // Endpoints
 //
@@ -243,10 +244,11 @@ server.patch("/inventoryFilters", async (request, response) => {
     }
 })
 
-server.get("/orders", (request, response) => {
-    response.send(indexDbResults(orders))
+server.get("/ordersOld", (request, response) => {
+    response.send({db: indexDbResults(orders), currentGroup: currentOrderGroupIndex})
+    currentOrderGroupIndex = 0
 })
-server.post("/orders", (request, response) => {
+server.post("/ordersOld", (request, response) => {
     const {item_name, amount} = request.body
     const currentTime = new Date(Date.now())
     //console.log(currentTime)
@@ -258,6 +260,26 @@ server.post("/orders", (request, response) => {
             date_issued: currentTime.getFullYear() + "-" + currentTime.getMonth().toString().padStart(2,"0") + "-" + currentTime.getDate().toString().padStart(2,"0"), 
             date_recieved: "pending"
         })
+        return response.status(200).send({
+            message: `order added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+    response.send(indexDbResults(orders))
+})
+
+server.patch("/ordersOld", (request, response) => {
+    const {group_id, order_id} = request.body
+    const currentTime = new Date(Date.now())
+    currentOrderGroupIndex = group_id
+    //console.log(currentTime)
+    try {
+        orders[group_id].order_items[order_id-1]
+            .date_recieved = 
+                currentTime.getFullYear() + "-" 
+                + currentTime.getMonth().toString().padStart(2,"0") + "-" 
+                + currentTime.getDate().toString().padStart(2,"0")
         return response.status(200).send({
             message: `order added successfully!`
         });
