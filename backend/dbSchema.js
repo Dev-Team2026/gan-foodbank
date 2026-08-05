@@ -1,8 +1,8 @@
 //The purpuse of this file is to allow the creation of the DB file in place
 //All the relevant SQL commands to do so will live here (tables, data, test-data, etc.)
-//IF NOT EXITS and INSERT OR REPLACE should prevent duplicate tables and records and allow quick changes to data
+//IF NOT EXITS and INSERT OR REPLACE should prevent duplicate tables and records and allow quick changes
 
-//SQL commands for creating tables
+//SQL commands for creating tables (DB file must be deleted to recreate tables)
 export const tables = [
     `CREATE TABLE IF NOT EXISTS "Categories" (
         "category_id"	INTEGER NOT NULL UNIQUE,
@@ -149,13 +149,11 @@ export const testData = [
         (1,'Jarrod','Hoddinott',2,'123'),
         (2,'Maxwell','Schriner',2,'456'),
         (3,'Bob','Bobertson',1,'789');
-    `,
-    `INSERT OR REPLACE INTO "Orders" VALUES 
-        (1,datetime('now', 'localtime'),NULL,1,NULL),
-        (2,datetime('now', 'localtime'),NULL,2,NULL),
-        (3,datetime('now', 'localtime'),NULL,3,NULL),
-        (4,datetime('now', 'localtime'),NULL,1,NULL),
-        (5,datetime('now', 'localtime'),NULL,3,NULL);
     `
 ]
 
+/*
+    `INSERT OR REPLACE INTO "Orders" VALUES 
+        (1,datetime('now', 'localtime'),NULL,1,"./orders/2026-08-05 12-18-24.json"),
+    `
+*/
