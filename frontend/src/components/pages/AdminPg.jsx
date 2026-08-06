@@ -1,24 +1,35 @@
 import { useState, useEffect } from "react";
 import {useNavigate} from "react-router-dom";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 import UserContainer from "../pageFeatures/UserContainer";
 import AddUserForm from "../pageFeatures/AddUserForm";
 import EditUserForm from "../pageFeatures/EditUserForm";
 
-const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
+const AdminPg = () => {
   const navigate = useNavigate()
   const [users, setUsers] = useState([])
   const [userForm, setUserForm] = useState({name: "", password: "", role: ""})
   const [userPostResponse, setUserPostResponse] = useState("")
   const [currentAction, setCurrentAction] = useState("")
-  useEffect(()=>{
-    if (currentUser[1] != "admin")
-    {
-        navigate("/")
-        alert("only admin allowed")
-    }
-  })
+  const token = Cookies.get("jwt-authorization");
+
+  let userData = null;
+
+  if (token) {
+    userData = jwtDecode(token);
+  } else {
+    navigate("/")
+    alert("only admin allowed")
+  }
+
+  if (userData.role !== 1) {
+    navigate("/")
+    alert("only admin allowed")
+  }
+
 
   const handleUserDB = async ()=>{
     try {
@@ -93,11 +104,9 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
 
   return(
     <div className="container">
-      <PageHeader Link={Link} user={currentUser} />
-      <AuthenticationChecker updateUser={updateUser} />
       <title>Admin</title>
       
-      <h1>Welcome Back</h1>
+      <h1>Welcome Back {userData.name}</h1>
       <button onClick={()=>setCurrentAction("add")} >Add User</button>
       {currentAction === "add" && <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser} newUser={userForm} /> }
       {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitEditedUser={handleOnSubmitEditedUser} user={userForm} /> }

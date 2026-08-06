@@ -5,6 +5,7 @@ import axios from "axios";
 
 const LoginPg = () => {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null)
   //const [users] = useState([{name: "maxwell", password:123}])
   const [loginData, setLoginData] = useState({
     name: "",
@@ -30,6 +31,7 @@ const LoginPg = () => {
       {
         navigate("/");
         Cookies.set("jwt-authorization", response.data.token);
+        setUserData(response.data.token)
       }
     } catch (err) {
       console.log(err)
