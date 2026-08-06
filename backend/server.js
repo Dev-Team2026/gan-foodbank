@@ -52,7 +52,7 @@ let inventory = indexDbResults(db.getInventory())
 let inventoryFilters = {nameFilter: new RegExp(""), categoryFilter: new RegExp(""), sortBy: ""}
 //updates stored inventory list after db update
 const refreshInventoryList= () => {
-    inventory =  indexDbResults(db.getInventory())updateUser}
+    inventory =  indexDbResults(db.getInventory())
 }
 
 //
