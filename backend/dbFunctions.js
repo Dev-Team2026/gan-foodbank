@@ -86,7 +86,13 @@ export function getRoles()
 //
 export function getInventory()
 {
-    return db.prepare(`SELECT I.*, C.name as category_name FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id`).all()
+    return db.prepare(
+        `
+        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I 
+        LEFT JOIN Categories as C ON I.category = C.category_id 
+        LEFT JOIN Units as U ON I.unit = U.unit_id
+        `
+    ).all()
 }
 
 export function getInvItemById(id)
@@ -123,6 +129,14 @@ export function deleteInvItem(id)
 export function getCategories()
 {
     return db.prepare(`SELECT * FROM Categories`).all()
+} 
+
+//
+//Units
+//
+export function getUnits()
+{
+    return db.prepare(`SELECT * FROM Units`).all()
 } 
 
 //
