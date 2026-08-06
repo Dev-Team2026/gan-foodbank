@@ -303,3 +303,8 @@ server.delete("/order/:id", (request, response) => {
     response.status(400).send({ message: error.message });
   }
 });
+
+
+server.get("/test", (request, response) => {
+    response.send(db.getInvItemById(3))
+})

@@ -97,25 +97,34 @@ export function getInventory()
 
 export function getInvItemById(id)
 {
-    return db.prepare(`SELECT I.*, C.name as category_name FROM Inventory AS I LEFT JOIN Categories AS C ON I.category = C.category_id WHERE item_id=?`).get(id)
+    return db.prepare(
+        `
+        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I 
+        LEFT JOIN Categories as C ON I.category = C.category_id 
+        LEFT JOIN Units as U ON I.unit = U.unit_id
+        WHERE item_id=?
+        `
+    ).get(id)
 } 
 
-export function AddInvItem(name,category,stock,par)
+//default unit to 1 until add function can be refactored
+export function AddInvItem(name,category,stock,par,unit=1)
 {
     return db.prepare(
-        `INSERT INTO Inventory (name, category, stock, par)
-         VALUES (?,?,?,?)
+        `INSERT INTO Inventory (name, category, stock, par, unit)
+         VALUES (?,?,?,?,?)
         `
-    ).run(name,category,stock,par)
+    ).run(name,category,stock,par,unit)
 }
 
-export function UpdateInvItem(id, newName, newCategory, newStock, newPar)
+//default unit to 1 until update function can be refactored
+export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit=1)
 {
     return db.prepare(
-        `UPDATE Inventory SET name=?, category=?, stock=?, par=?
+        `UPDATE Inventory SET name=?, category=?, stock=?, par=?, unit=?
          WHERE item_id=?
         `
-    ).run(newName, newCategory, newStock, newPar, id)
+    ).run(newName, newCategory, newStock, newPar, newUnit, id)
 }
 
 export function deleteInvItem(id)
