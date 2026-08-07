@@ -1,4 +1,4 @@
-const InventoryCard = ({index, name, category, stock, selected, currentAction, handleOnSelect,setUpForEditing, handleAddOrder}) => {
+const InventoryCard = ({index, name, category, stock, selected, currentAction, handleOnSelect,setUpForEditing, handleAddToNewOrder}) => {
     return (
         <tr>
             {currentAction != "selectItemNameToEdit" && <td>{selected && "**" } {name} {selected && "**" }</td>} 
@@ -8,7 +8,7 @@ const InventoryCard = ({index, name, category, stock, selected, currentAction, h
             {currentAction != "selectStockToEdit" && <td>{stock}</td>} 
             {currentAction === "selectStockToEdit" && <td><button className="invTableBtn" onClick={() => setUpForEditing("editStock", index)} >{stock}</button></td>}
             {currentAction === "delete" && <td><button className="invTableBtn" onClick={() => handleOnSelect(index)} >{selected ? "Unselect" : "Select"}</button></td>}
-            <td><button className="invTableBtn" onClick={() => handleAddOrder(name, 3)} >Order Item</button></td>
+            <td><button className="invTableBtn" onClick={() => handleAddToNewOrder(name, 3)} >Order Item</button></td>
         </tr>
     )
 }

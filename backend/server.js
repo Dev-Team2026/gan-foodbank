@@ -269,7 +269,6 @@ server.post("/ordersOld", (request, response) => {
     }
     response.send(indexDbResults(orders))
 })
-
 server.patch("/ordersOld", (request, response) => {
     const {group_id, order_id} = request.body
     const currentTime = new Date(Date.now())

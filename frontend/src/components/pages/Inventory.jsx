@@ -5,6 +5,7 @@ import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
 import EditItemIntForm from "../pageFeatures/EditItemIntForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
+import NewOrderCard from "../pageFeatures/NewOrderCard";
 
 const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
   //States
@@ -14,6 +15,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
   const [itemsSelected, setItemsSelected] = useState(false)
   const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
+  const [newOrder, setNewOrder] = useState([])
   //Db and useEffect statements
   const handleInventoryDB = async ()=>{
     try {
@@ -133,9 +135,25 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     })
     resetAction()
   }
-  const handleAddOrder = async (item_name, amount) => {
+  const handleAddToNewOrder = (item_name, amount) => {
+    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1}])
+  }
+  const handleRemoveItemFromOrder = (index)=>{
+    let updatedOrder = [...newOrder]
+    updatedOrder.splice(index, 1)
+    updatedOrder.forEach((item)=>{
+      if (item.index > index)
+        item.index -= 1
+    })
+  }
+  const handleAdjustUnitQuatity = (index, amount) => {
+    let updatedOrder = [...newOrder]
+    updatedOrder[index].unitQuantity += amount
+    setNewOrder(updatedOrder)
+  }
+  const handleSubmitNewOrder = async () => {
     try {
-      await axios.post(`http://localhost:3000/ordersOld`, {item_name: item_name, amount: amount})
+      await axios.post(`http://localhost:3000/ordersOld`, newOrder)
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -159,13 +177,12 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       <title>Inventory Page</title>
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>
-      {currentAction === "add" && 
-        <InventoryEditingCard 
-          inventoryItem={inventoryItemForm} 
+      {currentAction === "add" && <InventoryEditingCard 
+        inventoryItem={inventoryItemForm} 
           currentAction={currentAction} 
           handleAddNewItem={handleAddNewItem}
-          handleOnChangeItemForm={handleOnChangeItemForm}
-      />}
+        handleOnChangeItemForm={handleOnChangeItemForm}/>
+      }
       {currentAction[0] === "editStock" && <EditItemIntForm value={"stock"} item={inventory[currentAction[1]]} inventoryItemFormValue={inventoryItemForm.stock} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitIntValueEdit={handleOnSubmitIntValueEdit} /> }
       {currentAction[0] === "editName" && <EditItemStringForm value={"name"} inventoryItemFormValue={inventoryItemForm.name} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} /> }
       {currentAction[0] === "editCategory" && <EditItemStringForm value={"category"} inventoryItemFormValue={inventoryItemForm.category} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} />}
@@ -212,10 +229,11 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
         </thead>
         <tbody>
           {inventory.map((item)=>(
-            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} handleAddOrder={handleAddOrder} />
+            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} handleAddToNewOrder={handleAddToNewOrder} />
           ))}
         </tbody>
       </table>
+      <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />
     </div>
   )
 }
