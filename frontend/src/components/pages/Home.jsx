@@ -1,8 +1,11 @@
 import logo from '../../assets/GananoqueFoodBank.png'
-import { useState} from "react";
+import {useState} from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
-const Home = ( currentUser ) => {
+
+const Home = () => {
   const [inventory, setInventory] = useState([])
 
   const loadReport = async () => {
@@ -17,12 +20,20 @@ const Home = ( currentUser ) => {
     }
   }
 
+    const token = Cookies.get("jwt-authorization")
+
+    let userData = null
+
+    if (token) {
+        userData = jwtDecode(token)
+    }
+
   loadReport()
 
   return(
     <div className="container">
       <title>Home</title>
-        <h1>Welcome {currentUser[0]}!</h1>
+        <h1>Welcome {userData?.name}!</h1>
       <h1>Dashboard</h1>
       <h2>This will serve as the main landing page of the app, showing relevant top level info at a glance</h2>
       <div>

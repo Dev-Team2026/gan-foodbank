@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -9,27 +9,22 @@ import AddUserForm from "../pageFeatures/AddUserForm";
 import EditUserForm from "../pageFeatures/EditUserForm";
 
 const AdminPg = () => {
-  const navigate = useNavigate()
   const [users, setUsers] = useState([])
   const [userForm, setUserForm] = useState({name: "", password: "", role: ""})
   const [userPostResponse, setUserPostResponse] = useState("")
   const [currentAction, setCurrentAction] = useState("")
-  const token = Cookies.get("jwt-authorization");
+  const token = Cookies.get("jwt-authorization")
 
-  let userData = null;
+  let userData = null
 
   if (token) {
-    userData = jwtDecode(token);
-  } else {
-    navigate("/")
-    alert("only admin allowed")
+    userData = jwtDecode(token)
   }
 
   if (userData.role !== 1) {
-    navigate("/")
     alert("only admin allowed")
+    return <Navigate to="/home" replace />
   }
-
 
   const handleUserDB = async ()=>{
     try {

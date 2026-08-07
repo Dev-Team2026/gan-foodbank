@@ -22,10 +22,10 @@ const PageHeader = () => {
         <h1>Gananoque Food Bank App</h1>
         {/* Use the "to" parameter to set which route a link will use */}
         <nav className='navBar'>
-          <Link className='navLink' to="/">Home</Link>
+          <Link className='navLink' to="/home">Home</Link>
           <Link className='navLink' to="/inventory">Inventory</Link>
           {userData?.role === 1 && <Link className='navLink' to="/admin">Admin Dashboard</Link>}
-          <button onClick={handleLogout}><Link to="/login">Logout</Link></button>
+          <button onClick={handleLogout}><Link to="/">Logout</Link></button>
         </nav>
       </header>
     </div>
