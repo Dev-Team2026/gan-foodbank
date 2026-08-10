@@ -178,17 +178,17 @@ const Inventory = () => {
           {itemsSelected ? 
             <p>
               Are you sure you want to delete these items 
-              <button onClick={DeleteItem}>Yes</button> 
-              <button onClick={resetAction}>No</button>
+              <button className="invBttn" onClick={DeleteItem}>Yes</button> 
+              <button className="invBttn" onClick={resetAction}>No</button>
             </p> : 
             <p>Please select items to delete</p>}
         </div> }
       <br />
       {currentAction === "" ? <div>
-        <button onClick={()=>setupAction("add")}>Add Item</button>
-        <button onClick={()=>setupAction("delete")}>Delete Items</button>
+        <button className="invBttn" onClick={()=>setupAction("add")}>Add Item</button>
+        <button className="invBttn" onClick={()=>setupAction("delete")}>Delete Items</button>
       </div> :
-      <button onClick={resetAction}>Cancel</button>}
+      <button className="invBttn" onClick={resetAction}>Cancel</button>}
 
       <input className="searchBar" placeholder="Type to Search" onChange={search} />
 
@@ -196,22 +196,22 @@ const Inventory = () => {
         <thead>
           <tr>
             <th>
-                <button onClick={()=>sort("nameAsc")}>Asc</button> 
-                <button onClick={()=>sort("nameDesc")}>Desc</button> <br /> 
+                <button className="invBttn" onClick={()=>sort("nameAsc")}>Asc</button> 
+                <button className="invBttn" onClick={()=>sort("nameDesc")}>Desc</button> <br /> 
                 Item <br /> 
-                <button onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
+                <button className="invBttn" onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
             </th>
             <th>
-                <button onClick={()=>sort("categoryAsc")}>Asc</button>
-                <button onClick={()=>sort("categoryDesc")}>Desc</button> <br /> 
+                <button className="invBttn" onClick={()=>sort("categoryAsc")}>Asc</button>
+                <button className="invBttn" onClick={()=>sort("categoryDesc")}>Desc</button> <br /> 
                 Category <br /> 
-                <button onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
+                <button className="invBttn" onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
             </th>
             <th>
-                <button onClick={()=>sort("stockAsc")}>Asc</button>
-                <button onClick={()=>sort("stockDesc")}>Desc</button> <br /> 
+                <button className="invBttn" onClick={()=>sort("stockAsc")}>Asc</button>
+                <button className="invBttn" onClick={()=>sort("stockDesc")}>Desc</button> <br /> 
                 Count <br /> 
-                <button onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
+                <button className="invBttn" onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
             </th>
           </tr>
         </thead>
