@@ -53,6 +53,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   const resetAction = () => {
     setInventoryItemForm({name: "", category: "", stock: 0})
     setCurrentAction("")
+    setNewOrder([])
     unselectAll()
   }
   const unselectAll = () => {
@@ -64,10 +65,10 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     checkForSelection(updatedInventory)
   }
   const handleOnSelect = (index) => {
-    let updatedInventory = []
-    inventory.map((item)=>{
-      updatedInventory.push({...item})
-    })
+    let updatedInventory = [...inventory]
+    //inventory.map((item)=>{
+    //  updatedInventory.push({...item})
+    //})
     updatedInventory[index].selected = updatedInventory[index].selected ? false : true
     setInventory(updatedInventory)
     checkForSelection(updatedInventory)
@@ -135,16 +136,28 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     })
     resetAction()
   }
-  const handleAddToNewOrder = (item_name, amount) => {
-    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1}])
+  const handleAddToNewOrder = (item_name, amount, inventoryIndex) => {
+    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, inventoryIndex: inventoryIndex}])
+    handleOnSelect(inventoryIndex)
   }
-  const handleRemoveItemFromOrder = (index)=>{
+  const handleRemoveItemFromOrder = (index, inventoryIndex)=>{
     let updatedOrder = [...newOrder]
+    if (index === "unknown")
+    {
+      for(let i =0; i < newOrder.length; i++){
+        if (newOrder[i].inventoryIndex === inventoryIndex){
+          index = i
+          break
+        }
+      }
+    }
     updatedOrder.splice(index, 1)
     updatedOrder.forEach((item)=>{
       if (item.index > index)
         item.index -= 1
     })
+    setNewOrder(updatedOrder)
+    handleOnSelect(inventoryIndex)
   }
   const handleAdjustUnitQuatity = (index, amount) => {
     let updatedOrder = [...newOrder]
@@ -200,6 +213,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
       {currentAction === "" ? <div>
         <button className="invOptionBtn" onClick={()=>setupAction("add")}>Add Item</button>
         <button className="invOptionBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
+        <button className="invOptionBtn" onClick={()=>setupAction("order")}>Create New Order</button>
         <br />
         <input onChange={search} />
       </div> :
@@ -229,11 +243,11 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
         </thead>
         <tbody>
           {inventory.map((item)=>(
-            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} handleAddToNewOrder={handleAddToNewOrder} />
+            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} handleAddToNewOrder={handleAddToNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} />
           ))}
         </tbody>
       </table>
-      <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />
+      {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />}
     </div>
   )
 }

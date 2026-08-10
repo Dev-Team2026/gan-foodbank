@@ -2,8 +2,8 @@ const NewOrderCard = ({orderItems, handleSubmitNewOrder, handleRemoveItemFromOrd
     return ( <div>
 
         {orderItems.map((item)=>(
-            <p>
-                <button onClick={()=>handleRemoveItemFromOrder(item.index)} ><b>X</b></button>
+            <p key={item.index} >
+                <button onClick={()=>handleRemoveItemFromOrder(item.index, item.inventoryIndex)} ><b>X</b></button>
                 {item.name} - {item.unitAmount} per unit | 
                 <button onClick={()=>handleAdjustUnitQuatity(item.index, 1)} >+</button>
                 {item.unitQuantity} Units
