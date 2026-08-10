@@ -7,28 +7,38 @@ const OrdersPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateU
   const [orders, setOrders] = useState([])
   const [groupId, setGroupId] = useState(0)
   const [currentOrderGroup, setCurrentOrderGroup] = useState([])
+  //const [orderItems, setOrderItems] = useState([])
   const [dbResponse, setDbResponse] = useState("")
   //Db and useEffect statements
   const handleOrdersDB = async ()=>{
     try {
-      await axios.get("http://localhost:3000/ordersOld")
+      await axios.get("http://localhost:3000/orders")
       .then((response)=>{
         //console.log(response.data)
         setOrders(response.data.db)
-        setCurrentOrderGroup(response.data.db[response.data.currentGroup].order_items)
+        //setCurrentOrderGroup(response.data.currentGroup)
+        setGroupId(response.data.currentGroup)
       })
     } catch(error) {
       console.log(error.message)
     }
     //console.log(orders[currentOrderGroup].order_items)
   }
+  /*
+  
+  */
+  
   useEffect(() => {
     handleOrdersDB()
   }, [dbResponse])
+  //useEffect(()=>{
+  //  updateOrderItems()
+  //}, [groupId])
 
   const handleOnChangeOrderGroup = (e) => {
     setGroupId(e.target.value)
-    setCurrentOrderGroup(orders[e.target.value].order_items)
+    //setCurrentOrderGroup(orders[e.target.value].order_items)
+    updateOrderItems(e.target.value)
     console.log(currentOrderGroup)
   }
 
@@ -42,6 +52,17 @@ const OrdersPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateU
       console.log(error.message)
     }
   }
+  const updateOrderItems = async (id)=>{
+    try {
+      await axios.get(`http://localhost:3000/orders/${id}`)
+      .then((response)=>{
+        setCurrentOrderGroup(response.data.items)
+        console.log(response.data)
+      })
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
 
   return (<div>
     <PageHeader Link={Link} user={currentUser} />
@@ -49,24 +70,22 @@ const OrdersPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateU
     <form action="">
         <select name="orderGroup" id="orderGroup" onChange={handleOnChangeOrderGroup} >
           {orders.map((group)=>(
-              <option key={group.order_group_id} value={group.index}>Group {group.order_group_id}</option>
+              <option key={group.order_id} value={group.index}>Group {group.order_id}</option>
             ))}
         </select>
     </form>
     <table>
         <thead>
-            <tr><th>id</th><th>item</th><th>amount</th><th>date_issued</th><th>date_recieved</th></tr>
+            <tr><th>id</th><th>item</th><th>amount</th></tr>
         </thead>
         <tbody>
             <tr>
             <td>orders_id</td>
-            <td>item_name</td>
+            <td>name</td>
             <td>amount</td>
-            <td>date_issued</td>
-            <td>date_recieved!</td>
             </tr>
-            {currentOrderGroup.map((order)=>(
-                <OrdersCard key={order.orders_id} {...order} handleRecieveOrder={handleRecieveOrder} />
+            {currentOrderGroup.length > 0 && currentOrderGroup.map((order)=>(
+                <OrdersCard key={order.id} {...order} handleRecieveOrder={handleRecieveOrder} />
             ))}
         </tbody>
     </table>

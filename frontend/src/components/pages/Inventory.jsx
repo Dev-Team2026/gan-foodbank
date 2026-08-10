@@ -166,10 +166,12 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   }
   const handleSubmitNewOrder = async () => {
     try {
-      await axios.post(`http://localhost:3000/ordersOld`, newOrder)
+      console.log(newOrder)
+      await axios.post(`http://localhost:3000/orders`, {items: newOrder})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
+      resetAction()
     } catch (error) {
         console.log(error.message)
     }
