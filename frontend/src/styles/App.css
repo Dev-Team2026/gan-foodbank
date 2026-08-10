@@ -15,6 +15,22 @@ header h1 {
   padding-bottom: 10px;
 }
 
+.invBttn {
+background: #00d166;
+border: 1px solid var(--COLOR2);
+margin-left: 5px;
+border-radius: 5px;
+padding: 5px;
+}
+
+.invBttn:hover {
+background: #84e8b5;
+}
+
+.invBttn:active {
+background: #2a5f43;
+}
+
 .container {
   text-align: center;
 }
