@@ -5,12 +5,15 @@ import axios from "axios";
 
 const LoginPg = () => {
   const navigate = useNavigate();
-  //const [users] = useState([{name: "maxwell", password:123}])
+  const [userData, setUserData] = useState(null)
+
   const [loginData, setLoginData] = useState({
     name: "",
     password: ""
   })
+
   const [loginResponse, setLoginResponse] = useState("")
+
   const handleOnChangeLogin = (e)=> {
     setLoginData((prevData) => {
       return{...prevData, [e.target.name]: e.target.value};
@@ -26,15 +29,20 @@ const LoginPg = () => {
       console.log("test")
       const response = await axios.post("http://localhost:3000/", loginData);
       setLoginResponse(response.data.message);
+
       if (response.status === 201)
       {
-        navigate("/");
+        navigate("/home");
         Cookies.set("jwt-authorization", response.data.token);
+        setUserData(response.data.token)
       }
+
     } catch (err) {
       console.log(err)
     }
+
   }
+
   return (
     <div>
       {loginResponse != "" && <p>{loginResponse}</p>}

@@ -1,4 +1,5 @@
 const InventoryCard = ({index, name, category, stock, selected, currentAction, handleOnSelect,setUpForEditing}) => {
+
     return (
         <tr>
             {currentAction != "selectItemNameToEdit" && <td>{selected && "**" } {name} {selected && "**" }</td>} 
