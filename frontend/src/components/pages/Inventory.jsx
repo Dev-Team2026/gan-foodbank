@@ -30,6 +30,7 @@ const Inventory = () => {
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
+
   useEffect(()=>{
     const applyFilters = async ()=>{
       console.log(filters)
@@ -73,15 +74,17 @@ const Inventory = () => {
   }
 
   
-  const setUpForEditing = (editAction, index) => {
-    setCurrentAction([editAction, index])
-    setInventoryItemForm({name: inventory[index].name, category: inventory[index].category, stock: 0})
+  const setUpForEditing = (editAction, itemId) => {
+    const item = inventory.find(item => item.item_id === itemId)
+    setCurrentAction([editAction, itemId])
+    setInventoryItemForm({name: item.name, category: item.category, stock: 0})
   }
 
   const handleOnSubmitStockEdit = async (newValue) => {
     //console.log(newValue)
+    const item = inventory.find(item => item.item_id === currentAction[1])
     try {
-      await axios.patch(`http://localhost:3000/inventoryStock`, {item: inventory[currentAction[1]], newValue: newValue})
+      await axios.patch(`http://localhost:3000/inventoryStock`, {item: item, newValue: newValue})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -92,8 +95,10 @@ const Inventory = () => {
   }
   const handleOnSubmitStringValueEdit = async (newValue, targetValue) => {
     //console.log(newValue)
+    const item = inventory.find(item => item.item_id === currentAction[1])
+
     try {
-      await axios.patch(`http://localhost:3000/inventoryStringValue`, {item: inventory[currentAction[1]], newValue: newValue, targetValue: targetValue})
+      await axios.patch(`http://localhost:3000/inventoryStringValue`, {item: item, newValue: newValue, targetValue: targetValue})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -127,12 +132,13 @@ const Inventory = () => {
     checkForSelection(updatedInventory)
   }
 
-  const handleOnSelect = (index) => {
-    let updatedInventory = []
-    inventory.map((item)=>{
-      updatedInventory.push({...item})
-    })
-    updatedInventory[index].selected = updatedInventory[index].selected ? false : true
+  const handleOnSelect = (itemId) => {
+    const updatedInventory = inventory.map((item) =>
+      item.item_id === itemId
+        ? {...item, selected: !item.selected}
+          : item
+    )
+
     setInventory(updatedInventory)
     checkForSelection(updatedInventory)
   }
@@ -170,7 +176,7 @@ const Inventory = () => {
           handleAddNewItem={handleAddNewItem}
           handleOnChangeItemForm={handleOnChangeItemForm}
       />}
-      {currentAction[0] === "editStock" && <EditStockForm item={inventory[currentAction[1]]} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
+      {currentAction[0] === "editStock" && <EditStockForm item={inventory.find(item => item.item_id === currentAction[1])} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
       {currentAction[0] === "editName" && <EditItemStringForm value={"name"} inventoryItemFormValue={inventoryItemForm.name} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} /> }
       {currentAction[0] === "editCategory" && <EditItemStringForm value={"category"} inventoryItemFormValue={inventoryItemForm.category} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} />}
       {currentAction === "delete" && 
@@ -178,40 +184,40 @@ const Inventory = () => {
           {itemsSelected ? 
             <p>
               Are you sure you want to delete these items 
-              <button onClick={DeleteItem}>Yes</button> 
-              <button onClick={resetAction}>No</button>
+              <button className="tableBtn" onClick={DeleteItem}>Yes</button>
+              <button className="tableBtn" onClick={resetAction}>No</button>
             </p> : 
             <p>Please select items to delete</p>}
         </div> }
       <br />
       {currentAction === "" ? <div>
-        <button onClick={()=>setupAction("add")}>Add Item</button>
-        <button onClick={()=>setupAction("delete")}>Delete Items</button>
+        <button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>
+        <button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
       </div> :
-      <button onClick={resetAction}>Cancel</button>}
+      <button className="tableBtn" onClick={resetAction}>Cancel</button>}
 
-      <input onChange={search} />
+      <input className="searchBar" placeholder="Type to search..." onChange={search} />
 
       <table>
         <thead>
           <tr>
             <th>
-                <button onClick={()=>sort("nameAsc")}>Asc</button> 
-                <button onClick={()=>sort("nameDesc")}>Desc</button> <br /> 
+                <button className="tableBtn" onClick={()=>sort("nameAsc")}>Asc</button>
+                <button className="tableBtn" onClick={()=>sort("nameDesc")}>Desc</button> <br />
                 Item <br /> 
-                <button onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
+                <button className="tableBtn" onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
             </th>
             <th>
-                <button onClick={()=>sort("categoryAsc")}>Asc</button>
-                <button onClick={()=>sort("categoryDesc")}>Desc</button> <br /> 
+                <button className="tableBtn" onClick={()=>sort("categoryAsc")}>Asc</button>
+                <button className="tableBtn" onClick={()=>sort("categoryDesc")}>Desc</button> <br />
                 Category <br /> 
-                <button onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
+                <button className="tableBtn" onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
             </th>
             <th>
-                <button onClick={()=>sort("stockAsc")}>Asc</button>
-                <button onClick={()=>sort("stockDesc")}>Desc</button> <br /> 
+                <button className="tableBtn" onClick={()=>sort("stockAsc")}>Asc</button>
+                <button className="tableBtn" onClick={()=>sort("stockDesc")}>Desc</button> <br />
                 Count <br /> 
-                <button onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
+                <button className="tableBtn" onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
             </th>
           </tr>
         </thead>
@@ -221,8 +227,6 @@ const Inventory = () => {
           ))}
         </tbody>
       </table>
-
-
     </div>
   )
 }
