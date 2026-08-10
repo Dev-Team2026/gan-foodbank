@@ -1,4 +1,4 @@
-//The purpuse of this file is to allow the creation of the DB file in place
+//The purpose of this file is to allow the creation of the DB file in place
 //All the relevant SQL commands to do so will live here (tables, data, test-data, etc.)
 //IF NOT EXITS and INSERT OR REPLACE should prevent duplicate tables and records and allow quick changes
 
@@ -106,7 +106,7 @@ export const testData = [
         (13,'Canned Spam',9,13,'1',10),
         (14,'Rice',1,30,'1',10),
         (15,'Pasta',1,25,'1',10),
-        (16,'Kraft Diner',1,40,'1',10),
+        (16,'Kraft Dinner',1,40,'1',10),
         (17,'Tea',1,12,'1',10),
         (18,'Sugar',1,21,'1',10),
         (19,'Powdered Milk',1,7,'1',10),
@@ -139,7 +139,7 @@ export const testData = [
         (47,'Oatmeal',1,4,'1',10),
         (48,'Shampoo',5,3,'1',10),
         (49,'Conditioner',5,9,'1',10),
-        (50,'Deoderant (F)',5,2,'1',10),
+        (50,'Deodorant (F)',5,2,'1',10),
         (51,'Deodorant (M)',5,4,'1',10),
         (52,'Toothbrush',5,6,'1',10),
         (53,'Tooth Paste',5,15,'1',10),
@@ -160,7 +160,8 @@ export const testData = [
     `INSERT OR REPLACE INTO "Users" VALUES 
         (1,'Jarrod','Hoddinott',2,'123'),
         (2,'Maxwell','Schriner',2,'456'),
-        (3,'Bob','Bobertson',1,'789');
+        (3,'Bob','Bobertson',1,'789'),
+		(4,'Jacob','Searles',1,'321');
     `
 ]
 

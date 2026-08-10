@@ -5,7 +5,6 @@ import axios from "axios";
 
 const LoginPg = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(null)
 
   const [loginData, setLoginData] = useState({
     name: "",
@@ -34,7 +33,6 @@ const LoginPg = () => {
       {
         navigate("/home");
         Cookies.set("jwt-authorization", response.data.token);
-        setUserData(response.data.token)
       }
 
     } catch (err) {
@@ -44,21 +42,21 @@ const LoginPg = () => {
   }
 
   return (
-    <div>
+    <div className="logDiv">
       {loginResponse != "" && <p>{loginResponse}</p>}
-      <br />
+
       <form onSubmit={handleOnSubmitLogin}>
-        <label htmlFor="name">Name: </label>
+        <label htmlFor="name">Username: </label>
         <input
           type="text"
           name="name"
           id="name"
           value={loginData.name}
           onChange={handleOnChangeLogin}
-          placeholder="Enter name"
+          placeholder="Enter username"
           required
         />
-        <br />
+
         <label htmlFor="password">Password: </label>
         <input
           type="password"
@@ -69,7 +67,7 @@ const LoginPg = () => {
           placeholder="Enter password"
           required
         />
-        <br />
+
         <button>Login</button>
       </form>
     </div>

@@ -20,6 +20,7 @@ const AdminPg = () => {
   if (token) {
     userData = jwtDecode(token)
   }
+  console.log(userData)
 
   if (userData.role !== 1) {
     alert("only admin allowed")
@@ -101,7 +102,7 @@ const AdminPg = () => {
     <div className="container">
       <title>Admin</title>
       
-      <h1>Welcome Back {userData.name}</h1>
+      <h1>Welcome back {userData.name}</h1>
       <button onClick={()=>setCurrentAction("add")} >Add User</button>
       {currentAction === "add" && <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser} newUser={userForm} /> }
       {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitEditedUser={handleOnSubmitEditedUser} user={userForm} /> }

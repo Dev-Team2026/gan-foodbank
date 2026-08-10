@@ -10,7 +10,7 @@ const EditItemStringForm = ({value, inventoryItemFormValue, handleOnChangeItemFo
                     value={inventoryItemFormValue}
                     onChange={handleOnChangeItemForm}
                 />
-                <button type="submit" >Submit</button>
+                <button className="tableBtn" type="submit" >Submit</button>
             </form>
         </div>
     )
