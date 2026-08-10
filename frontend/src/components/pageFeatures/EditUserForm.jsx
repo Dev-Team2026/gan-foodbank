@@ -26,7 +26,7 @@ const EditUserForm = ({handleOnSubmitEditedUser, handleOnChangeUser, user}) => {
                     value={user.password}
                     onChange={handleOnChangeUser}
                 />
-                <button className="adminPgBtn" type="submit">Edit</button>
+                <button className="tableBtn" type="submit">Edit</button>
             </form>
         </div>
     )

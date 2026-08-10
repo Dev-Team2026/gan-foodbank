@@ -5,12 +5,14 @@ import axios from "axios";
 
 const LoginPg = () => {
   const navigate = useNavigate();
-  //const [users] = useState([{name: "maxwell", password:123}])
+
   const [loginData, setLoginData] = useState({
     name: "",
     password: ""
   })
+
   const [loginResponse, setLoginResponse] = useState("")
+
   const handleOnChangeLogin = (e)=> {
     setLoginData((prevData) => {
       return{...prevData, [e.target.name]: e.target.value};
@@ -26,31 +28,35 @@ const LoginPg = () => {
       console.log("test")
       const response = await axios.post("http://localhost:3000/", loginData);
       setLoginResponse(response.data.message);
+
       if (response.status === 201)
       {
-        navigate("/");
+        navigate("/home");
         Cookies.set("jwt-authorization", response.data.token);
       }
+
     } catch (err) {
       console.log(err)
     }
+
   }
+
   return (
-    <div>
+    <div className="logDiv">
       {loginResponse != "" && <p>{loginResponse}</p>}
-      <br />
+
       <form onSubmit={handleOnSubmitLogin}>
-        <label htmlFor="name">Name: </label>
+        <label htmlFor="name">Username: </label>
         <input
           type="text"
           name="name"
           id="name"
           value={loginData.name}
           onChange={handleOnChangeLogin}
-          placeholder="Enter name"
+          placeholder="Enter username"
           required
         />
-        <br />
+
         <label htmlFor="password">Password: </label>
         <input
           type="password"
@@ -61,7 +67,7 @@ const LoginPg = () => {
           placeholder="Enter password"
           required
         />
-        <br />
+
         <button>Login</button>
       </form>
     </div>

@@ -325,7 +325,7 @@ server.post("/orders", (request, response) => {
         let time = new Date()
         //console.log(time)
 
-        //closely matches SQLite formatting "YYYY-MM-DD HH:MM:SS" (cant't put :'s in file name)
+        //closely matches SQLite formatting "YYYY-MM-DD HH:MM:SS" (can't put :'s in file name)
         let formatted = time.getFullYear() + "-" + 
         (time.getMonth() + 1).toString().padStart(2,'0') + "-" +  
         time.getDate().toString().padStart(2,'0') + " " +

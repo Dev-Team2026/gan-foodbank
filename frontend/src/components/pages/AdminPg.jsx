@@ -1,26 +1,32 @@
 import { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 import UserContainer from "../pageFeatures/UserContainer";
 import AddUserForm from "../pageFeatures/AddUserForm";
 import EditUserForm from "../pageFeatures/EditUserForm";
 
-const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
-  //states & nav
-  const navigate = useNavigate()
+const AdminPg = () => {
   const [users, setUsers] = useState([])
   const [userForm, setUserForm] = useState({name: "", password: "", role: ""})
   const [userPostResponse, setUserPostResponse] = useState("")
   const [currentAction, setCurrentAction] = useState("")
-  //Db and useEffect statements
-  useEffect(()=>{
-    if (currentUser[1] != 1)
-    {
-        navigate("/")
-        alert("only admin allowed")
-    }
-  })
+  const token = Cookies.get("jwt-authorization")
+
+  let userData = null
+
+  if (token) {
+    userData = jwtDecode(token)
+  }
+  console.log(userData)
+
+  if (userData.role !== 1) {
+    alert("only admin allowed")
+    return <Navigate to="/home" replace />
+  }
+
   const handleUserDB = async ()=>{
     try {
       await axios.get("http://localhost:3000/users")
@@ -87,12 +93,10 @@ const AdminPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUs
   }
   return(
     <div className="container">
-      <PageHeader Link={Link} user={currentUser} />
-      <AuthenticationChecker updateUser={updateUser} />
       <title>Admin</title>
       
-      <h1>Welcome Back</h1>
-      {currentAction === "" && <button className="adminPgBtn" onClick={()=>setCurrentAction("add")} >Add User</button>}
+      <h1>Welcome back {userData.name}</h1>
+      <button onClick={()=>setCurrentAction("add")} >Add User</button>
       {currentAction === "add" && <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser} newUser={userForm} /> }
       {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitEditedUser={handleOnSubmitEditedUser} user={userForm} /> }
       {currentAction === "delete" && 

@@ -1,8 +1,11 @@
 import logo from '../../assets/GananoqueFoodBank.png'
-import { useState, useEffect } from "react";
+import {useState} from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
-const Home = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
+
+const Home = () => {
   const [inventory, setInventory] = useState([])
 
   const loadReport = async () => {
@@ -17,24 +20,28 @@ const Home = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}
     }
   }
 
+    const token = Cookies.get("jwt-authorization")
+
+    let userData = null
+
+    if (token) {
+        userData = jwtDecode(token)
+    }
+
   loadReport()
 
   return(
-    <div className="container">
-      <PageHeader Link={Link} user={currentUser} />
-      <AuthenticationChecker updateUser={updateUser} />
+    <div className="homeContainer">
+        <div>
       <title>Home</title>
-      
+            <img src={logo}></img>
+        <h1>Welcome {userData?.name}!</h1>
       <h1>Dashboard</h1>
       <h2>This will serve as the main landing page of the app, showing relevant top level info at a glance</h2>
-      <div>
-          <h1>Database reports</h1>
-          <select defaultValue="lowstock" onChange={loadReport}>
-            <option value="lowstock">Low Stock</option>
-          </select>
-
-          <p>Current list of items below desired stock level</p>
-
+            <h1>Database reports</h1>
+            <p>Current list of items below desired stock level</p>
+        </div>
+            <div className="tableDiv">
           <table>
             <thead>
               <tr>
@@ -62,7 +69,6 @@ const Home = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}
             </tbody>
           </table>
       </div>
-      <img src={logo}></img> 
     </div>
   )
 }

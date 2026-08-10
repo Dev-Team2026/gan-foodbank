@@ -7,7 +7,7 @@ import EditItemIntForm from "../pageFeatures/EditItemIntForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
 import NewOrderCard from "../pageFeatures/NewOrderCard";
 
-const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
+const Inventory = () => {
   //States
   const [inventory, setInventory] = useState([])
   const [inventoryItemForm, setInventoryItemForm] = useState({name: "", category: "", stock: 0})
@@ -30,6 +30,7 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
+
   useEffect(()=>{
     const applyFilters = async ()=>{
       try {
@@ -81,10 +82,10 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     selectedItems > 0 ? setItemsSelected(true) : setItemsSelected(false)
   }
   //db setup functions
-  const setUpForEditing = (editAction, index) => {
-    setCurrentAction([editAction, index])
-    setInventoryItemForm({name: inventory[index].name, category: inventory[index].category, stock: 0})
-  }
+  //const setUpForEditing = (editAction, index) => {
+  //  setCurrentAction([editAction, index])
+  //  setInventoryItemForm({name: inventory[index].name, category: inventory[index].category, stock: 0})
+  //}
   //Db submission functions
   const handleAddNewItem = async (e) => {
     e.preventDefault();
@@ -98,9 +99,19 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
         console.log(error.message)
     }
   }
-  const handleOnSubmitIntValueEdit = async (newValue, targetValue) => {
+
+  
+  const setUpForEditing = (editAction, itemId) => {
+    const item = inventory.find(item => item.item_id === itemId)
+    setCurrentAction([editAction, itemId])
+    setInventoryItemForm({name: item.name, category: item.category, stock: 0})
+  }
+
+  const handleOnSubmitStockEdit = async (newValue) => {
+    //console.log(newValue)
+    const item = inventory.find(item => item.item_id === currentAction[1])
     try {
-      await axios.patch(`http://localhost:3000/inventoryIntValue`, {item: inventory[currentAction[1]], newValue: newValue, targetValue: targetValue})
+      await axios.patch(`http://localhost:3000/inventoryStock`, {item: item, newValue: newValue})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -110,8 +121,11 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     resetAction()
   }
   const handleOnSubmitStringValueEdit = async (newValue, targetValue) => {
+    //console.log(newValue)
+    const item = inventory.find(item => item.item_id === currentAction[1])
+
     try {
-      await axios.patch(`http://localhost:3000/inventoryStringValue`, {item: inventory[currentAction[1]], newValue: newValue, targetValue: targetValue})
+      await axios.patch(`http://localhost:3000/inventoryStringValue`, {item: item, newValue: newValue, targetValue: targetValue})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -187,8 +201,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
 
   return (
     <div className="container">
-      <PageHeader Link={Link} user={currentUser} />
-      <AuthenticationChecker updateUser={updateUser} />
       <title>Inventory Page</title>
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>
@@ -196,9 +208,9 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
         inventoryItem={inventoryItemForm} 
           currentAction={currentAction} 
           handleAddNewItem={handleAddNewItem}
-        handleOnChangeItemForm={handleOnChangeItemForm}/>
-      }
-      {currentAction[0] === "editStock" && <EditItemIntForm value={"stock"} item={inventory[currentAction[1]]} inventoryItemFormValue={inventoryItemForm.stock} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitIntValueEdit={handleOnSubmitIntValueEdit} /> }
+          handleOnChangeItemForm={handleOnChangeItemForm}
+      />}
+      {currentAction[0] === "editStock" && <EditItemIntForm item={inventory.find(item => item.item_id === currentAction[1])} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
       {currentAction[0] === "editName" && <EditItemStringForm value={"name"} inventoryItemFormValue={inventoryItemForm.name} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} /> }
       {currentAction[0] === "editCategory" && <EditItemStringForm value={"category"} inventoryItemFormValue={inventoryItemForm.category} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} />}
       {currentAction === "delete" && 
@@ -206,40 +218,44 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
           {itemsSelected ? 
             <p>
               Are you sure you want to delete these items 
-              <button className="invOptionBtn" onClick={DeleteItem}>Yes</button> 
-              <button className="invOptionBtn" onClick={resetAction}>No</button>
+              <button className="tableBtn" onClick={DeleteItem}>Yes</button>
+              <button className="tableBtn" onClick={resetAction}>No</button>
             </p> : 
             <p>Please select items to delete</p>}
         </div> }
       <br />
       {currentAction === "" ? <div>
-        <button className="invOptionBtn" onClick={()=>setupAction("add")}>Add Item</button>
-        <button className="invOptionBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
-        <button className="invOptionBtn" onClick={()=>setupAction("order")}>Create New Order</button>
+        <button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>
+        <button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
+        
+        <button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>
         <br />
         <input onChange={search} />
       </div> :
-      <button className="invOptionBtn" onClick={resetAction}>Cancel</button>}
+      <button className="tableBtn" onClick={resetAction}>Cancel</button>}
+
+      <input className="searchBar" placeholder="Type to search..." onChange={search} />
+
       <table>
         <thead>
           <tr>
             <th>
-                <button className="invTableBtn" onClick={()=>sort("nameAsc")}>Asc</button> 
-                <button className="invTableBtn" onClick={()=>sort("nameDesc")}>Desc</button> <br /> 
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("nameAsc")}>Asc</button>
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("nameDesc")}>Desc</button> <br />
                 Item <br /> 
-                <button className="invTableBtn" onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
+                <button className="invTableBtn" className="tableBtn" onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
             </th>
             <th>
-                <button className="invTableBtn" onClick={()=>sort("categoryAsc")}>Asc</button>
-                <button className="invTableBtn" onClick={()=>sort("categoryDesc")}>Desc</button> <br /> 
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("categoryAsc")}>Asc</button>
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("categoryDesc")}>Desc</button> <br />
                 Category <br /> 
-                <button className="invTableBtn" onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
+                <button className="invTableBtn" className="tableBtn" onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
             </th>
             <th>
-                <button className="invTableBtn" onClick={()=>sort("stockAsc")}>Asc</button>
-                <button className="invTableBtn" onClick={()=>sort("stockDesc")}>Desc</button> <br /> 
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("stockAsc")}>Asc</button>
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("stockDesc")}>Desc</button> <br />
                 Count <br /> 
-                <button className="invTableBtn" onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
+                <button className="invTableBtn" className="tableBtn" onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
             </th>
           </tr>
         </thead>
@@ -253,5 +269,8 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
     </div>
   )
 }
-
+/*
+<button className="invOptionBtn" onClick={()=>setupAction("add")}>Add Item</button>
+        <button className="invOptionBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
+*/
 export default Inventory

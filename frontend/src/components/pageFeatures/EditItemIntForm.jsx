@@ -1,17 +1,17 @@
-const EditItemIntForm = ({value, item, inventoryItemFormValue, handleOnChangeItemForm, handleOnSubmitIntValueEdit}) => {
+const EditItemIntForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleOnSubmitStockEdit}) => {
     return (
         <div>
             <form>
-                <button type="submit" formAction={()=>handleOnSubmitIntValueEdit(item.stock + parseInt(inventoryItemFormValue), value)} >Add</button>
+                <button type="submit" formAction={()=>handleOnSubmitStockEdit(parseInt(item.stock) + parseInt(inventoryItemForm.stock))} >Add</button>
                 <input 
                     type="number"
                     id="stock"
                     name="stock"
                     placeholder="Item stock"
-                    value={inventoryItemFormValue}
+                    value={inventoryItemForm}
                     onChange={handleOnChangeItemForm}
                 />
-                <button type="submit" formAction={()=>handleOnSubmitIntValueEdit(item.stock - parseInt(inventoryItemFormValue), value)} >Subtract</button>
+                <button className="tableBtn" type="submit" formAction={()=>handleOnSubmitStockEdit(parseInt(item.stock) - parseInt(inventoryItemForm.stock))} >Subtract</button>
             </form>
         </div>
     )

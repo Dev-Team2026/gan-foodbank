@@ -3,7 +3,7 @@ import axios from "axios";
 
 import OrdersCard from "../pageFeatures/OrdersCard";
 
-const OrdersPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser})=>{
+const OrdersPg = ()=>{
   const [orders, setOrders] = useState([])
   const [groupId, setGroupId] = useState(0)
   const [currentOrderGroup, setCurrentOrderGroup] = useState([])
@@ -65,8 +65,7 @@ const OrdersPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateU
   }
 
   return (<div>
-    <PageHeader Link={Link} user={currentUser} />
-    <AuthenticationChecker updateUser={updateUser} />
+    
     <form action="">
         <select name="orderGroup" id="orderGroup" onChange={handleOnChangeOrderGroup} >
           {orders.map((group)=>(
@@ -93,5 +92,7 @@ const OrdersPg = ({PageHeader, Link, AuthenticationChecker, currentUser, updateU
 }
 export default OrdersPg
 /*
-
+{PageHeader, Link, AuthenticationChecker, currentUser, updateUser}
+<PageHeader Link={Link} user={currentUser} />
+    <AuthenticationChecker updateUser={updateUser} />
 */
