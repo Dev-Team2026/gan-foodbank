@@ -31,19 +31,17 @@ const Home = () => {
   loadReport()
 
   return(
-    <div className="container">
+    <div className="homeContainer">
+        <div>
       <title>Home</title>
+            <img src={logo}></img>
         <h1>Welcome {userData?.name}!</h1>
       <h1>Dashboard</h1>
       <h2>This will serve as the main landing page of the app, showing relevant top level info at a glance</h2>
-      <div>
-          <h1>Database reports</h1>
-          <select defaultValue="lowstock" onChange={loadReport}>
-            <option value="lowstock">Low Stock</option>
-          </select>
-
-          <p>Current list of items below desired stock level</p>
-
+            <h1>Database reports</h1>
+            <p>Current list of items below desired stock level</p>
+        </div>
+            <div className="tableDiv">
           <table>
             <thead>
               <tr>
@@ -71,7 +69,6 @@ const Home = () => {
             </tbody>
           </table>
       </div>
-      <img src={logo}></img> 
     </div>
   )
 }
