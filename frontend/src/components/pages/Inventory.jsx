@@ -6,7 +6,7 @@ import InventoryCard from "../pageFeatures/InventoryCard";
 import EditStockForm from "../pageFeatures/EditStockForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
 
-const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, updateUser}) => {
+const Inventory = () => {
   const [inventory, setInventory] = useState([])
   const [inventoryItemForm, setInventoryItemForm] = useState({name: "", category: "", stock: 0})
   const [currentAction, setCurrentAction] = useState("")
@@ -159,8 +159,6 @@ const Inventory = ({PageHeader, Link, AuthenticationChecker, currentUser, update
 
   return (
     <div className="container">
-      <PageHeader Link={Link} user={currentUser} />
-      <AuthenticationChecker updateUser={updateUser} />
       <title>Inventory Page</title>
 
       <h1>Inventory</h1>

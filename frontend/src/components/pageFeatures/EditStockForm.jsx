@@ -2,7 +2,7 @@ const EditStockForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleO
     return (
         <div>
             <form>
-                <button type="submit" formAction={()=>handleOnSubmitStockEdit(item.stock + inventoryItemForm.stock)} >Add</button>
+                <button type="submit" formAction={()=>handleOnSubmitStockEdit(parseInt(item.stock) + parseInt(inventoryItemForm.stock))} >Add</button>
                 <input 
                     type="number"
                     id="stock"
@@ -11,7 +11,7 @@ const EditStockForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleO
                     value={inventoryItemForm.stock}
                     onChange={handleOnChangeItemForm}
                 />
-                <button type="submit" formAction={()=>handleOnSubmitStockEdit(item.stock - inventoryItemForm.stock)} >Subtract</button>
+                <button type="submit" formAction={()=>handleOnSubmitStockEdit(parseInt(item.stock) - parseInt(inventoryItemForm.stock))} >Subtract</button>
             </form>
         </div>
     )
