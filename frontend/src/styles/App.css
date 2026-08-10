@@ -1,5 +1,6 @@
 :root {
   --COLOR: #00a54f;
+  --COLOR2: #0d3b0f;
 }
 header{
   border-bottom: 2px solid var(--COLOR);
@@ -77,4 +78,13 @@ a {
 
 .exportBtn {
   margin-bottom: 10px;
+}
+
+.searchBar {
+  padding: 10px;
+  border-radius: 25px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  max-width: 350px;
 }

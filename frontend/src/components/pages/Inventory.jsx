@@ -190,7 +190,7 @@ const Inventory = () => {
       </div> :
       <button onClick={resetAction}>Cancel</button>}
 
-      <input onChange={search} />
+      <input className="searchBar" placeholder="Type to Search" onChange={search} />
 
       <table>
         <thead>
