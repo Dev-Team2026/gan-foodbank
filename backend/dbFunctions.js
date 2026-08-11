@@ -107,24 +107,24 @@ export function getInvItemById(id)
     ).get(id)
 } 
 
-//default unit to 1 until add function can be refactored
-export function AddInvItem(name,category,stock,par,unit=1)
+//default unit and size until add function can be refactored
+export function AddInvItem(name,category,stock,par,unit=1,size="100 m/l")
 {
     return db.prepare(
-        `INSERT INTO Inventory (name, category, stock, par, unit)
-         VALUES (?,?,?,?,?)
+        `INSERT INTO Inventory (name, category, stock, par, unit, size)
+         VALUES (?,?,?,?,?,?)
         `
-    ).run(name,category,stock,par,unit)
+    ).run(name,category,stock,par,unit,size)
 }
 
-//default unit to 1 until update function can be refactored
-export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit=1)
+//default unit and size until update function can be refactored
+export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit=1, newSize="100 m/l")
 {
     return db.prepare(
-        `UPDATE Inventory SET name=?, category=?, stock=?, par=?, unit=?
+        `UPDATE Inventory SET name=?, category=?, stock=?, par=?, unit=?, size=?
          WHERE item_id=?
         `
-    ).run(newName, newCategory, newStock, newPar, newUnit, id)
+    ).run(newName, newCategory, newStock, newPar, newUnit, newSize, id)
 }
 
 export function deleteInvItem(id)
