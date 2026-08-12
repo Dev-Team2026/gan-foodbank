@@ -127,6 +127,15 @@ export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUni
     ).run(newName, newCategory, newStock, newPar, newUnit, newSize, id)
 }
 
+export function UpdateInvStock(id, newStock)
+{
+    return db.prepare(
+        `UPDATE Inventory SET stock=?
+         WHERE item_id=?
+        `
+    ).run(newStock, id)
+}
+
 export function deleteInvItem(id)
 {
     return db.prepare(`DELETE FROM Inventory WHERE item_id=?`).run(id)
