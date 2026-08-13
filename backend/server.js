@@ -1,4 +1,4 @@
-import express from 'express'
+import express, {request, response} from 'express'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import Database from 'better-sqlite3'
@@ -55,35 +55,6 @@ const refreshInventoryList= () => {
     inventory =  indexDbResults(db.getInventory())
 }
 
-let ordersOld = [
-    {
-        order_group_id: 1, 
-        date_sent: "2026-06-30",
-        order_items: [
-            {orders_id: 1, item_name: "Chick Peas", amount: 4, date_issued: "2026-06-10", date_recieved: "pending",}, 
-            {orders_id: 2, item_name: "Rice", amount: 4, date_issued: "2026-06-10", date_recieved: "pending"}, 
-            {orders_id: 3, item_name: "Canned Tuna", amount: 4, date_issued: "2026-06-10", date_recieved: "pending"}
-        ]
-    },
-    {
-        order_group_id: 2, 
-        date_sent: "2026-07-31",
-        order_items: [
-            {orders_id: 1, item_name: "Pasta", amount: 4, date_issued: "2026-07-11", date_recieved: "pending",}, 
-            {orders_id: 2, item_name: "Soup", amount: 4, date_issued: "2026-07-11", date_recieved: "pending"}, 
-            {orders_id: 3, item_name: "Canned Fruit", amount: 4, date_issued: "2026-07-11", date_recieved: "pending"}
-        ]
-    },
-    {
-        order_group_id: 3, 
-        date_sent: "unsent",
-        order_items: [
-            {orders_id: 1, item_name: "Sugar", amount: 4, date_issued: "2026-08-02", date_recieved: "pending",}
-        ]
-    },
-]
-let orderFilters = {}
-let currentOrderGroupIndex = 1
 //
 // Endpoints
 //
@@ -176,7 +147,7 @@ server.get("/inventory", (request, response) => {
     inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b)=>{return b.name.localeCompare(a.name)}))
     inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b)=>{return b.category - a.category}))
     inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b)=>{return b.stock - a.stock}))
-    response.send(indexDbResults(addInventorySelectedValue(inventory)))
+    response.send(addInventorySelectedValue(inventory))
 })
 
 server.post("/inventory", (request, response) => {
@@ -191,20 +162,26 @@ server.post("/inventory", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+
 server.patch("/inventory/count", (request, response) => {
-    const {counts} = request.body
+    const { counts } = request.body
+
     try {
         for (const [id, newValue] of Object.entries(counts)) {
-            db.UpdateInvStock(id, newValue);
+            db.UpdateInvStock(Number(id), Number(newValue));
         }
+
         refreshInventoryList()
+
         return response.status(200).send({
-            message: `Count updated successfully!`})
-    }
-    catch {
-        response.status(500).send({message: error.message})
+            message: `count updated successfully!`
+        });
+
+    } catch (error) {
+        response.status(500).send({ message: error.message });
     }
 })
+
 server.delete("/inventory/:id", (request, response) => {
   const { id } = request.params;
   try {
@@ -218,10 +195,10 @@ server.delete("/inventory/:id", (request, response) => {
   }
 });
 
-server.patch("/inventoryIntValue", async (request, response) => {
-    const {item, newValue, targetValue} = request.body
+server.patch("/inventoryStock", async (request, response) => {
+    const {item, newValue} = request.body
     try {
-        targetValue === "stock" && (inventory = db.UpdateInvItem(item.item_id, item.name, item.category, newValue))
+        inventory = db.UpdateInvItem(item.item_id, item.name, item.category, newValue)
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
@@ -233,8 +210,11 @@ server.patch("/inventoryIntValue", async (request, response) => {
 server.patch("/inventoryStringValue", async (request, response) => {
     const {item, newValue, targetValue} = request.body
     try {
-        targetValue === "name" && (inventory = db.UpdateInvItem(item.item_id, newValue, item.category, item.stock))
-        targetValue === "category" && (inventory = db.UpdateInvItem(item.item_id, item.name, newValue, item.stock))
+        if (targetValue === "name"){
+            inventory = db.UpdateInvItem(item.item_id, newValue, item.category, item.stock)
+        } else {
+            inventory = db.UpdateInvItem(item.item_id, item.name, newValue, item.stock)
+        }
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
@@ -259,58 +239,13 @@ server.patch("/inventoryFilters", async (request, response) => {
     }
 })
 
-server.get("/ordersOld", (request, response) => {
-    response.send({db: indexDbResults(ordersOld), currentGroup: currentOrderGroupIndex})
-    currentOrderGroupIndex = 1
-})
-server.post("/ordersOld", (request, response) => {
-    const {item_name, amount} = request.body
-    const currentTime = new Date(Date.now())
-    //console.log(currentTime)
-    try {
-        ordersOld[ordersOld.length-1].order_items.push({
-            orders_id: ordersOld[ordersOld.length-1].order_items[ordersOld.length-1].orders_id+1,
-            item_name, 
-            amount, 
-            date_issued: currentTime.getFullYear() + "-" + currentTime.getMonth().toString().padStart(2,"0") + "-" + currentTime.getDate().toString().padStart(2,"0"), 
-            date_recieved: "pending"
-        })
-        return response.status(200).send({
-            message: `order added successfully!`
-        });
-    } catch(error){
-        response.status(500).send({message: error.message})
-    }
-    response.send(indexDbResults(orders))
-})
-server.patch("/ordersOld", (request, response) => {
-    const {group_id, order_id} = request.body
-    const currentTime = new Date(Date.now())
-    currentOrderGroupIndex = group_id
-    //console.log(currentTime)
-    try {
-        ordersOld[group_id].order_items[order_id-1]
-            .date_recieved = 
-                currentTime.getFullYear() + "-" 
-                + currentTime.getMonth().toString().padStart(2,"0") + "-" 
-                + currentTime.getDate().toString().padStart(2,"0")
-        return response.status(200).send({
-            message: `order added successfully!`
-        });
-    } catch(error){
-        response.status(500).send({message: error.message})
-    }
-    response.send(indexDbResults(orders))
-})
-
 server.get("/orders", (request, response) => {
     try {
         let orders = db.getOrders() 
-        return response.send({db: indexDbResults(orders), currentGroup: currentOrderGroupIndex})
+        return response.send(orders)
     } catch(error){
         response.status(500).send({message: error.message})
     }
-    currentOrderGroupIndex = 1
 })
 
 server.get("/orders/:id", (request, response) => {
@@ -329,15 +264,9 @@ server.get("/orders/:id", (request, response) => {
 
 //only order items are required, created date is auto filled, and status defaults to 0 (open)
 server.post("/orders", (request, response) => {
-    const { items } = request.body;
-    let fileContents = []
-    //console.log(items)
-    items.forEach((item)=>{
-        fileContents.push({id: item.index, name: item.name, amount: item.unitAmount * item.unitQuantity })
-    })
+    const { items } = request.params;
     try {
         let time = new Date()
-        //console.log(time)
 
         //closely matches SQLite formatting "YYYY-MM-DD HH:MM:SS" (can't put :'s in file name)
         let formatted = time.getFullYear() + "-" + 
@@ -346,21 +275,15 @@ server.post("/orders", (request, response) => {
         time.getHours().toString().padStart(2,'0') + "-" +
         time.getMinutes().toString().padStart(2,'0') + "-" +
         time.getSeconds().toString().padStart(2,'0')
-        //console.log(formatted)
 
         let filePath = "./orders/" + formatted + ".json"
-        console.log(filePath + 1)
 
         //create order file
-        fs.writeFileSync(filePath, JSON.stringify(fileContents))
-        console.log(filePath)
+        fs.writeFileSync(filePath, items, 'utf8')
+
         let order = db.addOrder(filePath) 
-        //console.log(order)
-        return response.status(200).send({
-            message: `order added successfully!`
-        });
+        return response.send(response)
     } catch(error){
-        console.log(error)
         response.status(500).send({message: error.message})
     }
 })
@@ -377,9 +300,7 @@ server.patch("/orders", async (request, response) => {
         }
 
         let order = db.updateOrder(id, receivedDate, status) 
-        return response.status(200).send({
-            message: `order updated successfully!`
-        });
+        return response.send(order)
     } catch(error){
         response.status(500).send({message: error.message})
     }

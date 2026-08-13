@@ -5,15 +5,15 @@
 //SQL commands for creating tables (DB file must be deleted to recreate tables)
 export const tables = [
     `CREATE TABLE IF NOT EXISTS "Categories" (
-        "category_id"	INTEGER NOT NULL UNIQUE,
-        "name"	TEXT NOT NULL UNIQUE,
-        PRIMARY KEY("category_id" AUTOINCREMENT)
-    );`,
+                                                 "category_id"	INTEGER NOT NULL UNIQUE,
+                                                 "name"	TEXT NOT NULL UNIQUE,
+                                                 PRIMARY KEY("category_id" AUTOINCREMENT)
+        );`,
     `CREATE TABLE IF NOT EXISTS "Units" (
-        "unit_id"	INTEGER NOT NULL UNIQUE,
-        "name"	TEXT NOT NULL UNIQUE,
-        PRIMARY KEY("unit_id" AUTOINCREMENT)
-    );`,
+                                            "unit_id"	INTEGER NOT NULL UNIQUE,
+                                            "name"	TEXT NOT NULL UNIQUE,
+                                            PRIMARY KEY("unit_id" AUTOINCREMENT)
+        );`,
     `CREATE TABLE IF NOT EXISTS "Inventory" (
         "item_id"	INTEGER NOT NULL UNIQUE,
         "name"	TEXT NOT NULL UNIQUE,
@@ -27,33 +27,33 @@ export const tables = [
         FOREIGN KEY("unit") REFERENCES "Units"("unit_id") ON UPDATE CASCADE ON DELETE SET NULL
     );`,
     `CREATE TABLE IF NOT EXISTS "Roles" (
-        "role_id"	INTEGER NOT NULL UNIQUE,
-        "name"	TEXT NOT NULL UNIQUE,
-        PRIMARY KEY("role_id" AUTOINCREMENT)
-    );`,
+                                            "role_id"	INTEGER NOT NULL UNIQUE,
+                                            "name"	TEXT NOT NULL UNIQUE,
+                                            PRIMARY KEY("role_id" AUTOINCREMENT)
+        );`,
     `CREATE TABLE IF NOT EXISTS "Users" (
-        "user_id"	INTEGER NOT NULL UNIQUE,
-        "first_name"	TEXT NOT NULL,
-        "last_name"	TEXT,
-        "role"	INTEGER,
-        "password"	TEXT NOT NULL,
-        PRIMARY KEY("user_id" AUTOINCREMENT),
+                                            "user_id"	INTEGER NOT NULL UNIQUE,
+                                            "first_name"	TEXT NOT NULL,
+                                            "last_name"	TEXT,
+                                            "role"	INTEGER,
+                                            "password"	TEXT NOT NULL,
+                                            PRIMARY KEY("user_id" AUTOINCREMENT),
         FOREIGN KEY("role") REFERENCES "Roles"("role_id") ON UPDATE CASCADE ON DELETE SET NULL
-    );`,
+        );`,
     `CREATE TABLE IF NOT EXISTS "Status" (
-        "status_id"	    INTEGER NOT NULL UNIQUE,
-        "name"	        TEXT    NOT NULL UNIQUE,
-        PRIMARY KEY("status_id" AUTOINCREMENT)
-    );`,
+                                             "status_id"	    INTEGER NOT NULL UNIQUE,
+                                             "name"	        TEXT    NOT NULL UNIQUE,
+                                             PRIMARY KEY("status_id" AUTOINCREMENT)
+        );`,
     `CREATE TABLE IF NOT EXISTS "Orders" (
-	    "order_id"	INTEGER NOT NULL UNIQUE,
-	    "created_date"	TEXT NOT NULL,
-	    "received_date"	TEXT,
-	    "status"	INTEGER DEFAULT 1,
-	    "path"	TEXT,
-	    PRIMARY KEY("order_id" AUTOINCREMENT),
-	    FOREIGN KEY("status") REFERENCES "Status"("status_id") ON UPDATE CASCADE ON DELETE SET NULL
-    );`
+                                             "order_id"	INTEGER NOT NULL UNIQUE,
+                                             "created_date"	TEXT NOT NULL,
+                                             "received_date"	TEXT,
+                                             "status"	INTEGER DEFAULT 1,
+                                             "path"	TEXT,
+                                             PRIMARY KEY("order_id" AUTOINCREMENT),
+        FOREIGN KEY("status") REFERENCES "Status"("status_id") ON UPDATE CASCADE ON DELETE SET NULL
+        );`
 ]
 
 //default data (categories, roles, status)
@@ -167,7 +167,7 @@ export const testData = [
 ]
 
 /*
-    `INSERT OR REPLACE INTO "Orders" VALUES 
+    `INSERT OR REPLACE INTO "Orders" VALUES
         (1,datetime('now', 'localtime'),NULL,1,"./orders/2026-08-05 12-18-24.json"),
     `
 */
