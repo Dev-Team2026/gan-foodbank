@@ -51,12 +51,20 @@ const AdminPg = () => {
   //Db submission functions
   const handleOnSubmitUser = async (e) => {
     e.preventDefault();
+    const confirmed = window.confirm(
+        "Are you sure you want to add this user?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
     try {
       await axios
         .post("http://localhost:3000/users", userForm)
         .then((response) => {
           setUserPostResponse(response.data)
         })
+      alert("Added user successfully.")
       setUserForm({name: "", password: "", role: ""})
       setCurrentAction("")
     } catch (error) {
@@ -65,12 +73,20 @@ const AdminPg = () => {
   }
   const handleOnSubmitEditedUser = async (e) => {
     e.preventDefault();
+    const confirmed = window.confirm(
+        "Are you sure you want to update this user?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
     try {
       await axios
         .patch("http://localhost:3000/users", userForm)
         .then((response) => {
           setUserPostResponse(response.data)
         })
+      alert("Successfully updated user.")
       setUserForm({name: "", password: "", role: ""})
       setCurrentAction("")
     } catch (error) {
@@ -79,12 +95,21 @@ const AdminPg = () => {
   }
   const handleOnDeleteUser = async (e) => {
     e.preventDefault();
+    const confirmed = window.confirm(
+        "Are you sure you want to delete this user?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     try {
       await axios
         .delete(`http://localhost:3000/users/${userForm.id}`)
         .then((response) => {
           setUserPostResponse(response.data)
         })
+      alert("User Deleted")
       setUserForm({name: "", password: "", role: ""})
       setCurrentAction("")
     } catch (error) {

@@ -1,4 +1,4 @@
-import express from 'express'
+import express, {request, response} from 'express'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import Database from 'better-sqlite3'
@@ -191,20 +191,26 @@ server.post("/inventory", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+
 server.patch("/inventory/count", (request, response) => {
-    const {counts} = request.body
+    const { counts } = request.body
+
     try {
         for (const [id, newValue] of Object.entries(counts)) {
-            db.UpdateInvStock(id, newValue);
+            db.UpdateInvStock(Number(id), Number(newValue));
         }
+
         refreshInventoryList()
+
         return response.status(200).send({
-            message: `Count updated successfully!`})
-    }
-    catch {
-        response.status(500).send({message: error.message})
+            message: `count updated successfully!`
+        });
+
+    } catch (error) {
+        response.status(500).send({ message: error.message });
     }
 })
+
 server.delete("/inventory/:id", (request, response) => {
   const { id } = request.params;
   try {
