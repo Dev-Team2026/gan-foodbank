@@ -5,6 +5,7 @@ const InventoryCount = () => {
     const [inventory, setInventory] = useState([])
     const [inventoryPostResponse, setInventoryPostResponse] = useState("")
     const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
+    const [counts, setCounts] = useState({})
 
 
     const handleInventoryDB = async ()=>{
@@ -22,6 +23,17 @@ const InventoryCount = () => {
 
     const search = async (event) => {
         setFilters({...filters, nameFilter: event.target.value})
+    }
+
+    const submitToServer = async () => {
+        try {
+                await axios.patch("http://localhost:3000/inventory/count", {counts})
+                    .then((response)=>{
+                        setInventoryPostResponse(()=>response.data)
+                    })
+            } catch (error) {
+                console.log(error.message)
+            }
     }
 
     useEffect(() => {
@@ -60,15 +72,16 @@ const InventoryCount = () => {
                 </thead>
                 <tbody>
                 {inventory.map((item)=>(
-                    <tr>
+                    <tr key={item.id}>
                         <td>{item.name}</td>
                         <td>{item.stock}</td>
-                        <td><input type="text" /></td>
+                        <td><input type="number" min="0" value={count[item.id]} onchange={(e) => {setCounts({...counts,[item.id]:e.target.value})}} /></td>
                     </tr>
                 ))}
                 </tbody>
             </table>
 
+                <button classname="countBtn" onclick={submitToServer}>Submit</button>
 
         </div>
     )

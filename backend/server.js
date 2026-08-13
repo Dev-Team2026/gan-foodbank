@@ -191,6 +191,7 @@ server.post("/inventory", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+
 server.delete("/inventory/:id", (request, response) => {
   const { id } = request.params;
   try {
