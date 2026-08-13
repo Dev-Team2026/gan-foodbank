@@ -191,6 +191,20 @@ server.post("/inventory", (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+server.patch("/inventory/count", (request, response) => {
+    const {counts} = request.body
+    try {
+        for (const [id, newValue] of Object.entries(counts)) {
+            db.UpdateInvStock(id, newValue);
+        }
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `Count updated successfully!`})
+    }
+    catch {
+        response.status(500).send({message: error.message})
+    }
+})
 server.delete("/inventory/:id", (request, response) => {
   const { id } = request.params;
   try {
