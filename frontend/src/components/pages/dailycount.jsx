@@ -26,11 +26,22 @@ const InventoryCount = () => {
     }
 
     const submitToServer = async () => {
+       const confirmed = window.confirm(
+            "Are you sure you want to submit these counts?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
         try {
+                console.log(counts)
                 await axios.patch("http://localhost:3000/inventory/count", {counts})
                     .then((response)=>{
                         setInventoryPostResponse(()=>response.data)
-                    })
+                    console.log(response)
+                })
+                await handleInventoryDB()
+                setCounts({})
             } catch (error) {
                 console.log(error.message)
             }
@@ -72,16 +83,16 @@ const InventoryCount = () => {
                 </thead>
                 <tbody>
                 {inventory.map((item)=>(
-                    <tr key={item.id}>
+                    <tr key={item.item_id}>
                         <td>{item.name}</td>
                         <td>{item.stock}</td>
-                        <td><input type="number" min="0" value={count[item.id]} onchange={(e) => {setCounts({...counts,[item.id]:e.target.value})}} /></td>
+                        <td><input type="number" min="0" value={counts[item.item_id]} onChange={(e) => {setCounts({...counts,[item.item_id]:e.target.value})}} /></td>
                     </tr>
                 ))}
                 </tbody>
             </table>
 
-                <button classname="countBtn" onclick={submitToServer}>Submit</button>
+                <button className="countBtn" onClick={submitToServer}>Submit</button>
 
         </div>
     )
