@@ -56,6 +56,22 @@ export const tables = [
     );`
 ]
 
+//views (for reports)
+export const viewData = [
+    `CREATE VIEW IF NOT EXISTS "LowStock" AS
+        SELECT I.name, I.stock || ' ' || U.name || ' (' || I.size || ')' as 'Stock', I.par, C.name as Category FROM Inventory as I 
+        LEFT JOIN Categories as C ON I.category = C.category_id 
+        LEFT JOIN Units as U ON I.unit = U.unit_id
+        WHERE I.stock < I.par
+    `,
+    `CREATE VIEW IF NOT EXISTS "HighStock" AS
+        SELECT I.name, I.stock || ' ' || U.name || ' (' || I.size || ')' as 'Stock', I.par, C.name as Category FROM Inventory as I 
+        LEFT JOIN Categories as C ON I.category = C.category_id 
+        LEFT JOIN Units as U ON I.unit = U.unit_id
+        WHERE I.stock > (I.par * 3)
+    `
+]
+
 //default data (categories, roles, status)
 export const defaultData = [
     `INSERT OR REPLACE INTO "Categories" VALUES 
