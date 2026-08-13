@@ -5,7 +5,7 @@ const InventoryCount = () => {
     const [inventory, setInventory] = useState([])
     const [inventoryPostResponse, setInventoryPostResponse] = useState("")
     const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
-
+    const [counts, setCounts] = useState({})
 
     const handleInventoryDB = async ()=>{
 
@@ -20,6 +20,32 @@ const InventoryCount = () => {
         }
     }
 
+    const submitToServer = async () => {
+        const confirmed = window.confirm(
+            "Are you sure you want to submit these counts?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            console.log(counts);
+
+            const response = await axios.patch(
+                "http://localhost:3000/inventory/count",
+                { counts }
+            );
+
+            setInventoryPostResponse(response.data);
+            await handleInventoryDB();
+            setCounts({});
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const search = async (event) => {
         setFilters({...filters, nameFilter: event.target.value})
     }
@@ -29,14 +55,14 @@ const InventoryCount = () => {
     }, [inventoryPostResponse])
     useEffect(()=>{
         const applyFilters = async ()=>{
-            console.log(filters)
             try {
                 await axios.patch("http://localhost:3000/inventoryFilters", filters)
                     .then((response)=>{
                         setInventoryPostResponse(()=>response.data)
                     })
             } catch (error) {
-                console.log(error.message)
+                console.log(error)
+
             }
         }
         applyFilters()
@@ -60,15 +86,15 @@ const InventoryCount = () => {
                 </thead>
                 <tbody>
                 {inventory.map((item)=>(
-                    <tr>
+                    <tr key={item.item_id}>
                         <td>{item.name}</td>
                         <td>{item.stock}</td>
-                        <td><input type="text" /></td>
+                        <td><input type="number" min="0"  value={counts[item.item_id]} onChange={(e) => {setCounts({...counts, [item.item_id]: e.target.value})}}/></td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-
+            <button onClick={submitToServer}> submit</button>
 
         </div>
     )

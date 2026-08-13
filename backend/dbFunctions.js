@@ -11,15 +11,15 @@ export function init()
 {
     console.log("Checking database schema...")
     //create tables 
-    for(const table of Schema.tables){ 
+    for(const table of Schema.tables){
         db.prepare(table).run()
     }
     //insert default data
-    for(const data of Schema.defaultData){ 
+    for(const data of Schema.defaultData){
         db.prepare(data).run()
     }
     //insert test data
-    for(const testData of Schema.testData){ 
+    for(const testData of Schema.testData){
         db.prepare(testData).run()
     }
     console.log("Schema Updated\n")
@@ -79,7 +79,7 @@ export function deleteUser(id)
 export function getRoles()
 {
     return db.prepare(`SELECT * FROM Roles`).all()
-} 
+}
 
 //
 //Inventory
@@ -88,9 +88,9 @@ export function getInventory()
 {
     return db.prepare(
         `
-        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I 
-        LEFT JOIN Categories as C ON I.category = C.category_id 
-        LEFT JOIN Units as U ON I.unit = U.unit_id
+            SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
+                                                                              LEFT JOIN Categories as C ON I.category = C.category_id
+                                                                              LEFT JOIN Units as U ON I.unit = U.unit_id
         `
     ).all()
 }
@@ -99,32 +99,41 @@ export function getInvItemById(id)
 {
     return db.prepare(
         `
-        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I 
-        LEFT JOIN Categories as C ON I.category = C.category_id 
-        LEFT JOIN Units as U ON I.unit = U.unit_id
-        WHERE item_id=?
+            SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
+                                                                              LEFT JOIN Categories as C ON I.category = C.category_id
+                                                                              LEFT JOIN Units as U ON I.unit = U.unit_id
+            WHERE item_id=?
         `
     ).get(id)
-} 
-
-//default unit to 1 until add function can be refactored
-export function AddInvItem(name,category,stock,par,unit=1)
-{
-    return db.prepare(
-        `INSERT INTO Inventory (name, category, stock, par, unit)
-         VALUES (?,?,?,?,?)
-        `
-    ).run(name,category,stock,par,unit)
 }
 
-//default unit to 1 until update function can be refactored
-export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit=1)
+//default unit and size until add function can be refactored
+export function AddInvItem(name,category,stock,par,unit=1,size="100 m/l")
 {
     return db.prepare(
-        `UPDATE Inventory SET name=?, category=?, stock=?, par=?, unit=?
+        `INSERT INTO Inventory (name, category, stock, par, unit, size)
+         VALUES (?,?,?,?,?,?)
+        `
+    ).run(name,category,stock,par,unit,size)
+}
+
+//default unit and size until update function can be refactored
+export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit=1, newSize="100 m/l")
+{
+    return db.prepare(
+        `UPDATE Inventory SET name=?, category=?, stock=?, par=?, unit=?, size=?
          WHERE item_id=?
         `
-    ).run(newName, newCategory, newStock, newPar, newUnit, id)
+    ).run(newName, newCategory, newStock, newPar, newUnit, newSize, id)
+}
+
+export function UpdateInvStock(id, newStock)
+{
+    return db.prepare(
+        `UPDATE Inventory SET stock=?
+         WHERE item_id=?
+        `
+    ).run(newStock, id)
 }
 
 export function deleteInvItem(id)
@@ -138,7 +147,7 @@ export function deleteInvItem(id)
 export function getCategories()
 {
     return db.prepare(`SELECT * FROM Categories`).all()
-} 
+}
 
 //
 //Units
@@ -146,7 +155,7 @@ export function getCategories()
 export function getUnits()
 {
     return db.prepare(`SELECT * FROM Units`).all()
-} 
+}
 
 //
 //Orders
@@ -159,13 +168,13 @@ export function getOrders()
 export function getOrderById(id)
 {
     return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id WHERE order_id=?`).get(id)
-} 
+}
 
 export function addOrder(path)
 {
     return db.prepare(
-        `INSERT INTO Orders (created_date, path) 
-        VALUES (datetime('now', 'localtime'), ?)
+        `INSERT INTO Orders (created_date, path)
+         VALUES (datetime('now', 'localtime'), ?)
         `
     ).run(path)
 }

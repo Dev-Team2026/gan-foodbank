@@ -17,8 +17,8 @@ const App = () => {
 
       {/* "path" sets the url route goes to and "element" sets which component is rendered on the new page */}
       <Routes>
+          <Route path="/" element={<LoginPg/>} />
           <Route element={<Layout/>}>
-              <Route path="/" element={<LoginPg/>} />
               <Route path="/home" element={<ProtectedRoute><Home/></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminPg/></ProtectedRoute>} />
               <Route path="/inventory" element={<ProtectedRoute><Inventory/></ProtectedRoute>} />
