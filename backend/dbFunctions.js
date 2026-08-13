@@ -89,8 +89,8 @@ export function getInventory()
     return db.prepare(
         `
             SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
-                                                                              LEFT JOIN Categories as C ON I.category = C.category_id
-                                                                              LEFT JOIN Units as U ON I.unit = U.unit_id
+            LEFT JOIN Categories as C ON I.category = C.category_id
+            LEFT JOIN Units as U ON I.unit = U.unit_id
         `
     ).all()
 }
@@ -100,8 +100,8 @@ export function getInvItemById(id)
     return db.prepare(
         `
             SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
-                                                                              LEFT JOIN Categories as C ON I.category = C.category_id
-                                                                              LEFT JOIN Units as U ON I.unit = U.unit_id
+            LEFT JOIN Categories as C ON I.category = C.category_id
+            LEFT JOIN Units as U ON I.unit = U.unit_id
             WHERE item_id=?
         `
     ).get(id)

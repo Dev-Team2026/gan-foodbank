@@ -1,4 +1,4 @@
-const EditStockForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleOnSubmitStockEdit}) => {
+const EditItemIntForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleOnSubmitStockEdit}) => {
     return (
         <div>
             <form>
@@ -8,7 +8,7 @@ const EditStockForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleO
                     id="stock"
                     name="stock"
                     placeholder="Item stock"
-                    value={inventoryItemForm.stock}
+                    value={inventoryItemForm}
                     onChange={handleOnChangeItemForm}
                 />
                 <button className="tableBtn" type="submit" formAction={()=>handleOnSubmitStockEdit(parseInt(item.stock) - parseInt(inventoryItemForm.stock))} >Subtract</button>
@@ -17,4 +17,4 @@ const EditStockForm = ({item, inventoryItemForm, handleOnChangeItemForm, handleO
     )
 }
 
-export default EditStockForm
+export default EditItemIntForm

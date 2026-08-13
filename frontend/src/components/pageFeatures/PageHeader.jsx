@@ -25,6 +25,7 @@ const PageHeader = () => {
           <Link className='navLink' to="/home">Home</Link>
           <Link className='navLink' to="/inventory">Inventory</Link>
           <Link className='navLink' to="/count">Count</Link>
+          <Link className='navLink' to="/orders">Orders</Link>
           {userData?.role === 1 && <Link className='navLink' to="/admin">Admin Dashboard</Link>}
           <button onClick={handleLogout}><Link to="/">Logout</Link></button>
         </nav>

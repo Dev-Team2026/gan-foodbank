@@ -90,6 +90,28 @@ a {
   margin-bottom: 10px;
 }
 
+.invTableBtn {
+  border: 2 px solid;
+  background-color: lime;
+  color: black;
+}
+.invOptionBtn {
+  border: 2 px solid;
+  background-color: aquamarine;
+  color: black;
+}
+.adminPgBtn {
+  border: 2 px solid gray;
+  background-color: black;
+  color: white;
+}
+.headerLogoutBtn {
+  border: 2 px solid green;
+  background-color: lawngreen;
+  color: black;
+}
+.headerLogoutSec {
+  text-align: left !important;
 .logDiv {
   display: flex;
   justify-content: center;

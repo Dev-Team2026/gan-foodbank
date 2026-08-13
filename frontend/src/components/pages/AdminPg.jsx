@@ -37,17 +37,18 @@ const AdminPg = () => {
       console.log(error.message)
     }
   }
-
   useEffect(() => {
     handleUserDB()
   }, [userPostResponse])
-
-  //const setAction = (action) => {
-  //  setCurrentAction(action)
-  //}
+  //generic functions
+  const prepAction = (index, actionType) => {
+    setCurrentAction(actionType)
+    setUserForm({id: users[index].user_id, name: users[index].first_name, password: users[index].password, role: users[index].role})
+  }
   const handleOnChangeUser = (e) => {
     setUserForm({...userForm, [e.target.name]: e.target.value})
   }
+  //Db submission functions
   const handleOnSubmitUser = async (e) => {
     e.preventDefault();
     const confirmed = window.confirm(
@@ -70,7 +71,6 @@ const AdminPg = () => {
       console.log(error.message)
     }
   }
-
   const handleOnSubmitEditedUser = async (e) => {
     e.preventDefault();
     const confirmed = window.confirm(
@@ -93,7 +93,6 @@ const AdminPg = () => {
       console.log(error.message)
     }
   }
-
   const handleOnDeleteUser = async (e) => {
     e.preventDefault();
     const confirmed = window.confirm(
@@ -117,12 +116,6 @@ const AdminPg = () => {
       console.log(error.message)
     }
   }
-
-  const prepAction = (index, actionType) => {
-    setCurrentAction(actionType)
-    setUserForm({id: users[index].user_id, name: users[index].first_name, password: users[index].password, role: users[index].role})
-  }
-
   return(
     <div className="container">
       <title>Admin</title>
@@ -132,7 +125,8 @@ const AdminPg = () => {
       {currentAction === "add" && <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser} newUser={userForm} /> }
       {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitEditedUser={handleOnSubmitEditedUser} user={userForm} /> }
       {currentAction === "delete" && 
-        <p>Are you sure you want to delete this user<button onClick={handleOnDeleteUser} >Yes</button><button onClick={()=>setCurrentAction("")} >No</button></p> }
+        <p>Are you sure you want to delete this user<button className="adminPgBtn" onClick={handleOnDeleteUser} >Yes</button><button className="adminPgBtn" onClick={()=>setCurrentAction("")} >No</button></p> }
+      {currentAction != "" && <button className="adminPgBtn" onClick={()=>setCurrentAction("")} >Cancel</button>}
       <h2>Registered Users</h2>
       <UserContainer users={users} prepAction={prepAction} />
     </div>

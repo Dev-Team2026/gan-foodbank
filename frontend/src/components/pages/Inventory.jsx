@@ -3,12 +3,13 @@ import axios from "axios";
 
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
-import EditStockForm from "../pageFeatures/EditStockForm";
+import EditItemIntForm from "../pageFeatures/EditItemIntForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
 import Cookies from "js-cookie";
 import {jwtDecode} from "jwt-decode";
 
 const Inventory = () => {
+  //States
   const [inventory, setInventory] = useState([])
   const [inventoryItemForm, setInventoryItemForm] = useState({name: "", category: "", stock: 0})
   const [currentAction, setCurrentAction] = useState("")
@@ -25,8 +26,6 @@ const Inventory = () => {
   }
 
   const handleInventoryDB = async ()=>{
-    
-    //console.log(filters.nameFilter != "")
     try {
       await axios.get("http://localhost:3000/inventory")
       .then((response)=>{
@@ -36,14 +35,12 @@ const Inventory = () => {
       console.log(error.message)
     }
   }
-  
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
 
   useEffect(()=>{
     const applyFilters = async ()=>{
-      console.log(filters)
       try {
         await axios.patch("http://localhost:3000/inventoryFilters", filters)
           .then((response)=>{
@@ -55,11 +52,49 @@ const Inventory = () => {
     }
     applyFilters()
   }, [filters])
-
+  //generic functions
   const handleOnChangeItemForm = (e) => {
     setInventoryItemForm({...inventoryItemForm, [e.target.name]: e.target.value})
   }
-
+  const setupAction = (action) => {
+    setCurrentAction(action)
+  }
+  const resetAction = () => {
+    setInventoryItemForm({name: "", category: "", stock: 0})
+    setCurrentAction("")
+    setNewOrder([])
+    unselectAll()
+  }
+  const unselectAll = () => {
+    const updatedInventory = []
+    inventory.map((item)=>{
+      updatedInventory.push({...item, selected: false})
+    })
+    setInventory(updatedInventory)
+    checkForSelection(updatedInventory)
+  }
+  const handleOnSelect = (index) => {
+    let updatedInventory = [...inventory]
+    //inventory.map((item)=>{
+    //  updatedInventory.push({...item})
+    //})
+    updatedInventory[index].selected = updatedInventory[index].selected ? false : true
+    setInventory(updatedInventory)
+    checkForSelection(updatedInventory)
+  }
+  const checkForSelection = (tempInventory) => {
+    let selectedItems = 0
+    tempInventory.map((item)=>{
+      item.selected && ++selectedItems
+    })
+    selectedItems > 0 ? setItemsSelected(true) : setItemsSelected(false)
+  }
+  //db setup functions
+  //const setUpForEditing = (editAction, index) => {
+  //  setCurrentAction([editAction, index])
+  //  setInventoryItemForm({name: inventory[index].name, category: inventory[index].category, stock: 0})
+  //}
+  //Db submission functions
   const handleAddNewItem = async (e) => {
     e.preventDefault();
     try {
@@ -72,16 +107,6 @@ const Inventory = () => {
     } catch (error) {
         console.log(error.message)
     }
-  }
-
-  const setupAction = (action) => {
-    setCurrentAction(action)
-  }
-
-  const resetAction = () => {
-    setInventoryItemForm({name: "", category: "", stock: 0})
-    setCurrentAction("")
-    unselectAll()
   }
 
   
@@ -142,60 +167,67 @@ const Inventory = () => {
     alert("Item Deleted.")
     resetAction()
   }
-  const unselectAll = () => {
-    const updatedInventory = []
-    inventory.map((item)=>{
-      updatedInventory.push({...item, selected: false})
+  const handleAddToNewOrder = (item_name, amount, inventoryIndex) => {
+    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, inventoryIndex: inventoryIndex}])
+    handleOnSelect(inventoryIndex)
+  }
+  const handleRemoveItemFromOrder = (index, inventoryIndex)=>{
+    let updatedOrder = [...newOrder]
+    if (index === "unknown")
+    {
+      for(let i =0; i < newOrder.length; i++){
+        if (newOrder[i].inventoryIndex === inventoryIndex){
+          index = i
+          break
+        }
+      }
+    }
+    updatedOrder.splice(index, 1)
+    updatedOrder.forEach((item)=>{
+      if (item.index > index)
+        item.index -= 1
     })
-    setInventory(updatedInventory)
-    checkForSelection(updatedInventory)
+    setNewOrder(updatedOrder)
+    handleOnSelect(inventoryIndex)
   }
-
-  const handleOnSelect = (itemId) => {
-    const updatedInventory = inventory.map((item) =>
-      item.item_id === itemId
-        ? {...item, selected: !item.selected}
-          : item
-    )
-
-    setInventory(updatedInventory)
-    checkForSelection(updatedInventory)
+  const handleAdjustUnitQuatity = (index, amount) => {
+    let updatedOrder = [...newOrder]
+    updatedOrder[index].unitQuantity += amount
+    setNewOrder(updatedOrder)
   }
-
-  const checkForSelection = (tempInventory) => {
-    let selectedItems = 0
-    tempInventory.map((item)=>{
-      item.selected && ++selectedItems
-    })
-    selectedItems > 0 ? setItemsSelected(true) : setItemsSelected(false)
+  const handleSubmitNewOrder = async () => {
+    try {
+      console.log(newOrder)
+      await axios.post(`http://localhost:3000/orders`, {items: newOrder})
+        .then((response)=>{
+          setInventoryPostResponse(()=>response.data)
+        })
+      resetAction()
+    } catch (error) {
+        console.log(error.message)
+    }
   }
-
-  //sort and filter test
-  //const masterInventory = inventory
+  //sorting functions
   const search = async (event) => {
     setFilters({...filters, nameFilter: event.target.value})
   }
-
   const sort = (sortingTarget) => {
     setFilters({...filters, sortBy: sortingTarget})
-    //testInventory.sort((a, b)=>{return a.stock - b.stock})
   }
 
 
   return (
     <div className="container">
       <title>Inventory Page</title>
-
       <h1>Inventory</h1>
       <p>Page for listing current inventory totals and adjustments</p>
-      {currentAction === "add" && 
-        <InventoryEditingCard 
-          inventoryItem={inventoryItemForm} 
+      {currentAction === "add" && <InventoryEditingCard 
+        inventoryItem={inventoryItemForm} 
           currentAction={currentAction} 
           handleAddNewItem={handleAddNewItem}
           handleOnChangeItemForm={handleOnChangeItemForm}
       />}
-      {currentAction[0] === "editStock" && <EditStockForm item={inventory.find(item => item.item_id === currentAction[1])} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
+      {currentAction[0] === "editStock" && <EditItemIntForm item={inventory.find(item => item.item_id === currentAction[1])} inventoryItemForm={inventoryItemForm} currentAction={currentAction} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStockEdit={handleOnSubmitStockEdit} /> }
       {currentAction[0] === "editName" && <EditItemStringForm value={"name"} inventoryItemFormValue={inventoryItemForm.name} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} /> }
       {currentAction[0] === "editCategory" && <EditItemStringForm value={"category"} inventoryItemFormValue={inventoryItemForm.category} handleOnChangeItemForm={handleOnChangeItemForm} handleOnSubmitStringValueEdit={handleOnSubmitStringValueEdit} />}
       {currentAction === "delete" && 
@@ -242,12 +274,16 @@ const Inventory = () => {
         </thead>
         <tbody>
           {inventory.map((item)=>(
-            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} />
+            <InventoryCard key={item.item_id} {...item} currentAction={currentAction} handleOnSelect={handleOnSelect} setUpForEditing={setUpForEditing} handleAddToNewOrder={handleAddToNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} />
           ))}
         </tbody>
       </table>
+      {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />}
     </div>
   )
 }
-
+/*
+<button className="invOptionBtn" onClick={()=>setupAction("add")}>Add Item</button>
+        <button className="invOptionBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
+*/
 export default Inventory
