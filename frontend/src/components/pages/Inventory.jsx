@@ -18,6 +18,7 @@ const Inventory = () => {
   const [itemsSelected, setItemsSelected] = useState(false)
   const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
   const [newOrder, setNewOrder] = useState([])
+  const [isDonation, setIsDonation] = useState(false)
 
   const token = Cookies.get("jwt-authorization");
 
@@ -200,7 +201,7 @@ const Inventory = () => {
   const handleSubmitNewOrder = async () => {
     try {
       console.log(newOrder)
-      await axios.post(`http://localhost:3000/orders`, {items: newOrder})
+      await axios.post(`http://localhost:3000/orders`, {donationStatus: isDonation, items: newOrder})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -284,7 +285,7 @@ const Inventory = () => {
           ))}
         </tbody>
       </table>
-      {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />}
+      {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} setIsDonation={setIsDonation} />}
     </div>
   )
 }

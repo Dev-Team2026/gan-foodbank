@@ -10,7 +10,7 @@ const OrdersCard = ({id, name, requestedAmount, fufillment, itemCost, itemStatus
             case 1: 
                 content = "Partial"
                 break;
-            case 2: 
+            default: 
                 content = "Closed"
                 break;
         }
@@ -25,24 +25,28 @@ const OrdersCard = ({id, name, requestedAmount, fufillment, itemCost, itemStatus
         <tr>
             {itemStatus == 2 ? <td><s>{statusDisplay(itemStatus)}</s></td> : <td>{statusDisplay(itemStatus)}</td>}
             {itemStatus == 2 ? <td><s>{name}</s></td> : <td>{name}</td>}
-            {itemStatus == 2 ? 
-                <td><s>{fufillment}|{requestedAmount} {unitType}</s></td> 
-                : 
-                <td>
-                    <input type="number" min="0" value={fufillment} onChange={(e)=>handeleOnChangeFufillment(id, e)} />
-                    |{requestedAmount} {unitType}
-                </td>
+            {itemStatus == 3 ? 
+                <td>{requestedAmount} {unitType}</td> :
+                itemStatus == 2 ? 
+                    <td><s>{fufillment}|{requestedAmount} {unitType}</s></td> 
+                    : 
+                    <td>
+                        <input type="number" min="0" value={fufillment} onChange={(e)=>handeleOnChangeFufillment(id, e)} />
+                        |{requestedAmount} {unitType}
+                    </td>
             }
-            {itemStatus == 2 ? 
-                <td><s>{itemCost} $ </s></td> 
-                : 
-                <td>
-                    <input type="number" min={0.00} value={newCost} onChange={handeleOnChangeCost}/>$ 
-                    <button onClick={()=>{handeleOnAddCost(id,parseFloat(newCost)); setNewCost("0.00")}} >Add</button> <br />
-                    {itemCost} $
-                </td>
+            {itemStatus == 3 ? 
+                <td>Donated</td> :
+                itemStatus == 2 ? 
+                    <td><s>{itemCost} $ </s></td> 
+                    : 
+                    <td>
+                        <input type="number" min={0.00} value={newCost} onChange={handeleOnChangeCost}/>$ 
+                        <button onClick={()=>{handeleOnAddCost(id,parseFloat(newCost)); setNewCost("0.00")}} >Add</button> <br />
+                        {itemCost} $
+                    </td>
             }
-            {fufillment < requestedAmount && <td><button onClick={()=>toggleEarlyClose(id)} >{itemStatus == 2 ? "Reopen Item" : "Close Item" }</button></td> }
+            {(itemStatus != 3 && fufillment < requestedAmount) && <td><button onClick={()=>toggleEarlyClose(id)} >{itemStatus == 2 ? "Reopen Item" : "Close Item" }</button></td> }
         </tr>
     )
 }

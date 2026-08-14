@@ -335,11 +335,21 @@ server.get("/orders/:id", (request, response) => {
 
 //only order items are required, created date is auto filled, and status defaults to 0 (open)
 server.post("/orders", (request, response) => {
-    const { items } = request.body;
+    const { donationStatus, items } = request.body;
     let fileContents = []
-    //console.log(items)
+    let status = donationStatus ? 4 : 1
+    //console.log(donationStatus)
     items.forEach((item)=>{
-        fileContents.push({id: item.index, name: item.name, requestedAmount: item.unitAmount * item.unitQuantity, unitType: item.unitType, fufillment: 0, itemCost: 0, itemStatus: 0 })
+        fileContents.push({
+            id: item.index, 
+            name: item.name, 
+            requestedAmount: 
+            item.unitAmount * item.unitQuantity, 
+            unitType: item.unitType, 
+            fufillment: 0, 
+            itemCost: 0, 
+            itemStatus: status-1
+        })
     })
     try {
         let time = new Date()
@@ -355,12 +365,12 @@ server.post("/orders", (request, response) => {
         //console.log(formatted)
 
         let filePath = "./orders/" + formatted + ".json"
-        console.log(filePath + 1)
+        //console.log(filePath + 1)
 
         //create order file
         fs.writeFileSync(filePath, JSON.stringify(fileContents))
-        console.log(filePath)
-        let order = db.addOrder(filePath) 
+        //console.log(filePath)
+        let order = db.addOrder(filePath, status) 
         //console.log(order)
         return response.status(200).send({
             message: `order added successfully!`
@@ -380,8 +390,10 @@ server.patch("/ordersItems", async (request, response) => {
             let order = db.getOrderById(id)
             fs.writeFileSync(order.path, JSON.stringify(items))
             let totalCompletionValue = 0;
+            let totalPrice = 0
             items.forEach((item)=>{
                 totalCompletionValue += item.itemStatus
+                totalPrice += item.itemCost
             })
             console.log(totalCompletionValue)
             if (totalCompletionValue === items.length * 2){
@@ -393,11 +405,11 @@ server.patch("/ordersItems", async (request, response) => {
                 time.getMinutes().toString().padStart(2,'0') + ":" +
                 time.getSeconds().toString().padStart(2,'0')
 
-                db.updateOrderCompleted(id, 3, formatted)
+                db.updateOrderCompleted(id, 3, totalPrice, formatted)
             } else if (totalCompletionValue > 0){
-                db.updateOrder(id, 2)
+                db.updateOrder(id, 2, totalPrice)
             } else {
-                db.updateOrder(id, 1)
+                db.updateOrder(id, 1, totalPrice)
             }
         } 
         return response.status(200).send({

@@ -174,31 +174,31 @@ export function getOrderById(id)
     return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id WHERE order_id=?`).get(id)
 }
 
-export function addOrder(path)
+export function addOrder(path, status)
 {
     return db.prepare(
         `INSERT INTO Orders (created_date, status, path) 
-        VALUES (datetime('now', 'localtime'), 1, ?)
+        VALUES (datetime('now', 'localtime'), ?, ?)
         `
-    ).run(path)
+    ).run(status, path)
 }
 
-export function updateOrder(id, newStatus)
+export function updateOrder(id, newStatus, totalPrice)
 {
     return db.prepare(
-        `UPDATE Orders SET status=?
+        `UPDATE Orders SET total_price=?, status=?
          WHERE order_id=?
         `
-    ).run(newStatus, id)
+    ).run(totalPrice, newStatus, id)
 }
 
-export function updateOrderCompleted(id, newStatus, newReceivedDate)
+export function updateOrderCompleted(id, newStatus, totalPrice, newReceivedDate)
 {
     return db.prepare(
-        `UPDATE Orders SET received_date=?, status=?
+        `UPDATE Orders SET received_date=?, total_price=?, status=?
          WHERE order_id=?
         `
-    ).run(newReceivedDate, newStatus, id)
+    ).run(newReceivedDate, totalPrice, newStatus, id)
 }
 
 export function deleteOrder(id)
