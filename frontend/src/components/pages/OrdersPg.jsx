@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import axios from "axios";
+import {saveAs} from "file-saver"
 
 import OrdersCard from "../pageFeatures/OrdersCard";
 
@@ -88,6 +89,16 @@ const OrdersPg = ()=>{
       console.log(error.message)
     }
   }
+  const handleExportOrder = (e)=>{
+    e.preventDefault();
+    let data = "Name,RequestedAmount,Fufilled\n"
+    currentOrderGroup.forEach((item)=>{
+      let newString = item.name + "," + item.requestedAmount + ", ,\n"
+      data = data.concat(newString)
+    })
+    const blob = new Blob([data], {type: "text/plain;charset=utf-8"});
+    saveAs(blob,"order.csv")
+  }
 
   return (<div>
     
@@ -109,6 +120,7 @@ const OrdersPg = ()=>{
         </tbody>
     </table>
     <button onClick={handleUpdateOrder} >ApplyUpdates</button>
+    <button onClick={handleExportOrder} >Export</button>
   </div>)
 }
 export default OrdersPg
