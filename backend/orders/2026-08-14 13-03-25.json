@@ -1,0 +1,1 @@
+[{"id":0,"name":"Soup","requestedAmount":3,"unitType":"Cans","fufillment":"1","itemCost":1.12,"itemStatus":1},{"id":1,"name":"Canned Turkey","requestedAmount":3,"unitType":"Cans","fufillment":"2","itemCost":6.94,"itemStatus":1},{"id":2,"name":"Canned Tuna","requestedAmount":3,"unitType":"Cans","fufillment":"1","itemCost":2.2,"itemStatus":1}]
