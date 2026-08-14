@@ -50,6 +50,7 @@ export const tables = [
                                              "created_date"	TEXT NOT NULL,
                                              "received_date"	TEXT,
                                              "status"	INTEGER DEFAULT 1,
+                                             "total_price"	REAL DEFAULT 0.0,
                                              "path"	TEXT,
                                              PRIMARY KEY("order_id" AUTOINCREMENT),
         FOREIGN KEY("status") REFERENCES "Status"("status_id") ON UPDATE CASCADE ON DELETE SET NULL
@@ -101,7 +102,8 @@ export const defaultData = [
     `INSERT OR REPLACE INTO "Status" VALUES 
         (1,'open'),
         (2,'partial'),
-        (3,'filled');
+        (3,'filled'),
+        (4,'donation');
     `
 ]
 

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
 import axios from "axios";
+import {saveAs} from "file-saver"
 
 import OrdersCard from "../pageFeatures/OrdersCard";
 
 const OrdersPg = ()=>{
   const [orders, setOrders] = useState([])
-  const [groupId, setGroupId] = useState(0)
+  const [groupId, setGroupId] = useState(1)
   const [currentOrderGroup, setCurrentOrderGroup] = useState([])
   //const [orderItems, setOrderItems] = useState([])
   const [dbResponse, setDbResponse] = useState("")
@@ -24,27 +25,63 @@ const OrdersPg = ()=>{
     }
     //console.log(orders[currentOrderGroup].order_items)
   }
-  /*
-  
-  */
+  const updateOrderItems = async ()=>{
+    try {
+      await axios.get(`http://localhost:3000/orders/${groupId}`)
+      .then((response)=>{
+        setCurrentOrderGroup(response.data.items)
+        //console.log(response.data)
+      })
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
   
   useEffect(() => {
     handleOrdersDB()
   }, [dbResponse])
-  //useEffect(()=>{
-  //  updateOrderItems()
-  //}, [groupId])
+  useEffect(()=>{
+    updateOrderItems()
+  }, [groupId])
 
   const handleOnChangeOrderGroup = (e) => {
     setGroupId(e.target.value)
     //setCurrentOrderGroup(orders[e.target.value].order_items)
-    updateOrderItems(e.target.value)
-    console.log(currentOrderGroup)
+    //setGroupId(e.target.value)
+    //updateOrderItems()
+    //console.log(e.target.value)
+  }
+  const handeleOnChangeFufillment = (id, e) => {
+    let updatedItems = [...currentOrderGroup]
+    updatedItems[id].fufillment = e.target.value
+    if(e.target.value == 0){
+      updatedItems[id].itemStatus = 0
+    } else if (e.target.value < updatedItems[id].requestedAmount){
+      updatedItems[id].itemStatus = 1
+    } else {
+      updatedItems[id].itemStatus = 2
+    }
+    setCurrentOrderGroup(updatedItems)
+    //handleUpdateOrder()
+  }
+  const handeleOnAddCost = (id,amount)=>{
+    let updatedItems = [...currentOrderGroup]
+    console.log(typeof updatedItems[id].itemCost, typeof amount)
+    updatedItems[id].itemCost += amount
+    setCurrentOrderGroup(updatedItems)
   }
 
-  const handleRecieveOrder = async (id) => {
+  const toggleEarlyClose = (id) => {
+    let updatedItems = [...currentOrderGroup]
+    updatedItems[id].itemStatus < 2 ? 
+      updatedItems[id].itemStatus = 2 : 
+      updatedItems[id].fufillment > 0 ? updatedItems[id].itemStatus = 1 : updatedItems[id].itemStatus = 0
+    setCurrentOrderGroup(updatedItems)
+    //handleUpdateOrder()
+  }
+  const handleUpdateOrder = async () => {
     try {
-      await axios.patch(`http://localhost:3000/ordersOld`, {group_id: groupId, order_id: id})
+      await axios.patch(`http://localhost:3000/ordersItems`, {id: groupId, items: currentOrderGroup})
       .then((response)=>{
         setDbResponse(response.data)
       })
@@ -52,16 +89,15 @@ const OrdersPg = ()=>{
       console.log(error.message)
     }
   }
-  const updateOrderItems = async (id)=>{
-    try {
-      await axios.get(`http://localhost:3000/orders/${id}`)
-      .then((response)=>{
-        setCurrentOrderGroup(response.data.items)
-        console.log(response.data)
-      })
-    } catch (error) {
-      console.log(error.message)
-    }
+  const handleExportOrder = (e)=>{
+    e.preventDefault();
+    let data = "Name,RequestedAmount,Fufilled\n"
+    currentOrderGroup.forEach((item)=>{
+      let newString = item.name + "," + item.requestedAmount + ", ,\n"
+      data = data.concat(newString)
+    })
+    const blob = new Blob([data], {type: "text/plain;charset=utf-8"});
+    saveAs(blob,"order.csv")
   }
 
   return (<div>
@@ -69,25 +105,22 @@ const OrdersPg = ()=>{
     <form action="">
         <select name="orderGroup" id="orderGroup" onChange={handleOnChangeOrderGroup} >
           {orders.map((group)=>(
-              <option key={group.order_id} value={group.index}>Group {group.order_id}</option>
+              <option key={group.order_id} value={group.order_id}>Group {group.order_id}</option>
             ))}
         </select>
     </form>
     <table>
         <thead>
-            <tr><th>id</th><th>item</th><th>amount</th></tr>
+            <tr><th>Status</th><th>Item</th><th>Amount</th><th>Cost</th></tr>
         </thead>
         <tbody>
-            <tr>
-            <td>orders_id</td>
-            <td>name</td>
-            <td>amount</td>
-            </tr>
             {currentOrderGroup.length > 0 && currentOrderGroup.map((order)=>(
-                <OrdersCard key={order.id} {...order} handleRecieveOrder={handleRecieveOrder} />
+                <OrdersCard key={order.id} {...order} toggleEarlyClose={toggleEarlyClose} handeleOnChangeFufillment={handeleOnChangeFufillment} handeleOnAddCost={handeleOnAddCost} />
             ))}
         </tbody>
     </table>
+    <button onClick={handleUpdateOrder} >ApplyUpdates</button>
+    <button onClick={handleExportOrder} >Export</button>
   </div>)
 }
 export default OrdersPg
