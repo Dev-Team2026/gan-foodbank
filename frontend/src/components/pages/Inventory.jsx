@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
@@ -27,6 +29,13 @@ const Inventory = () => {
       console.log(error.message)
     }
   }
+    const token = Cookies.get("jwt-authorization");
+  
+    let userData = null;
+  
+    if (token) {
+      userData = jwtDecode(token);
+    }
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
@@ -225,10 +234,10 @@ const Inventory = () => {
         </div> }
       <br />
       {currentAction === "" ? <div>
-        <button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>
-        <button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
+        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>}
+        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>}
         
-        <button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>
+        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>}
         <br />
         <input onChange={search} />
       </div> :
