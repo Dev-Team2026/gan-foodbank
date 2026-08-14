@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
 
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
 import EditItemIntForm from "../pageFeatures/EditItemIntForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
+import NewOrderCard from "../pageFeatures/NewOrderCard";
 
 const Inventory = () => {
   //States
@@ -16,15 +15,8 @@ const Inventory = () => {
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
   const [itemsSelected, setItemsSelected] = useState(false)
   const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
-
-  const token = Cookies.get("jwt-authorization");
-
-  let userData = null;
-
-  if (token) {
-    userData = jwtDecode(token);
-  }
-
+  const [newOrder, setNewOrder] = useState([])
+  //Db and useEffect statements
   const handleInventoryDB = async ()=>{
     try {
       await axios.get("http://localhost:3000/inventory")
@@ -35,7 +27,6 @@ const Inventory = () => {
       console.log(error.message)
     }
   }
-
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
@@ -103,7 +94,6 @@ const Inventory = () => {
             .then((response)=>{
                 setInventoryPostResponse(()=>response.data)
             })
-      alert("Item Added.")
         resetAction()
     } catch (error) {
         console.log(error.message)
@@ -146,13 +136,6 @@ const Inventory = () => {
   }
   const DeleteItem = (e) => {
     e.preventDefault();
-    const confirmed = window.confirm(
-        "Are you sure you want to delete this item?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
     inventory.forEach(async(item)=>{
       try {
         if (item.selected){
@@ -165,11 +148,10 @@ const Inventory = () => {
         console.log(error.message)
       }
     })
-    alert("Item Deleted.")
     resetAction()
   }
-  const handleAddToNewOrder = (item_name, amount, inventoryIndex) => {
-    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, inventoryIndex: inventoryIndex}])
+  const handleAddToNewOrder = (item_name, amount, unit_name, inventoryIndex) => {
+    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, unitType: unit_name, inventoryIndex: inventoryIndex}])
     handleOnSelect(inventoryIndex)
   }
   const handleRemoveItemFromOrder = (index, inventoryIndex)=>{
@@ -243,10 +225,10 @@ const Inventory = () => {
         </div> }
       <br />
       {currentAction === "" ? <div>
-        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>}
-        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>}
+        <button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>
+        <button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>
         
-        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>}
+        <button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>
         <br />
         <input onChange={search} />
       </div> :
@@ -258,22 +240,22 @@ const Inventory = () => {
         <thead>
           <tr>
             <th>
-                <button className="tableBtn" onClick={()=>sort("nameAsc")}>Asc</button>
-                <button className="tableBtn" onClick={()=>sort("nameDesc")}>Desc</button> <br />
-                Item <br />
-              {userData?.role === 1 && <button className="tableBtn" onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>}
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("nameAsc")}>Asc</button>
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("nameDesc")}>Desc</button> <br />
+                Item <br /> 
+                <button className="invTableBtn" className="tableBtn" onClick={() => setupAction("selectItemNameToEdit")} >Update Item Name</button>
             </th>
             <th>
-                <button className="tableBtn" onClick={()=>sort("categoryAsc")}>Asc</button>
-                <button className="tableBtn" onClick={()=>sort("categoryDesc")}>Desc</button> <br />
-                Category <br />
-              {userData?.role === 1 && <button className="tableBtn" onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>}
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("categoryAsc")}>Asc</button>
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("categoryDesc")}>Desc</button> <br />
+                Category <br /> 
+                <button className="invTableBtn" className="tableBtn" onClick={() => setupAction("selectItemCategoryToEdit")} >Update Item Category</button>
             </th>
             <th>
-                <button className="tableBtn" onClick={()=>sort("stockAsc")}>Asc</button>
-                <button className="tableBtn" onClick={()=>sort("stockDesc")}>Desc</button> <br />
-                Count <br />
-              {userData?.role === 1 && <button className="tableBtn" onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>}
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("stockAsc")}>Asc</button>
+                <button className="invTableBtn" className="tableBtn" onClick={()=>sort("stockDesc")}>Desc</button> <br />
+                Count <br /> 
+                <button className="invTableBtn" className="tableBtn" onClick={() => setupAction("selectStockToEdit")} >Update Item Stock</button>
             </th>
           </tr>
         </thead>
