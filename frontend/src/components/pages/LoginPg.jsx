@@ -2,6 +2,7 @@ import { useState } from "react";
 import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
+import PageHeader from "../pageFeatures/PageHeader.jsx";
 
 const LoginPg = () => {
   const navigate = useNavigate();
@@ -42,34 +43,37 @@ const LoginPg = () => {
   }
 
   return (
-    <div className="logDiv">
-      {loginResponse != "" && <p>{loginResponse}</p>}
+      <div>
+      <PageHeader />
+      <div className="logDiv">
+        {loginResponse != "" && <p>{loginResponse}</p>}
 
-      <form onSubmit={handleOnSubmitLogin}>
-        <label htmlFor="name">Username: </label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          value={loginData.name}
-          onChange={handleOnChangeLogin}
-          placeholder="Enter username"
-          required
-        />
+        <form onSubmit={handleOnSubmitLogin}>
+          <label htmlFor="name">Username: </label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            value={loginData.name}
+            onChange={handleOnChangeLogin}
+            placeholder="Enter username"
+            required
+          />
 
-        <label htmlFor="password">Password: </label>
-        <input
-          type="password"
-          name="password"
-          id="password"
-          value={loginData.password}
-          onChange={handleOnChangeLogin}
-          placeholder="Enter password"
-          required
-        />
+          <label htmlFor="password">Password: </label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            value={loginData.password}
+            onChange={handleOnChangeLogin}
+            placeholder="Enter password"
+            required
+          />
 
-        <button>Login</button>
-      </form>
+          <button>Login</button>
+        </form>
+      </div>
     </div>
   )
 }
