@@ -22,6 +22,10 @@ export function init()
     for(const testData of Schema.testData){
         db.prepare(testData).run()
     }
+    //create views for reports
+    for(const viewData of Schema.viewData){ 
+        db.prepare(viewData).run()
+    }
     console.log("Schema Updated\n")
 }
 
@@ -191,4 +195,33 @@ export function updateOrder(id, newReceivedDate, newStatus)
 export function deleteOrder(id)
 {
     return db.prepare(`DELETE FROM Orders WHERE order_id=?`).run(id)
+}
+
+//
+//Reports
+//
+
+//all reports are pulled as views form the database, check dbschema to modify them
+export function getReportById(id)
+{
+    switch(id) {
+        case 1:
+            //Low Stock (items under par value)
+            return db.prepare(`SELECT * FROM LowStock`).all()
+        break
+
+        case 2:
+            //Over Stock (items 3x over par)
+            return db.prepare(`SELECT * FROM HighStock`).all()
+        break
+
+        case 3:
+            //units PLACEHOLDER
+            return db.prepare(`SELECT * FROM Units`).all()
+        break
+
+        default:
+            //report not found
+            return undefined
+    }
 }
