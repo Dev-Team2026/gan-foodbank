@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
 import EditItemIntForm from "../pageFeatures/EditItemIntForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
-import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
+import NewOrderCard from "../pageFeatures/NewOrderCard";
 
 const Inventory = () => {
   //States
@@ -22,6 +23,8 @@ const Inventory = () => {
     totalItems: 0,
     totalPages: 0
   });
+  const [newOrder, setNewOrder] = useState([])
+  const [isDonation, setIsDonation] = useState(false)
 
   const token = Cookies.get("jwt-authorization");
 
@@ -196,9 +199,8 @@ const Inventory = () => {
     alert("Item Deleted.")
     resetAction()
   }
-
-  const handleAddToNewOrder = (item_name, amount, inventoryIndex) => {
-    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, inventoryIndex: inventoryIndex}])
+  const handleAddToNewOrder = (item_name, amount, unit_name, inventoryIndex) => {
+    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, unitType: unit_name, inventoryIndex: inventoryIndex}])
     handleOnSelect(inventoryIndex)
   }
 
@@ -231,7 +233,7 @@ const Inventory = () => {
   const handleSubmitNewOrder = async () => {
     try {
       console.log(newOrder)
-      await axios.post(`http://localhost:3000/orders`, {items: newOrder})
+      await axios.post(`http://localhost:3000/orders`, {donationStatus: isDonation, items: newOrder})
         .then((response)=>{
           setInventoryPostResponse(()=>response.data)
         })
@@ -294,6 +296,10 @@ const Inventory = () => {
       {currentAction === "" ? <div>
         {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>}
         {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>}
+        
+        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>}
+        <br />
+        <input onChange={search} />
       </div> :
       <button className="tableBtn" onClick={resetAction}>Cancel</button>}
 
@@ -359,7 +365,7 @@ const Inventory = () => {
           Next
         </button>
       </div>
-      {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />}
+      {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} setIsDonation={setIsDonation} />}
     </div>
   )
 }

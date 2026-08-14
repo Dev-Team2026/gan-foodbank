@@ -92,9 +92,9 @@ export function getInventory()
 {
     return db.prepare(
         `
-            SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
-            LEFT JOIN Categories as C ON I.category = C.category_id
-            LEFT JOIN Units as U ON I.unit = U.unit_id
+        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
+        LEFT JOIN Categories as C ON I.category = C.category_id
+        LEFT JOIN Units as U ON I.unit = U.unit_id
         `
     ).all()
 }
@@ -103,10 +103,10 @@ export function getInvItemById(id)
 {
     return db.prepare(
         `
-            SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
-            LEFT JOIN Categories as C ON I.category = C.category_id
-            LEFT JOIN Units as U ON I.unit = U.unit_id
-            WHERE item_id=?
+        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
+        LEFT JOIN Categories as C ON I.category = C.category_id
+        LEFT JOIN Units as U ON I.unit = U.unit_id
+        WHERE item_id=?
         `
     ).get(id)
 }
@@ -174,22 +174,31 @@ export function getOrderById(id)
     return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id WHERE order_id=?`).get(id)
 }
 
-export function addOrder(path)
+export function addOrder(path, status)
 {
     return db.prepare(
-        `INSERT INTO Orders (created_date, path)
-         VALUES (datetime('now', 'localtime'), ?)
+        `INSERT INTO Orders (created_date, status, path) 
+        VALUES (datetime('now', 'localtime'), ?, ?)
         `
-    ).run(path)
+    ).run(status, path)
 }
 
-export function updateOrder(id, newReceivedDate, newStatus)
+export function updateOrder(id, newStatus, totalPrice)
 {
     return db.prepare(
-        `UPDATE Orders SET received_date=?, status=?
+        `UPDATE Orders SET total_price=?, status=?
          WHERE order_id=?
         `
-    ).run(newReceivedDate, newStatus, id)
+    ).run(totalPrice, newStatus, id)
+}
+
+export function updateOrderCompleted(id, newStatus, totalPrice, newReceivedDate)
+{
+    return db.prepare(
+        `UPDATE Orders SET received_date=?, total_price=?, status=?
+         WHERE order_id=?
+        `
+    ).run(newReceivedDate, totalPrice, newStatus, id)
 }
 
 export function deleteOrder(id)
