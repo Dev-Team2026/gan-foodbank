@@ -22,6 +22,10 @@ export function init()
     for(const testData of Schema.testData){
         db.prepare(testData).run()
     }
+    //create views for reports
+    for(const viewData of Schema.viewData){ 
+        db.prepare(viewData).run()
+    }
     console.log("Schema Updated\n")
 }
 
@@ -79,7 +83,7 @@ export function deleteUser(id)
 export function getRoles()
 {
     return db.prepare(`SELECT * FROM Roles`).all()
-} 
+}
 
 //
 //Inventory
@@ -105,7 +109,7 @@ export function getInvItemById(id)
         WHERE item_id=?
         `
     ).get(id)
-} 
+}
 
 //default unit and size until add function can be refactored
 export function AddInvItem(name,category,stock,par,unit=1,size="100 m/l")
@@ -147,7 +151,7 @@ export function deleteInvItem(id)
 export function getCategories()
 {
     return db.prepare(`SELECT * FROM Categories`).all()
-} 
+}
 
 //
 //Units
@@ -155,7 +159,7 @@ export function getCategories()
 export function getUnits()
 {
     return db.prepare(`SELECT * FROM Units`).all()
-} 
+}
 
 //
 //Orders
@@ -168,7 +172,7 @@ export function getOrders()
 export function getOrderById(id)
 {
     return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id WHERE order_id=?`).get(id)
-} 
+}
 
 export function addOrder(path)
 {
@@ -200,4 +204,33 @@ export function updateOrderCompleted(id, newStatus, newReceivedDate)
 export function deleteOrder(id)
 {
     return db.prepare(`DELETE FROM Orders WHERE order_id=?`).run(id)
+}
+
+//
+//Reports
+//
+
+//all reports are pulled as views form the database, check dbschema to modify them
+export function getReportById(id)
+{
+    switch(id) {
+        case 1:
+            //Low Stock (items under par value)
+            return db.prepare(`SELECT * FROM LowStock`).all()
+        break
+
+        case 2:
+            //Over Stock (items 3x over par)
+            return db.prepare(`SELECT * FROM HighStock`).all()
+        break
+
+        case 3:
+            //units PLACEHOLDER
+            return db.prepare(`SELECT * FROM Units`).all()
+        break
+
+        default:
+            //report not found
+            return undefined
+    }
 }

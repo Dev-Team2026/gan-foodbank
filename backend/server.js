@@ -446,7 +446,23 @@ server.delete("/order/:id", (request, response) => {
   }
 });
 
+//add url param later
+server.get("/reports/:id", (request, response) => {
+    let { id } = request.params;
 
-server.get("/test", (request, response) => {
-    response.send(db.getInvItemById(3))
+    id = parseInt(id)
+
+    try {
+        let report = db.getReportById(id)
+
+        //console.log(report)
+
+        if(report === undefined) {
+            throw new Error("Report with ID " + id + " was not found")
+        }
+
+        return response.send(report)
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
 })
