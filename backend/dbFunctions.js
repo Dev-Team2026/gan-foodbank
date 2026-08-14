@@ -173,11 +173,8 @@ export function getOrderById(id)
 export function addOrder(path)
 {
     return db.prepare(
-<<<<<<< HEAD
         `INSERT INTO Orders (created_date, status, path) 
         VALUES (datetime('now', 'localtime'), 1, ?)
-=======
->>>>>>> 1c8788a9ba2e17f26127e53f557b95c752bf7ad1
         `
     ).run(path)
 }

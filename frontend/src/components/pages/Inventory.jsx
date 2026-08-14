@@ -7,8 +7,6 @@ import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
 import EditItemIntForm from "../pageFeatures/EditItemIntForm";
 import EditItemStringForm from "../pageFeatures/EditItemStringForm";
-import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
 
 const Inventory = () => {
   //States
@@ -37,13 +35,7 @@ const Inventory = () => {
       console.log(error.message)
     }
   }
-    const token = Cookies.get("jwt-authorization");
-  
-    let userData = null;
-  
-    if (token) {
-      userData = jwtDecode(token);
-    }
+
   useEffect(() => {
     handleInventoryDB()
   }, [inventoryPostResponse])
