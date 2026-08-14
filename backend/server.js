@@ -167,6 +167,78 @@ server.delete("/users/:id", (request, response) => {
 });
 
 server.get("/inventory", (request, response) => {
+    const page = Number(request.query.page) || 1;
+    const pageSize = Number(request.query.pageSize) || 15;
+    let filteredInventory = [...inventory];
+    filteredInventory = filteredInventory.filter((item) => {
+        return inventoryFilters.nameFilter.test(item.name.toLowerCase());
+    });
+    if (inventoryFilters.sortBy === "nameAsc") {
+        filteredInventory.sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+    }
+    if (inventoryFilters.sortBy === "categoryAsc") {
+        filteredInventory.sort((a, b) => {
+            return a.category.localeCompare(b.category);
+        });
+    }
+    if (inventoryFilters.sortBy === "stockAsc") {
+        filteredInventory.sort((a, b) => {
+            return a.stock - b.stock;
+        });
+    }
+    if (inventoryFilters.sortBy === "nameDesc") {
+        filteredInventory.sort((a, b) => {
+            return b.name.localeCompare(a.name);
+        });
+    }
+    if (inventoryFilters.sortBy === "categoryDesc") {
+        filteredInventory.sort((a, b) => {
+            return b.category.localeCompare(a.category);
+        });
+    }
+    if (inventoryFilters.sortBy === "stockDesc") {
+        filteredInventory.sort((a, b) => {
+            return b.stock - a.stock;
+        });
+    }
+    // Total AFTER filtering/sorting, BEFORE pagination
+    const totalItems = filteredInventory.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    // Convert page number into an array index
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    // Only return the requested page
+    const paginatedInventory = filteredInventory.slice(
+        startIndex,
+        endIndex
+    );
+    response.json({
+        inventory: addInventorySelectedValue(paginatedInventory),
+        pagination: {
+            page,
+            pageSize,
+            totalItems,
+            totalPages
+        }
+    });
+});
+
+server.post("/inventory", (request, response) => {
+    const {name, category, stock} = request.body
+    try {
+        inventory = db.AddInvItem(name, category, stock)
+        refreshInventoryList()
+        return response.status(200).send({
+            message: `item added successfully!`
+        });
+    } catch(error){
+        response.status(500).send({message: error.message})
+    }
+})
+
+server.get("/inventory/all", (request, response) => {
     inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name.toLowerCase()) })
     //asc
     inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b)=>{return a.name.localeCompare(b.name)}))
@@ -341,13 +413,13 @@ server.post("/orders", (request, response) => {
     //console.log(donationStatus)
     items.forEach((item)=>{
         fileContents.push({
-            id: item.index, 
-            name: item.name, 
-            requestedAmount: 
-            item.unitAmount * item.unitQuantity, 
-            unitType: item.unitType, 
-            fufillment: 0, 
-            itemCost: 0, 
+            id: item.index,
+            name: item.name,
+            requestedAmount:
+            item.unitAmount * item.unitQuantity,
+            unitType: item.unitType,
+            fufillment: 0,
+            itemCost: 0,
             itemStatus: status-1
         })
     })
@@ -370,7 +442,7 @@ server.post("/orders", (request, response) => {
         //create order file
         fs.writeFileSync(filePath, JSON.stringify(fileContents))
         //console.log(filePath)
-        let order = db.addOrder(filePath, status) 
+        let order = db.addOrder(filePath, status)
         //console.log(order)
         return response.status(200).send({
             message: `order added successfully!`
@@ -381,8 +453,9 @@ server.post("/orders", (request, response) => {
     }
 })
 
-server.patch("/ordersItems", async (request, response) => {
-    const {id, items} = request.body
+//date string is formatted as "YYYY-MM-DD HH:MM:SS"
+server.patch("/orders", async (request, response) => {
+    const {id, receivedDate, status, items} = request.body
     try {
         //only update order file whne items object is passed
         if(items != null){
@@ -398,8 +471,8 @@ server.patch("/ordersItems", async (request, response) => {
             console.log(totalCompletionValue)
             if (totalCompletionValue === items.length * 2){
                 let time = new Date()
-                let formatted = time.getFullYear() + "-" + 
-                (time.getMonth() + 1).toString().padStart(2,'0') + "-" +  
+                let formatted = time.getFullYear() + "-" +
+                (time.getMonth() + 1).toString().padStart(2,'0') + "-" +
                 time.getDate().toString().padStart(2,'0') + " " +
                 time.getHours().toString().padStart(2,'0') + ":" +
                 time.getMinutes().toString().padStart(2,'0') + ":" +
@@ -411,7 +484,7 @@ server.patch("/ordersItems", async (request, response) => {
             } else {
                 db.updateOrder(id, 1, totalPrice)
             }
-        } 
+        }
         return response.status(200).send({
             message: `order updated successfully!`
         });
@@ -431,7 +504,7 @@ server.patch("/ordersItems", async (request, response) => {
 //            fs.writeFileSync(filePath, JSON.stringify(items), 'utf8')
 //        }
 //
-//        let order = db.updateOrder(id, receivedDate, status) 
+//        let order = db.updateOrder(id, receivedDate, status)
 //        return response.status(200).send({
 //            message: `order updated successfully!`
 //        });
