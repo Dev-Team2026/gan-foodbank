@@ -150,8 +150,8 @@ const Inventory = () => {
     })
     resetAction()
   }
-  const handleAddToNewOrder = (item_name, amount, inventoryIndex) => {
-    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, inventoryIndex: inventoryIndex}])
+  const handleAddToNewOrder = (item_name, amount, unit_name, inventoryIndex) => {
+    setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, unitType: unit_name, inventoryIndex: inventoryIndex}])
     handleOnSelect(inventoryIndex)
   }
   const handleRemoveItemFromOrder = (index, inventoryIndex)=>{

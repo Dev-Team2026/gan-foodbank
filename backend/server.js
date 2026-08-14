@@ -319,7 +319,7 @@ server.post("/orders", (request, response) => {
     let fileContents = []
     //console.log(items)
     items.forEach((item)=>{
-        fileContents.push({id: item.index, name: item.name, amount: item.unitAmount * item.unitQuantity })
+        fileContents.push({id: item.index, name: item.name, requestedAmount: item.unitAmount * item.unitQuantity, unitType: item.unitType, fufillment: 0, itemCost: 0, itemStatus: 0 })
     })
     try {
         let time = new Date()
@@ -351,18 +351,35 @@ server.post("/orders", (request, response) => {
     }
 })
 
-//date string is formatted as "YYYY-MM-DD HH:MM:SS"
-server.patch("/orders", async (request, response) => {
-    const {id, receivedDate, status, items} = request.body
+server.patch("/ordersItems", async (request, response) => {
+    const {id, items} = request.body
     try {
         //only update order file whne items object is passed
         if(items != null){
             //fetch path
-            let filePath = db.getOrderById(id).path
-            fs.writeFileSync(filePath, items, 'utf8')
-        }
+            let order = db.getOrderById(id)
+            fs.writeFileSync(order.path, JSON.stringify(items))
+            let totalCompletionValue = 0;
+            items.forEach((item)=>{
+                totalCompletionValue += item.itemStatus
+            })
+            console.log(totalCompletionValue)
+            if (totalCompletionValue === items.length * 2){
+                let time = new Date()
+                let formatted = time.getFullYear() + "-" + 
+                (time.getMonth() + 1).toString().padStart(2,'0') + "-" +  
+                time.getDate().toString().padStart(2,'0') + " " +
+                time.getHours().toString().padStart(2,'0') + ":" +
+                time.getMinutes().toString().padStart(2,'0') + ":" +
+                time.getSeconds().toString().padStart(2,'0')
 
-        let order = db.updateOrder(id, receivedDate, status) 
+                db.updateOrderCompleted(id, 3, formatted)
+            } else if (totalCompletionValue > 0){
+                db.updateOrder(id, 2)
+            } else {
+                db.updateOrder(id, 1)
+            }
+        } 
         return response.status(200).send({
             message: `order updated successfully!`
         });
@@ -370,6 +387,26 @@ server.patch("/orders", async (request, response) => {
         response.status(500).send({message: error.message})
     }
 })
+
+//date string is formatted as "YYYY-MM-DD HH:MM:SS"
+//server.patch("/orders", async (request, response) => {
+//    const {id, receivedDate, status, items} = request.body
+//    try {
+//        //only update order file whne items object is passed
+//        if(items != null){
+//            //fetch path
+//            let filePath = db.getOrderById(id).path
+//            fs.writeFileSync(filePath, JSON.stringify(items), 'utf8')
+//        }
+//
+//        let order = db.updateOrder(id, receivedDate, status) 
+//        return response.status(200).send({
+//            message: `order updated successfully!`
+//        });
+//    } catch(error){
+//        response.status(500).send({message: error.message})
+//    }
+//})
 
 server.delete("/order/:id", (request, response) => {
   const { id } = request.params;
