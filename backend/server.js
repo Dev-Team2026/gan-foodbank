@@ -138,17 +138,63 @@ server.delete("/users/:id", (request, response) => {
 });
 
 server.get("/inventory", (request, response) => {
-    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name.toLowerCase()) })
-    //asc
-    inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b)=>{return a.name.localeCompare(b.name)}))
-    inventoryFilters.sortBy === "categoryAsc" && (inventory = inventory.sort((a, b)=>{return a.category - b.category}))
-    inventoryFilters.sortBy === "stockAsc" && (inventory = inventory.sort((a, b)=>{return a.stock - b.stock}))
-    //desc
-    inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b)=>{return b.name.localeCompare(a.name)}))
-    inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b)=>{return b.category - a.category}))
-    inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b)=>{return b.stock - a.stock}))
-    response.send(addInventorySelectedValue(inventory))
-})
+    const page = Number(request.query.page) || 1;
+    const pageSize = Number(request.query.pageSize) || 15;
+    let filteredInventory = [...inventory];
+    filteredInventory = filteredInventory.filter((item) => {
+        return inventoryFilters.nameFilter.test(item.name.toLowerCase());
+    });
+    if (inventoryFilters.sortBy === "nameAsc") {
+        filteredInventory.sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
+    }
+    if (inventoryFilters.sortBy === "categoryAsc") {
+        filteredInventory.sort((a, b) => {
+            return a.category.localeCompare(b.category);
+        });
+    }
+    if (inventoryFilters.sortBy === "stockAsc") {
+        filteredInventory.sort((a, b) => {
+            return a.stock - b.stock;
+        });
+    }
+    if (inventoryFilters.sortBy === "nameDesc") {
+        filteredInventory.sort((a, b) => {
+            return b.name.localeCompare(a.name);
+        });
+    }
+    if (inventoryFilters.sortBy === "categoryDesc") {
+        filteredInventory.sort((a, b) => {
+            return b.category.localeCompare(a.category);
+        });
+    }
+    if (inventoryFilters.sortBy === "stockDesc") {
+        filteredInventory.sort((a, b) => {
+            return b.stock - a.stock;
+        });
+    }
+    // Total AFTER filtering/sorting, BEFORE pagination
+    const totalItems = filteredInventory.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    // Convert page number into an array index
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    // Only return the requested page
+    const paginatedInventory = filteredInventory.slice(
+        startIndex,
+        endIndex
+    );
+    response.json({
+        inventory: addInventorySelectedValue(paginatedInventory),
+        pagination: {
+            page,
+            pageSize,
+            totalItems,
+            totalPages
+        }
+    });
+});
 
 server.post("/inventory", (request, response) => {
     const {name, category, stock} = request.body
@@ -161,6 +207,19 @@ server.post("/inventory", (request, response) => {
     } catch(error){
         response.status(500).send({message: error.message})
     }
+})
+
+server.get("/inventory/all", (request, response) => {
+    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name.toLowerCase()) })
+    //asc
+    inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b)=>{return a.name.localeCompare(b.name)}))
+    inventoryFilters.sortBy === "categoryAsc" && (inventory = inventory.sort((a, b)=>{return a.category - b.category}))
+    inventoryFilters.sortBy === "stockAsc" && (inventory = inventory.sort((a, b)=>{return a.stock - b.stock}))
+    //desc
+    inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b)=>{return b.name.localeCompare(a.name)}))
+    inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b)=>{return b.category - a.category}))
+    inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b)=>{return b.stock - a.stock}))
+    response.send(indexDbResults(addInventorySelectedValue(inventory)))
 })
 
 server.patch("/inventory/count", (request, response) => {

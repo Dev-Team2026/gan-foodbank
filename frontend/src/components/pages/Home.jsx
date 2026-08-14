@@ -1,6 +1,4 @@
 import logo from '../../assets/GananoqueFoodBank.png'
-import {useEffect, useState} from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
 import {jwtDecode} from "jwt-decode";
 

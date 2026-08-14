@@ -12,7 +12,7 @@ const InventoryCount = () => {
 
         //console.log(filters.nameFilter != "")
         try {
-            await axios.get("http://localhost:3000/inventory")
+            await axios.get("http://localhost:3000/inventory/all")
                 .then((response)=>{
                     setInventory(()=>response.data)
                 })

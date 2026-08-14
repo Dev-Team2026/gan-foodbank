@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
 
 import InventoryEditingCard from "../pageFeatures/InventoryEditingCard";
 import InventoryCard from "../pageFeatures/InventoryCard";
@@ -18,6 +16,12 @@ const Inventory = () => {
   const [inventoryPostResponse, setInventoryPostResponse] = useState("")
   const [itemsSelected, setItemsSelected] = useState(false)
   const [filters, setFilters] = useState({nameFilter: "", categoryFilter: "", sortBy: ""})
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 15,
+    totalItems: 0,
+    totalPages: 0
+  });
 
   const token = Cookies.get("jwt-authorization");
 
@@ -27,26 +31,34 @@ const Inventory = () => {
     userData = jwtDecode(token);
   }
 
-  const handleInventoryDB = async ()=>{
+  const handleInventoryDB = async () => {
     try {
-      await axios.get("http://localhost:3000/inventory")
-      .then((response)=>{
-        setInventory(()=>response.data)
-      })
-    } catch(error) {
-      console.log(error.message)
+      const response = await axios.get(
+          "http://localhost:3000/inventory",
+          {
+            params: {
+              page: pagination.page,
+              pageSize: pagination.pageSize
+            }
+          }
+      );
+
+      setInventory(response.data.inventory);
+
+      setPagination(response.data.pagination);
+
+    } catch (error) {
+      console.log(error.message);
     }
-  }
-    const token = Cookies.get("jwt-authorization");
-  
-    let userData = null;
-  
-    if (token) {
-      userData = jwtDecode(token);
-    }
+  };
+
   useEffect(() => {
-    handleInventoryDB()
-  }, [inventoryPostResponse])
+    handleInventoryDB();
+  }, [
+    pagination.page,
+    pagination.pageSize,
+    inventoryPostResponse
+  ]);
 
   useEffect(()=>{
     const applyFilters = async ()=>{
@@ -65,15 +77,18 @@ const Inventory = () => {
   const handleOnChangeItemForm = (e) => {
     setInventoryItemForm({...inventoryItemForm, [e.target.name]: e.target.value})
   }
+
   const setupAction = (action) => {
     setCurrentAction(action)
   }
+
   const resetAction = () => {
     setInventoryItemForm({name: "", category: "", stock: 0})
     setCurrentAction("")
     setNewOrder([])
     unselectAll()
   }
+
   const unselectAll = () => {
     const updatedInventory = []
     inventory.map((item)=>{
@@ -82,6 +97,7 @@ const Inventory = () => {
     setInventory(updatedInventory)
     checkForSelection(updatedInventory)
   }
+
   const handleOnSelect = (index) => {
     let updatedInventory = [...inventory]
     //inventory.map((item)=>{
@@ -91,6 +107,7 @@ const Inventory = () => {
     setInventory(updatedInventory)
     checkForSelection(updatedInventory)
   }
+
   const checkForSelection = (tempInventory) => {
     let selectedItems = 0
     tempInventory.map((item)=>{
@@ -98,6 +115,7 @@ const Inventory = () => {
     })
     selectedItems > 0 ? setItemsSelected(true) : setItemsSelected(false)
   }
+
   //db setup functions
   //const setUpForEditing = (editAction, index) => {
   //  setCurrentAction([editAction, index])
@@ -138,6 +156,7 @@ const Inventory = () => {
     }
     resetAction()
   }
+
   const handleOnSubmitStringValueEdit = async (newValue, targetValue) => {
     //console.log(newValue)
     const item = inventory.find(item => item.item_id === currentAction[1])
@@ -152,6 +171,7 @@ const Inventory = () => {
     }
     resetAction()
   }
+
   const DeleteItem = (e) => {
     e.preventDefault();
     const confirmed = window.confirm(
@@ -176,10 +196,12 @@ const Inventory = () => {
     alert("Item Deleted.")
     resetAction()
   }
+
   const handleAddToNewOrder = (item_name, amount, inventoryIndex) => {
     setNewOrder([...newOrder, {index: newOrder.length, name: item_name, unitAmount: amount, unitQuantity: 1, inventoryIndex: inventoryIndex}])
     handleOnSelect(inventoryIndex)
   }
+
   const handleRemoveItemFromOrder = (index, inventoryIndex)=>{
     let updatedOrder = [...newOrder]
     if (index === "unknown")
@@ -199,11 +221,13 @@ const Inventory = () => {
     setNewOrder(updatedOrder)
     handleOnSelect(inventoryIndex)
   }
+
   const handleAdjustUnitQuatity = (index, amount) => {
     let updatedOrder = [...newOrder]
     updatedOrder[index].unitQuantity += amount
     setNewOrder(updatedOrder)
   }
+
   const handleSubmitNewOrder = async () => {
     try {
       console.log(newOrder)
@@ -217,12 +241,29 @@ const Inventory = () => {
     }
   }
   //sorting functions
-  const search = async (event) => {
-    setFilters({...filters, nameFilter: event.target.value})
-  }
+  const search = (event) => {
+    setFilters({
+      ...filters,
+      nameFilter: event.target.value
+    });
+
+    setPagination({
+      ...pagination,
+      page: 1
+    });
+  };
+
   const sort = (sortingTarget) => {
-    setFilters({...filters, sortBy: sortingTarget})
-  }
+    setFilters({
+      ...filters,
+      sortBy: sortingTarget
+    });
+
+    setPagination({
+      ...pagination,
+      page: 1
+    });
+  };
 
 
   return (
@@ -253,10 +294,6 @@ const Inventory = () => {
       {currentAction === "" ? <div>
         {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("add")}>Add Item</button>}
         {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("delete")}>Delete Items</button>}
-        
-        {userData?.role === 1 &&<button className="tableBtn" onClick={()=>setupAction("order")}>Create New Order</button>}
-        <br />
-        <input onChange={search} />
       </div> :
       <button className="tableBtn" onClick={resetAction}>Cancel</button>}
 
@@ -291,6 +328,37 @@ const Inventory = () => {
           ))}
         </tbody>
       </table>
+      <div className="pagination">
+        <button
+            className="tableBtn"
+            onClick={() => {
+              setPagination({
+                ...pagination,
+                page: pagination.page - 1
+              });
+            }}
+            disabled={pagination.page <= 1}
+        >
+          Previous
+        </button>
+
+        <span>
+        Page {pagination.page} of {pagination.totalPages}
+    </span>
+
+        <button
+            className="tableBtn"
+            onClick={() => {
+              setPagination({
+                ...pagination,
+                page: pagination.page + 1
+              });
+            }}
+            disabled={pagination.page >= pagination.totalPages}
+        >
+          Next
+        </button>
+      </div>
       {currentAction === "order" && <NewOrderCard orderItems={newOrder} handleSubmitNewOrder={handleSubmitNewOrder} handleRemoveItemFromOrder={handleRemoveItemFromOrder} handleAdjustUnitQuatity={handleAdjustUnitQuatity} />}
     </div>
   )
