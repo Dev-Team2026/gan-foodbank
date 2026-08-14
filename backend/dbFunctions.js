@@ -179,7 +179,16 @@ export function addOrder(path)
     ).run(path)
 }
 
-export function updateOrder(id, newReceivedDate, newStatus)
+export function updateOrder(id, newStatus)
+{
+    return db.prepare(
+        `UPDATE Orders SET status=?
+         WHERE order_id=?
+        `
+    ).run(newStatus, id)
+}
+
+export function updateOrderCompleted(id, newStatus, newReceivedDate)
 {
     return db.prepare(
         `UPDATE Orders SET received_date=?, status=?
