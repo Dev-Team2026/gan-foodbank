@@ -4,56 +4,209 @@
 
 //SQL commands for creating tables (DB file must be deleted to recreate tables)
 export const tables = [
-    `CREATE TABLE IF NOT EXISTS "Categories" (
-                                                 "category_id"	INTEGER NOT NULL UNIQUE,
-                                                 "name"	TEXT NOT NULL UNIQUE,
-                                                 PRIMARY KEY("category_id" AUTOINCREMENT)
+    `CREATE TABLE IF NOT EXISTS "Categories"
+    (
+        "category_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "name"
+        TEXT
+        NOT NULL
+        UNIQUE,
+        
+        PRIMARY
+        KEY
+     (
+        "category_id"
+        AUTOINCREMENT
+     )
         );`,
-    `CREATE TABLE IF NOT EXISTS "Units" (
-                                            "unit_id"	INTEGER NOT NULL UNIQUE,
-                                            "name"	TEXT NOT NULL UNIQUE,
-                                            PRIMARY KEY("unit_id" AUTOINCREMENT)
+    `CREATE TABLE IF NOT EXISTS "Units"
+    (
+        "unit_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "name"
+        TEXT
+        NOT NULL
+        UNIQUE,
+        
+        PRIMARY
+        KEY
+     (
+        "unit_id"
+        AUTOINCREMENT
+     )
         );`,
-    `CREATE TABLE IF NOT EXISTS "Inventory" (
-        "item_id"	INTEGER NOT NULL UNIQUE,
-        "name"	TEXT NOT NULL UNIQUE,
-        "category"	INTEGER,
-        "stock"	INTEGER,
-        "unit" INTEGER DEFAULT 1,
-        "par"	INTEGER DEFAULT (NULL),
+    `CREATE TABLE IF NOT EXISTS "Inventory"
+    (
+        "item_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "name"
+        TEXT
+        NOT NULL
+        UNIQUE,
+        
+        "category"
+        INTEGER,
+        "stock"
+        INTEGER,
+        
+        "unit"
+        INTEGER
+        DEFAULT
+        1,
+        
+        "par"
+        INTEGER
+        DEFAULT
+     (
+        NULL
+     ),
         "size" TEXT,
-        PRIMARY KEY("item_id" AUTOINCREMENT),
-        FOREIGN KEY("category") REFERENCES "Categories"("category_id") ON UPDATE CASCADE ON DELETE SET NULL
-        FOREIGN KEY("unit") REFERENCES "Units"("unit_id") ON UPDATE CASCADE ON DELETE SET NULL
-    );`,
-    `CREATE TABLE IF NOT EXISTS "Roles" (
-                                            "role_id"	INTEGER NOT NULL UNIQUE,
-                                            "name"	TEXT NOT NULL UNIQUE,
-                                            PRIMARY KEY("role_id" AUTOINCREMENT)
+        PRIMARY KEY
+     (
+         "item_id"
+         AUTOINCREMENT
+     ),
+        FOREIGN KEY
+     (
+         "category"
+     ) REFERENCES "Categories"
+     (
+         "category_id"
+     ) ON UPDATE CASCADE
+       ON DELETE SET NULL
+        FOREIGN KEY
+     (
+         "unit"
+     ) REFERENCES "Units"
+     (
+         "unit_id"
+     )
+       ON UPDATE CASCADE
+       ON DELETE SET NULL
         );`,
-    `CREATE TABLE IF NOT EXISTS "Users" (
-                                            "user_id"	INTEGER NOT NULL UNIQUE,
-                                            "first_name"	TEXT NOT NULL,
-                                            "last_name"	TEXT,
-                                            "role"	INTEGER,
-                                            "password"	TEXT NOT NULL,
-                                            PRIMARY KEY("user_id" AUTOINCREMENT),
-        FOREIGN KEY("role") REFERENCES "Roles"("role_id") ON UPDATE CASCADE ON DELETE SET NULL
+    `CREATE TABLE IF NOT EXISTS "Roles"
+    (
+        "role_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "name"
+        TEXT
+        NOT NULL
+        UNIQUE,
+        
+        PRIMARY
+        KEY
+     (
+        "role_id"
+        AUTOINCREMENT
+     )
         );`,
-    `CREATE TABLE IF NOT EXISTS "Status" (
-                                             "status_id"	    INTEGER NOT NULL UNIQUE,
-                                             "name"	        TEXT    NOT NULL UNIQUE,
-                                             PRIMARY KEY("status_id" AUTOINCREMENT)
+    `CREATE TABLE IF NOT EXISTS "Users"
+    (
+        "user_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "first_name"
+        TEXT
+        NOT NULL,
+        
+        "last_name"
+        TEXT,
+        "role"
+        INTEGER,
+        
+        "password"
+        TEXT
+        NOT NULL,
+        
+        PRIMARY
+        KEY
+     (
+        "user_id"
+        AUTOINCREMENT
+     ),
+        FOREIGN KEY
+     (
+         "role"
+     ) REFERENCES "Roles"
+     (
+         "role_id"
+     ) ON UPDATE CASCADE
+       ON DELETE SET NULL
         );`,
-    `CREATE TABLE IF NOT EXISTS "Orders" (
-                                             "order_id"	INTEGER NOT NULL UNIQUE,
-                                             "created_date"	TEXT NOT NULL,
-                                             "received_date"	TEXT,
-                                             "status"	INTEGER DEFAULT 1,
-                                             "total_price"	REAL DEFAULT 0.0,
-                                             "Items"	TEXT,
-                                             PRIMARY KEY("order_id" AUTOINCREMENT),
-        FOREIGN KEY("status") REFERENCES "Status"("status_id") ON UPDATE CASCADE ON DELETE SET NULL
+    `CREATE TABLE IF NOT EXISTS "Status"
+    (
+        "status_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "name"
+        TEXT
+        NOT NULL
+        UNIQUE,
+        
+        PRIMARY
+        KEY
+     (
+        "status_id"
+        AUTOINCREMENT
+     )
+        );`,
+    `CREATE TABLE IF NOT EXISTS "Orders"
+    (
+        "order_id"
+        INTEGER
+        NOT NULL
+        UNIQUE,
+        
+        "created_date"
+        TEXT
+        NOT NULL,
+        
+        "received_date"
+        TEXT,
+        "status"
+        INTEGER
+        DEFAULT
+        1,
+        
+        "total_price"
+        REAL
+        DEFAULT
+        0.0,
+        
+        "Items"
+        TEXT,
+        
+        PRIMARY
+        KEY
+     (
+        "order_id"
+        AUTOINCREMENT
+     ),
+        FOREIGN KEY
+     (
+         "status"
+     ) REFERENCES "Status"
+     (
+         "status_id"
+     ) ON UPDATE CASCADE
+       ON DELETE SET NULL
         );`
 ]
 
@@ -75,7 +228,8 @@ export const viewData = [
 
 //default data (categories, roles, status)
 export const defaultData = [
-    `INSERT OR REPLACE INTO "Categories" VALUES 
+    `INSERT
+    OR REPLACE INTO "Categories" VALUES 
         (1,'General'),
         (2,'Fridge'),
         (3,'Fresh Fruit'),
@@ -90,16 +244,19 @@ export const defaultData = [
         (14,'TestCategory3'),
         (15,'TestCategory5');
     `,
-    `INSERT OR REPLACE INTO "Units" VALUES 
+    `INSERT
+    OR REPLACE INTO "Units" VALUES 
         (1,'Cans'),
         (2,'Boxes'),
         (3,'lbs');
     `,
-    `INSERT OR REPLACE INTO "Roles" VALUES 
+    `INSERT
+    OR REPLACE INTO "Roles" VALUES 
         (1,'admin'),
         (2,'volunteer');
     `,
-    `INSERT OR REPLACE INTO "Status" VALUES 
+    `INSERT
+    OR REPLACE INTO "Status" VALUES 
         (1,'open'),
         (2,'partial'),
         (3,'filled'),
@@ -109,7 +266,8 @@ export const defaultData = [
 
 //test data
 export const testData = [
-    `INSERT OR REPLACE INTO "Inventory" VALUES 
+    `INSERT
+    OR REPLACE INTO "Inventory" VALUES 
         (1,'Soup',9,27,1,10,'100 m/l'),
         (2,'Chunky Soup',9,15,1,10,'100 m/l'),
         (3,'Canned Ham',9,7,1,10,'100 m/l'),
@@ -176,7 +334,8 @@ export const testData = [
         (65,'Diapers',11,12,1,10,'100 m/l'),
         (66,'Baby Food',11,11,1,10,'100 m/l');
     `,
-    `INSERT OR REPLACE INTO "Users" VALUES 
+    `INSERT
+    OR REPLACE INTO "Users" VALUES 
         (1,'Jarrod','Hoddinott',2,'123'),
         (2,'Maxwell','Schriner',2,'456'),
         (3,'Bob','Bobertson',1,'789'),

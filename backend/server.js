@@ -3,7 +3,7 @@ import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import * as db from './dbFunctions.js'
-import * as fs from "node:fs";
+import * as fs from "node:fs"
 
 //Express
 const server = express()
@@ -11,11 +11,14 @@ const port = 3000
 
 //Middleware
 server.use(express.json()) //to ensure data is transmitted as json
-server.use(express.urlencoded({ extended: true })) //to ensure data is encoded and decoded while transmission
+server.use(express.urlencoded({extended: true})) //to ensure data is encoded and decoded while transmission
 server.use(cors())
 
 //close db connection on shutdown
-process.on('exit', () => {return db.close()})
+process.on('exit', () => {
+    return db.close()
+})
+
 //catches "interrupt signal" (ctrl + C)
 process.on('SIGINT', () => {
     db.close()
@@ -24,70 +27,69 @@ process.on('SIGINT', () => {
 
 const indexDbResults = (dbTable) => {
     let i = 0
-    dbTable.forEach((option)=>{
+    dbTable.forEach((option) => {
         option.index = i
         i++
     })
     //console.log(dbTable)
-    return(dbTable)
+    return (dbTable)
 }
+
 const addInventorySelectedValue = (dbTable) => {
-    dbTable.forEach((option)=>{
+    dbTable.forEach((option) => {
         option.selected = false
     })
     //console.log(dbTable)
-    return(dbTable)
+    return (dbTable)
 }
 
 //store user list
 let users = indexDbResults(db.getAllUsers())
 //updates stored user list after db update
-const refreshUserList= () => {
-    users =  indexDbResults(db.getAllUsers())
+const refreshUserList = () => {
+    users = indexDbResults(db.getAllUsers())
 }
 
 //store inventory list
 let inventory = indexDbResults(db.getInventory())
 let inventoryFilters = {nameFilter: new RegExp(""), categoryFilter: new RegExp(""), sortBy: ""}
 //updates stored inventory list after db update
-const refreshInventoryList= () => {
-    inventory =  indexDbResults(db.getInventory())
+const refreshInventoryList = () => {
+    inventory = indexDbResults(db.getInventory())
 }
 
 let orderFilters = {}
 let currentOrderGroupIndex = 1
-//
+
 // Endpoints
-//
 server.listen(port, () => {
-      console.log(`Database is connected\nServer is listening on ${port}`)
-      console.log(new Date(Date.now()))
-    });
+    console.log(`Database is connected\nServer is listening on ${port}`)
+    console.log(new Date(Date.now()))
+})
 
 server.get("/", (request, response) => {
     console.log("main endpoint")
     response.send("Server is Live!")
-});
+})
 
 server.post("/", (request, response) => {
     const {name, password} = request.body
-    try{
-        //const user = await User.findOne({name});
-        const user = users.find(user => user.first_name.toLowerCase() === name.toLowerCase());
+    try {
+        //const user = await User.findOne({name})
+        const user = users.find(user => user.first_name.toLowerCase() === name.toLowerCase())
         //console.log(user)
-        if (!user){
+        if (!user) {
             return response.status(404).send({message: "User does not exist"})
         }
-        //const match = await bcrypt.compare(password, user.password);
+        //const match = await bcrypt.compare(password, user.password)
         const match = password === user.password
         //console.log(match)
-        if (!match)
-        {
+        if (!match) {
             return response.status(403).send({message: "Incorrect credentials"})
         }
-        const jwtToken = jwt.sign({role: user.role, name, }, "temp")
+        const jwtToken = jwt.sign({role: user.role, name,}, "temp")
         return response.status(201).send({message: "User Authenticated", token: jwtToken})
-    }catch(err){
+    } catch (err) {
         response.status(500).send({message: err.message})
     }
 })
@@ -105,8 +107,8 @@ server.post("/users", async (request, response) => {
         refreshUserList()
         return response.status(200).send({
             message: `user added successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
@@ -119,73 +121,73 @@ server.patch("/users", async (request, response) => {
         refreshUserList()
         return response.status(200).send({
             message: `user updated successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
 
 server.delete("/users/:id", (request, response) => {
-  const { id } = request.params;
-  try {
-        users = db.deleteUser(id);
+    const {id} = request.params
+    try {
+        users = db.deleteUser(id)
         refreshUserList()
         return response.status(200).send({
             message: `user deleted successfully!`
-        });
-  } catch (error) {
-    response.status(400).send({ message: error.message });
-  }
-});
+        })
+    } catch (error) {
+        response.status(400).send({message: error.message})
+    }
+})
 
 server.get("/inventory", (request, response) => {
-    const page = Number(request.query.page) || 1;
-    const pageSize = Number(request.query.pageSize) || 15;
-    let filteredInventory = [...inventory];
+    const page = Number(request.query.page) || 1
+    const pageSize = Number(request.query.pageSize) || 15
+    let filteredInventory = [...inventory]
     filteredInventory = filteredInventory.filter((item) => {
-        return inventoryFilters.nameFilter.test(item.name.toLowerCase());
-    });
+        return inventoryFilters.nameFilter.test(item.name.toLowerCase())
+    })
     if (inventoryFilters.sortBy === "nameAsc") {
         filteredInventory.sort((a, b) => {
-            return a.name.localeCompare(b.name);
-        });
+            return a.name.localeCompare(b.name)
+        })
     }
     if (inventoryFilters.sortBy === "categoryAsc") {
         filteredInventory.sort((a, b) => {
-            return a.category.localeCompare(b.category);
-        });
+            return a.category.localeCompare(b.category)
+        })
     }
     if (inventoryFilters.sortBy === "stockAsc") {
         filteredInventory.sort((a, b) => {
-            return a.stock - b.stock;
-        });
+            return a.stock - b.stock
+        })
     }
     if (inventoryFilters.sortBy === "nameDesc") {
         filteredInventory.sort((a, b) => {
-            return b.name.localeCompare(a.name);
-        });
+            return b.name.localeCompare(a.name)
+        })
     }
     if (inventoryFilters.sortBy === "categoryDesc") {
         filteredInventory.sort((a, b) => {
-            return b.category.localeCompare(a.category);
-        });
+            return b.category.localeCompare(a.category)
+        })
     }
     if (inventoryFilters.sortBy === "stockDesc") {
         filteredInventory.sort((a, b) => {
-            return b.stock - a.stock;
-        });
+            return b.stock - a.stock
+        })
     }
     // Total AFTER filtering/sorting, BEFORE pagination
-    const totalItems = filteredInventory.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const totalItems = filteredInventory.length
+    const totalPages = Math.ceil(totalItems / pageSize)
     // Convert page number into an array index
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
+    const startIndex = (page - 1) * pageSize
+    const endIndex = startIndex + pageSize
     // Only return the requested page
     const paginatedInventory = filteredInventory.slice(
         startIndex,
         endIndex
-    );
+    )
     response.json({
         inventory: addInventorySelectedValue(paginatedInventory),
         pagination: {
@@ -194,8 +196,8 @@ server.get("/inventory", (request, response) => {
             totalItems,
             totalPages
         }
-    });
-});
+    })
+})
 
 server.post("/inventory", (request, response) => {
     const {name, category, stock} = request.body
@@ -204,56 +206,70 @@ server.post("/inventory", (request, response) => {
         refreshInventoryList()
         return response.status(200).send({
             message: `item added successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
 
 server.get("/inventory/all", (request, response) => {
-    inventory = inventory.filter((item) => {return inventoryFilters.nameFilter.test(item.name.toLowerCase()) })
+    inventory = inventory.filter((item) => {
+        return inventoryFilters.nameFilter.test(item.name.toLowerCase())
+    })
     //asc
-    inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b)=>{return a.name.localeCompare(b.name)}))
-    inventoryFilters.sortBy === "categoryAsc" && (inventory = inventory.sort((a, b)=>{return a.category - b.category}))
-    inventoryFilters.sortBy === "stockAsc" && (inventory = inventory.sort((a, b)=>{return a.stock - b.stock}))
+    inventoryFilters.sortBy === "nameAsc" && (inventory = inventory.sort((a, b) => {
+        return a.name.localeCompare(b.name)
+    }))
+    inventoryFilters.sortBy === "categoryAsc" && (inventory = inventory.sort((a, b) => {
+        return a.category - b.category
+    }))
+    inventoryFilters.sortBy === "stockAsc" && (inventory = inventory.sort((a, b) => {
+        return a.stock - b.stock
+    }))
     //desc
-    inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b)=>{return b.name.localeCompare(a.name)}))
-    inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b)=>{return b.category - a.category}))
-    inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b)=>{return b.stock - a.stock}))
+    inventoryFilters.sortBy === "nameDesc" && (inventory = inventory.sort((a, b) => {
+        return b.name.localeCompare(a.name)
+    }))
+    inventoryFilters.sortBy === "categoryDesc" && (inventory = inventory.sort((a, b) => {
+        return b.category - a.category
+    }))
+    inventoryFilters.sortBy === "stockDesc" && (inventory = inventory.sort((a, b) => {
+        return b.stock - a.stock
+    }))
     response.send(indexDbResults(addInventorySelectedValue(inventory)))
 })
 
 server.patch("/inventory/count", (request, response) => {
-    const { counts } = request.body
+    const {counts} = request.body
 
     try {
         for (const [id, newValue] of Object.entries(counts)) {
-            db.UpdateInvStock(Number(id), Number(newValue));
+            db.UpdateInvStock(Number(id), Number(newValue))
         }
 
         refreshInventoryList()
 
         return response.status(200).send({
             message: `count updated successfully!`
-        });
+        })
 
     } catch (error) {
-        response.status(500).send({ message: error.message });
+        response.status(500).send({message: error.message})
     }
 })
 
 server.delete("/inventory/:id", (request, response) => {
-  const { id } = request.params;
-  try {
-        users = db.deleteInvItem(id);
+    const {id} = request.params
+    try {
+        users = db.deleteInvItem(id)
         refreshInventoryList()
         return response.status(200).send({
             message: `item deleted successfully!`
-        });
-  } catch (error) {
-    response.status(400).send({ message: error.message });
-  }
-});
+        })
+    } catch (error) {
+        response.status(400).send({message: error.message})
+    }
+})
 
 server.patch("/inventoryIntValue", async (request, response) => {
     const {item, newValue, targetValue} = request.body
@@ -262,11 +278,12 @@ server.patch("/inventoryIntValue", async (request, response) => {
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
+
 server.patch("/inventoryStringValue", async (request, response) => {
     const {item, newValue, targetValue} = request.body
     try {
@@ -275,11 +292,12 @@ server.patch("/inventoryStringValue", async (request, response) => {
         refreshInventoryList()
         return response.status(200).send({
             message: `user updated successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
+
 server.patch("/inventoryFilters", async (request, response) => {
     const {nameFilter, categoryFilter, sortBy} = request.body
     //console.log(nameFilter, categoryFilter, "ss")
@@ -290,23 +308,23 @@ server.patch("/inventoryFilters", async (request, response) => {
         refreshInventoryList()
         return response.status(200).send({
             message: `filters updated successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
 
 server.get("/orders", (request, response) => {
     try {
-        let orders = db.getOrders() 
+        let orders = db.getOrders()
         return response.send({db: indexDbResults(orders), currentGroup: currentOrderGroupIndex})
-    } catch(error){
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
 
 server.get("/orders/:id", (request, response) => {
-  const { id } = request.params;
+    const {id} = request.params
     try {
         let order = db.getOrderById(id)
 
@@ -314,40 +332,41 @@ server.get("/orders/:id", (request, response) => {
         order.items = JSON.parse(order.Items)
 
         return response.send(order)
-    } catch(error){
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
 
 //only order items are required, created date is autofilled, and status defaults to 0 (open)
 server.post("/orders", (request, response) => {
-    const { donationStatus, items } = request.body;
+    const {donationStatus, items} = request.body
     let fileContents = []
     let status = donationStatus ? 4 : 1
     //console.log(donationStatus)
-    items.forEach((item)=>{
+    items.forEach((item) => {
         fileContents.push({
             id: item.index,
             name: item.name,
             requestedAmount:
-            item.unitAmount * item.unitQuantity,
+                item.unitAmount * item.unitQuantity,
             unitType: item.unitType,
             fufillment: 0,
             itemCost: 0,
-            itemStatus: status-1
+            itemStatus: status - 1
         })
     })
+
     try {
         let time = new Date()
         //console.log(time)
 
         //closely matches SQLite formatting "YYYY-MM-DD HH:MM:SS" (can't put :'s in file name)
-        let formatted = time.getFullYear() + "-" + 
-        (time.getMonth() + 1).toString().padStart(2,'0') + "-" +  
-        time.getDate().toString().padStart(2,'0') + " " +
-        time.getHours().toString().padStart(2,'0') + "-" +
-        time.getMinutes().toString().padStart(2,'0') + "-" +
-        time.getSeconds().toString().padStart(2,'0')
+        let formatted = time.getFullYear() + "-" +
+            (time.getMonth() + 1).toString().padStart(2, '0') + "-" +
+            time.getDate().toString().padStart(2, '0') + " " +
+            time.getHours().toString().padStart(2, '0') + "-" +
+            time.getMinutes().toString().padStart(2, '0') + "-" +
+            time.getSeconds().toString().padStart(2, '0')
         //console.log(formatted)
 
         let filePath = "./orders/" + formatted + ".json"
@@ -360,8 +379,9 @@ server.post("/orders", (request, response) => {
         //console.log(order)
         return response.status(200).send({
             message: `order added successfully!`
-        });
-    } catch(error){
+        })
+
+    } catch (error) {
         console.log(error)
         response.status(500).send({message: error.message})
     }
@@ -372,28 +392,28 @@ server.patch("/orders", async (request, response) => {
     const {id, receivedDate, status, items} = request.body
     try {
         //only update order file when items object is passed
-        if(items != null){
+        if (items != null) {
             //fetch path
             let order = db.getOrderById(id)
             fs.writeFileSync(order.path, JSON.stringify(items))
-            let totalCompletionValue = 0;
+            let totalCompletionValue = 0
             let totalPrice = 0
-            items.forEach((item)=>{
+            items.forEach((item) => {
                 totalCompletionValue += item.itemStatus
                 totalPrice += item.itemCost
             })
             console.log(totalCompletionValue)
-            if (totalCompletionValue === items.length * 2){
+            if (totalCompletionValue === items.length * 2) {
                 let time = new Date()
                 let formatted = time.getFullYear() + "-" +
-                (time.getMonth() + 1).toString().padStart(2,'0') + "-" +
-                time.getDate().toString().padStart(2,'0') + " " +
-                time.getHours().toString().padStart(2,'0') + ":" +
-                time.getMinutes().toString().padStart(2,'0') + ":" +
-                time.getSeconds().toString().padStart(2,'0')
+                    (time.getMonth() + 1).toString().padStart(2, '0') + "-" +
+                    time.getDate().toString().padStart(2, '0') + " " +
+                    time.getHours().toString().padStart(2, '0') + ":" +
+                    time.getMinutes().toString().padStart(2, '0') + ":" +
+                    time.getSeconds().toString().padStart(2, '0')
 
                 db.updateOrderCompleted(id, 3, totalPrice, formatted)
-            } else if (totalCompletionValue > 0){
+            } else if (totalCompletionValue > 0) {
                 db.updateOrder(id, 2, totalPrice)
             } else {
                 db.updateOrder(id, 1, totalPrice)
@@ -401,65 +421,45 @@ server.patch("/orders", async (request, response) => {
         }
         return response.status(200).send({
             message: `order updated successfully!`
-        });
-    } catch(error){
+        })
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
 
-//date string is formatted as "YYYY-MM-DD HH:MM:SS"
-//server.patch("/orders", async (request, response) => {
-//    const {id, receivedDate, status, items} = request.body
-//    try {
-//        //only update order file when items object is passed
-//        if(items != null){
-//            //fetch path
-//            let filePath = db.getOrderById(id).path
-//            fs.writeFileSync(filePath, JSON.stringify(items), 'utf8')
-//        }
-//
-//        let order = db.updateOrder(id, receivedDate, status)
-//        return response.status(200).send({
-//            message: `order updated successfully!`
-//        });
-//    } catch(error){
-//        response.status(500).send({message: error.message})
-//    }
-//})
-
 server.delete("/order/:id", (request, response) => {
-  const { id } = request.params;
-  try {
+    const {id} = request.params
+    try {
         //delete matching order file
         //fetch path
         let filePath = db.getOrderById(id).path
 
         fs.unlinkSync(filePath)
-        
+
         let order = db.deleteOrder(id)
         return response.status(200).send({
             message: `item deleted successfully!`
-        });
-  } catch (error) {
-    response.status(400).send({ message: error.message });
-  }
-});
+        })
+    } catch (error) {
+        response.status(400).send({message: error.message})
+    }
+})
 
 //add url param later
 server.get("/reports/:id", (request, response) => {
-    let { id } = request.params;
+    let {id} = request.param
 
     id = parseInt(id)
 
     try {
         let report = db.getReportById(id)
 
-        if(report === undefined) {
+        if (report === undefined) {
             throw new Error("Report with ID " + id + " was not found")
         }
 
         return response.send(report)
-    } catch(error){
+    } catch (error) {
         response.status(500).send({message: error.message})
     }
 })
