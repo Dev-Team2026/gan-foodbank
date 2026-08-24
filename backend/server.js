@@ -1,17 +1,16 @@
-import express, {request, response} from 'express'
+import express from 'express'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
-import Database from 'better-sqlite3'
 import bcrypt from 'bcrypt'
 import * as db from './dbFunctions.js'
-import fs from 'fs'
+import * as fs from "node:fs";
 
 //Express
 const server = express()
 const port = 3000
 
 //Middleware
-server.use(express.json()) //to ensure data is trasmitted as json
+server.use(express.json()) //to ensure data is transmitted as json
 server.use(express.urlencoded({ extended: true })) //to ensure data is encoded and decoded while transmission
 server.use(cors())
 
@@ -55,33 +54,6 @@ const refreshInventoryList= () => {
     inventory =  indexDbResults(db.getInventory())
 }
 
-let ordersOld = [
-    {
-        order_group_id: 1, 
-        date_sent: "2026-06-30",
-        order_items: [
-            {orders_id: 1, item_name: "Chick Peas", amount: 4, date_issued: "2026-06-10", date_recieved: "pending",}, 
-            {orders_id: 2, item_name: "Rice", amount: 4, date_issued: "2026-06-10", date_recieved: "pending"}, 
-            {orders_id: 3, item_name: "Canned Tuna", amount: 4, date_issued: "2026-06-10", date_recieved: "pending"}
-        ]
-    },
-    {
-        order_group_id: 2, 
-        date_sent: "2026-07-31",
-        order_items: [
-            {orders_id: 1, item_name: "Pasta", amount: 4, date_issued: "2026-07-11", date_recieved: "pending",}, 
-            {orders_id: 2, item_name: "Soup", amount: 4, date_issued: "2026-07-11", date_recieved: "pending"}, 
-            {orders_id: 3, item_name: "Canned Fruit", amount: 4, date_issued: "2026-07-11", date_recieved: "pending"}
-        ]
-    },
-    {
-        order_group_id: 3, 
-        date_sent: "unsent",
-        order_items: [
-            {orders_id: 1, item_name: "Sugar", amount: 4, date_issued: "2026-08-02", date_recieved: "pending",}
-        ]
-    },
-]
 let orderFilters = {}
 let currentOrderGroupIndex = 1
 //
@@ -129,7 +101,7 @@ server.post("/users", async (request, response) => {
     const {name, role, password} = request.body
     try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        users = db.addUser(name, "Lnameplaceholder", role, hashedPassword) //update place holder last name!
+        users = db.addUser(name, "Lnameplaceholder", role, hashedPassword) //update placeholder last name!
         refreshUserList()
         return response.status(200).send({
             message: `user added successfully!`
@@ -143,7 +115,7 @@ server.patch("/users", async (request, response) => {
     const {id, name, role, password} = request.body
     try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        users = db.updateUser(id, name, "Lnameplaceholder", role, hashedPassword) //update place holder last name!
+        users = db.updateUser(id, name, "Lnameplaceholder", role, hashedPassword) //update placeholder last name!
         refreshUserList()
         return response.status(200).send({
             message: `user updated successfully!`
@@ -251,19 +223,6 @@ server.get("/inventory/all", (request, response) => {
     response.send(indexDbResults(addInventorySelectedValue(inventory)))
 })
 
-server.post("/inventory", (request, response) => {
-    const {name, category, stock} = request.body
-    try {
-        inventory = db.AddInvItem(name, category, stock) 
-        refreshInventoryList()
-        return response.status(200).send({
-            message: `item added successfully!`
-        });
-    } catch(error){
-        response.status(500).send({message: error.message})
-    }
-})
-
 server.patch("/inventory/count", (request, response) => {
     const { counts } = request.body
 
@@ -337,50 +296,6 @@ server.patch("/inventoryFilters", async (request, response) => {
     }
 })
 
-server.get("/ordersOld", (request, response) => {
-    response.send({db: indexDbResults(ordersOld), currentGroup: currentOrderGroupIndex})
-    currentOrderGroupIndex = 1
-})
-server.post("/ordersOld", (request, response) => {
-    const {item_name, amount} = request.body
-    const currentTime = new Date(Date.now())
-    //console.log(currentTime)
-    try {
-        ordersOld[ordersOld.length-1].order_items.push({
-            orders_id: ordersOld[ordersOld.length-1].order_items[ordersOld.length-1].orders_id+1,
-            item_name, 
-            amount, 
-            date_issued: currentTime.getFullYear() + "-" + currentTime.getMonth().toString().padStart(2,"0") + "-" + currentTime.getDate().toString().padStart(2,"0"), 
-            date_recieved: "pending"
-        })
-        return response.status(200).send({
-            message: `order added successfully!`
-        });
-    } catch(error){
-        response.status(500).send({message: error.message})
-    }
-    response.send(indexDbResults(orders))
-})
-server.patch("/ordersOld", (request, response) => {
-    const {group_id, order_id} = request.body
-    const currentTime = new Date(Date.now())
-    currentOrderGroupIndex = group_id
-    //console.log(currentTime)
-    try {
-        ordersOld[group_id].order_items[order_id-1]
-            .date_recieved = 
-                currentTime.getFullYear() + "-" 
-                + currentTime.getMonth().toString().padStart(2,"0") + "-" 
-                + currentTime.getDate().toString().padStart(2,"0")
-        return response.status(200).send({
-            message: `order added successfully!`
-        });
-    } catch(error){
-        response.status(500).send({message: error.message})
-    }
-    response.send(indexDbResults(orders))
-})
-
 server.get("/orders", (request, response) => {
     try {
         let orders = db.getOrders() 
@@ -388,7 +303,6 @@ server.get("/orders", (request, response) => {
     } catch(error){
         response.status(500).send({message: error.message})
     }
-    currentOrderGroupIndex = 1
 })
 
 server.get("/orders/:id", (request, response) => {
@@ -397,7 +311,7 @@ server.get("/orders/:id", (request, response) => {
         let order = db.getOrderById(id)
 
         //attach order details from matching file onto response object
-        order.items = JSON.parse(fs.readFileSync(order.path, 'utf8'))
+        order.items = JSON.parse(order.Items)
 
         return response.send(order)
     } catch(error){
@@ -405,7 +319,7 @@ server.get("/orders/:id", (request, response) => {
     }
 })
 
-//only order items are required, created date is auto filled, and status defaults to 0 (open)
+//only order items are required, created date is autofilled, and status defaults to 0 (open)
 server.post("/orders", (request, response) => {
     const { donationStatus, items } = request.body;
     let fileContents = []
@@ -457,7 +371,7 @@ server.post("/orders", (request, response) => {
 server.patch("/orders", async (request, response) => {
     const {id, receivedDate, status, items} = request.body
     try {
-        //only update order file whne items object is passed
+        //only update order file when items object is passed
         if(items != null){
             //fetch path
             let order = db.getOrderById(id)
@@ -497,7 +411,7 @@ server.patch("/orders", async (request, response) => {
 //server.patch("/orders", async (request, response) => {
 //    const {id, receivedDate, status, items} = request.body
 //    try {
-//        //only update order file whne items object is passed
+//        //only update order file when items object is passed
 //        if(items != null){
 //            //fetch path
 //            let filePath = db.getOrderById(id).path
@@ -539,8 +453,6 @@ server.get("/reports/:id", (request, response) => {
 
     try {
         let report = db.getReportById(id)
-
-        //console.log(report)
 
         if(report === undefined) {
             throw new Error("Report with ID " + id + " was not found")

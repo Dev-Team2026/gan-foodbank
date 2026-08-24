@@ -51,7 +51,7 @@ export const tables = [
                                              "received_date"	TEXT,
                                              "status"	INTEGER DEFAULT 1,
                                              "total_price"	REAL DEFAULT 0.0,
-                                             "path"	TEXT,
+                                             "Items"	TEXT,
                                              PRIMARY KEY("order_id" AUTOINCREMENT),
         FOREIGN KEY("status") REFERENCES "Status"("status_id") ON UPDATE CASCADE ON DELETE SET NULL
         );`

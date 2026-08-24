@@ -23,7 +23,6 @@ const OrdersCard = ({id, name, requestedAmount, fufillment, itemCost, itemStatus
     }
     return (
         <tr>
-            {itemStatus == 2 ? <td><s>{statusDisplay(itemStatus)}</s></td> : <td>{statusDisplay(itemStatus)}</td>}
             {itemStatus == 2 ? <td><s>{name}</s></td> : <td>{name}</td>}
             {itemStatus == 3 ? 
                 <td>{requestedAmount} {unitType}</td> :
@@ -46,6 +45,8 @@ const OrdersCard = ({id, name, requestedAmount, fufillment, itemCost, itemStatus
                         {itemCost} $
                     </td>
             }
+            {itemStatus == 2 ? <td><s>{statusDisplay(itemStatus)}</s></td> : <td>{statusDisplay(itemStatus)}</td>}
+
             {(itemStatus != 3 && fufillment < requestedAmount) && <td><button onClick={()=>toggleEarlyClose(id)} >{itemStatus == 2 ? "Reopen Item" : "Close Item" }</button></td> }
         </tr>
     )
