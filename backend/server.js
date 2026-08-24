@@ -447,7 +447,7 @@ server.delete("/order/:id", (request, response) => {
 
 //add url param later
 server.get("/reports/:id", (request, response) => {
-    let {id} = request.param
+    let {id} = request.params
 
     id = parseInt(id)
 
@@ -460,6 +460,7 @@ server.get("/reports/:id", (request, response) => {
 
         return response.send(report)
     } catch (error) {
+        console.log(error)
         response.status(500).send({message: error.message})
     }
 })
