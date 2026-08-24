@@ -1,11 +1,11 @@
-import { useState } from "react";
-import Cookies from "js-cookie";
-import {useNavigate} from "react-router-dom";
-import axios from "axios";
-import PageHeader from "../pageFeatures/PageHeader.jsx";
+import { useState } from "react"
+import Cookies from "js-cookie"
+import {useNavigate} from "react-router-dom"
+import axios from "axios"
+import PageHeader from "../pageFeatures/PageHeader.jsx"
 
 const LoginPg = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const [loginData, setLoginData] = useState({
     name: "",
@@ -16,7 +16,7 @@ const LoginPg = () => {
 
   const handleOnChangeLogin = (e)=> {
     setLoginData((prevData) => {
-      return{...prevData, [e.target.name]: e.target.value};
+      return{...prevData, [e.target.name]: e.target.value}
     })
   }
   const handleOnSubmitLogin = (e) => {
@@ -27,13 +27,13 @@ const LoginPg = () => {
   const handleLogin = async () => {
     try {
       console.log("test")
-      const response = await axios.post("http://localhost:3000/", loginData);
-      setLoginResponse(response.data.message);
+      const response = await axios.post("http://localhost:3000/", loginData)
+      setLoginResponse(response.data.message)
 
       if (response.status === 201)
       {
-        navigate("/home");
-        Cookies.set("jwt-authorization", response.data.token);
+        navigate("/home")
+        Cookies.set("jwt-authorization", response.data.token)
       }
 
     } catch (err) {

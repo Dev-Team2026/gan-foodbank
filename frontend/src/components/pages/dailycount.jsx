@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react"
+import axios from "axios"
 
 const InventoryCount = () => {
     const [inventory, setInventory] = useState([])
@@ -28,10 +28,10 @@ const InventoryCount = () => {
     const submitToServer = async () => {
        const confirmed = window.confirm(
             "Are you sure you want to submit these counts?"
-        );
+        )
 
         if (!confirmed) {
-            return;
+            return
         }
         try {
                 console.log(counts)

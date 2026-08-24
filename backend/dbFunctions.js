@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3'
-import * as Schema from  './dbSchema.js'
+import * as Schema from './dbSchema.js'
 
 //create db object when module is loaded (file is created if it doesn't exist)
 const db = new Database('GanFB.db')
@@ -7,227 +7,226 @@ db.pragma('journal_mode = WAL')
 init()
 
 //statements are pulled from dbSchema.js
-export function init()
-{
+export function init() {
     console.log("Checking database schema...")
     //create tables 
-    for(const table of Schema.tables){
+    for (const table of Schema.tables) {
         db.prepare(table).run()
     }
     //insert default data
-    for(const data of Schema.defaultData){
+    for (const data of Schema.defaultData) {
         db.prepare(data).run()
     }
     //insert test data
-    for(const testData of Schema.testData){
+    for (const testData of Schema.testData) {
         db.prepare(testData).run()
     }
     //create views for reports
-    for(const viewData of Schema.viewData){ 
+    for (const viewData of Schema.viewData) {
         db.prepare(viewData).run()
     }
     console.log("Schema Updated\n")
 }
 
-export function close()
-{
+export function close() {
     db.close()
 }
 
-//
-//SQLite commands (grouped by table)
-//
+/* SQLite commands (grouped by table)
+commands with parameters use binding
+all ?'s are replaced in order with arguments to .get , .all , and .run functions */
 
-//commands with parameters use binding
-//all ?'s are replaced in order with arguments to .get , .all , and .run functions
-
-//
 //Users
-//
-export function getAllUsers()
-{
-    return db.prepare(`SELECT U.*, R.name as role_name FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id`).all()
+export function getAllUsers() {
+    return db.prepare(`SELECT U.*, R.name as role_name
+                       FROM Users AS U
+                                LEFT JOIN Roles as R ON U.role = R.role_id`).all()
 }
 
-export function getUserById(id)
-{
-    return db.prepare(`SELECT U.*, R.name as role_name FROM Users AS U LEFT JOIN Roles as R ON U.role = R.role_id WHERE user_id=?`).get(id)
+export function getUserById(id) {
+    return db.prepare(`SELECT U.*, R.name as role_name
+                       FROM Users AS U
+                                LEFT JOIN Roles as R ON U.role = R.role_id
+                       WHERE user_id = ?`).get(id)
 }
 
-export function AddUser(firstName, lastName, role, password)
-{
+export function AddUser(firstName, lastName, role, password) {
     return db.prepare(
         `INSERT INTO Users (first_name, last_name, role, password)
-         VALUES (?,?,?,?)
+         VALUES (?, ?, ?, ?)
         `
     ).run(firstName, lastName, role, password)
 }
 
-export function UpdateUser(id, newFName, newLName, newRole, newPassword)
-{
+export function UpdateUser(id, newFName, newLName, newRole, newPassword) {
     return db.prepare(
-        `UPDATE Users SET first_name=?, last_name=?, role=?, password=?
-         WHERE user_id=?
+        `UPDATE Users
+         SET first_name=?,
+             last_name=?,
+             role=?,
+             password=?
+         WHERE user_id = ?
         `
     ).run(newFName, newLName, newRole, newPassword, id)
 }
 
-export function deleteUser(id)
-{
-    return db.prepare(`DELETE FROM Users WHERE user_id=?`).run(id)
+export function deleteUser(id) {
+    return db.prepare(`DELETE
+                       FROM Users
+                       WHERE user_id = ?`).run(id)
 }
 
-//
 //Roles
-//
-export function getRoles()
-{
-    return db.prepare(`SELECT * FROM Roles`).all()
+export function getRoles() {
+    return db.prepare(`SELECT *
+                       FROM Roles`).all()
 }
 
-//
 //Inventory
-//
-export function getInventory()
-{
+export function getInventory() {
     return db.prepare(
         `
-        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
-        LEFT JOIN Categories as C ON I.category = C.category_id
-        LEFT JOIN Units as U ON I.unit = U.unit_id
+            SELECT I.*, C.name as category_name, U.name as unit_name
+            FROM Inventory as I
+                     LEFT JOIN Categories as C ON I.category = C.category_id
+                     LEFT JOIN Units as U ON I.unit = U.unit_id
         `
     ).all()
 }
 
-export function getInvItemById(id)
-{
+export function getInvItemById(id) {
     return db.prepare(
         `
-        SELECT I.*, C.name as category_name, U.name as unit_name FROM Inventory as I
-        LEFT JOIN Categories as C ON I.category = C.category_id
-        LEFT JOIN Units as U ON I.unit = U.unit_id
-        WHERE item_id=?
+            SELECT I.*, C.name as category_name, U.name as unit_name
+            FROM Inventory as I
+                     LEFT JOIN Categories as C ON I.category = C.category_id
+                     LEFT JOIN Units as U ON I.unit = U.unit_id
+            WHERE item_id = ?
         `
     ).get(id)
 }
 
 //default unit and size until add function can be refactored
-export function AddInvItem(name,category,stock,par,unit=1,size="100 m/l")
-{
+export function AddInvItem(name, category, stock, par, unit = 1, size = "100 m/l") {
     return db.prepare(
         `INSERT INTO Inventory (name, category, stock, par, unit, size)
-         VALUES (?,?,?,?,?,?)
+         VALUES (?, ?, ?, ?, ?, ?)
         `
-    ).run(name,category,stock,par,unit,size)
+    ).run(name, category, stock, par, unit, size)
 }
 
 //default unit and size until update function can be refactored
-export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit=1, newSize="100 m/l")
-{
+export function UpdateInvItem(id, newName, newCategory, newStock, newPar, newUnit = 1, newSize = "100 m/l") {
     return db.prepare(
-        `UPDATE Inventory SET name=?, category=?, stock=?, par=?, unit=?, size=?
-         WHERE item_id=?
+        `UPDATE Inventory
+         SET name=?,
+             category=?,
+             stock=?,
+             par=?,
+             unit=?,
+             size=?
+         WHERE item_id = ?
         `
     ).run(newName, newCategory, newStock, newPar, newUnit, newSize, id)
 }
 
-export function UpdateInvStock(id, newStock)
-{
+export function UpdateInvStock(id, newStock) {
     return db.prepare(
-        `UPDATE Inventory SET stock=?
-         WHERE item_id=?
+        `UPDATE Inventory
+         SET stock=?
+         WHERE item_id = ?
         `
     ).run(newStock, id)
 }
 
-export function deleteInvItem(id)
-{
-    return db.prepare(`DELETE FROM Inventory WHERE item_id=?`).run(id)
+export function deleteInvItem(id) {
+    return db.prepare(`DELETE
+                       FROM Inventory
+                       WHERE item_id = ?`).run(id)
 }
 
-//
 //Categories
-//
-export function getCategories()
-{
-    return db.prepare(`SELECT * FROM Categories`).all()
+export function getCategories() {
+    return db.prepare(`SELECT *
+                       FROM Categories`).all()
 }
 
-//
 //Units
-//
-export function getUnits()
-{
-    return db.prepare(`SELECT * FROM Units`).all()
+export function getUnits() {
+    return db.prepare(`SELECT *
+                       FROM Units`).all()
 }
 
-//
 //Orders
-//
-export function getOrders()
-{
-    return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id`).all()
+export function getOrders() {
+    return db.prepare(`SELECT O.*, S.name as status_name
+                       FROM Orders AS O
+                                LEFT JOIN Status AS S ON O.status = S.status_id`).all()
 }
 
-export function getOrderById(id)
-{
-    return db.prepare(`SELECT O.*, S.name as status_name FROM Orders AS O LEFT JOIN Status AS S ON O.status = S.status_id WHERE order_id=?`).get(id)
+export function getOrderById(id) {
+    return db.prepare(`SELECT O.*, S.name as status_name
+                       FROM Orders AS O
+                                LEFT JOIN Status AS S ON O.status = S.status_id
+                       WHERE order_id = ?`).get(id)
 }
 
-export function addOrder(path, status)
-{
+export function addOrder(path, status) {
     return db.prepare(
-        `INSERT INTO Orders (created_date, status, path) 
-        VALUES (datetime('now', 'localtime'), ?, ?)
+        `INSERT INTO Orders (created_date, status, path)
+         VALUES (datetime('now', 'localtime'), ?, ?)
         `
     ).run(status, path)
 }
 
-export function updateOrder(id, newStatus, totalPrice)
-{
+export function updateOrder(id, newStatus, totalPrice) {
     return db.prepare(
-        `UPDATE Orders SET total_price=?, status=?
-         WHERE order_id=?
+        `UPDATE Orders
+         SET total_price=?,
+             status=?
+         WHERE order_id = ?
         `
     ).run(totalPrice, newStatus, id)
 }
 
-export function updateOrderCompleted(id, newStatus, totalPrice, newReceivedDate)
-{
+export function updateOrderCompleted(id, newStatus, totalPrice, newReceivedDate) {
     return db.prepare(
-        `UPDATE Orders SET received_date=?, total_price=?, status=?
-         WHERE order_id=?
+        `UPDATE Orders
+         SET received_date=?,
+             total_price=?,
+             status=?
+         WHERE order_id = ?
         `
     ).run(newReceivedDate, totalPrice, newStatus, id)
 }
 
-export function deleteOrder(id)
-{
-    return db.prepare(`DELETE FROM Orders WHERE order_id=?`).run(id)
+export function deleteOrder(id) {
+    return db.prepare(`DELETE
+                       FROM Orders
+                       WHERE order_id = ?`).run(id)
 }
 
-//
 //Reports
-//
-
 //all reports are pulled as views form the database, check dbschema to modify them
-export function getReportById(id)
-{
-    switch(id) {
+export function getReportById(id) {
+    switch (id) {
         case 1:
             //Low Stock (items under par value)
-            return db.prepare(`SELECT * FROM LowStock`).all()
-        break
+            return db.prepare(`SELECT *
+                               FROM LowStock`).all()
+            break
 
         case 2:
             //Over Stock (items 3x over par)
-            return db.prepare(`SELECT * FROM HighStock`).all()
-        break
+            return db.prepare(`SELECT *
+                               FROM HighStock`).all()
+            break
 
         case 3:
             //units PLACEHOLDER
-            return db.prepare(`SELECT * FROM Units`).all()
-        break
+            return db.prepare(`SELECT *
+                               FROM Units`).all()
+            break
 
         default:
             //report not found
