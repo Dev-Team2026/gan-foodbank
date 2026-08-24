@@ -168,3 +168,15 @@ a {
   margin-top: 25px;
   margin-left: 25px;
 }
+
+.ordersDiv {
+  width: 50%;
+  margin: 25px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.ordersDiv .tableBtn {
+  width: 25%;
+  margin: 5px auto;
+}

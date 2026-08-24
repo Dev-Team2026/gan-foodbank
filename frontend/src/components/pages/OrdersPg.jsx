@@ -1,36 +1,36 @@
 import { useState, useEffect } from "react"
 import axios from "axios";
-import {saveAs} from "file-saver"
+import {useNavigate} from "react-router-dom";
 
-import OrdersCard from "../pageFeatures/OrdersCard";
 
 const OrdersPg = ()=>{
   const [orders, setOrders] = useState([])
-  const [groupId, setGroupId] = useState(1)
+  const [groupId, setGroupId] = useState(null)
   const [currentOrderGroup, setCurrentOrderGroup] = useState([])
-  //const [orderItems, setOrderItems] = useState([])
-  const [dbResponse, setDbResponse] = useState("")
+  const navigate = useNavigate();
+
   //Db and useEffect statements
   const handleOrdersDB = async ()=>{
     try {
       await axios.get("http://localhost:3000/orders")
-      .then((response)=>{
-        //console.log(response.data)
-        setOrders(response.data.db)
-        //setCurrentOrderGroup(response.data.currentGroup)
+      .then((response)=> {
+        const sortedOrders = [...response.data.db].sort(
+            (a, b) => new Date(b.created_date) - new Date(a.created_date))
+
+        setOrders(sortedOrders)
+
         setGroupId(response.data.currentGroup)
       })
     } catch(error) {
       console.log(error.message)
     }
-    //console.log(orders[currentOrderGroup].order_items)
   }
+
   const updateOrderItems = async ()=>{
     try {
       await axios.get(`http://localhost:3000/orders/${groupId}`)
       .then((response)=>{
         setCurrentOrderGroup(response.data.items)
-        //console.log(response.data)
       })
     } catch (error) {
       console.log(error.message)
@@ -39,93 +39,44 @@ const OrdersPg = ()=>{
   
   useEffect(() => {
     handleOrdersDB()
-  }, [dbResponse])
+  }, )
   useEffect(()=>{
     updateOrderItems()
   }, [groupId])
 
-  const handleOnChangeOrderGroup = (e) => {
-    setGroupId(e.target.value)
-    //setCurrentOrderGroup(orders[e.target.value].order_items)
-    //setGroupId(e.target.value)
-    //updateOrderItems()
-    //console.log(e.target.value)
-  }
-  const handeleOnChangeFufillment = (id, e) => {
-    let updatedItems = [...currentOrderGroup]
-    updatedItems[id].fufillment = e.target.value
-    if(e.target.value == 0){
-      updatedItems[id].itemStatus = 0
-    } else if (e.target.value < updatedItems[id].requestedAmount){
-      updatedItems[id].itemStatus = 1
-    } else {
-      updatedItems[id].itemStatus = 2
-    }
-    setCurrentOrderGroup(updatedItems)
-    //handleUpdateOrder()
-  }
-  const handeleOnAddCost = (id,amount)=>{
-    let updatedItems = [...currentOrderGroup]
-    console.log(typeof updatedItems[id].itemCost, typeof amount)
-    updatedItems[id].itemCost += amount
-    setCurrentOrderGroup(updatedItems)
-  }
+  return (
+      <div className="ordersDiv">
+        <table>
+          <thead>
+              <tr>
+                <th>PO #</th>
+                <th>Order Date</th>
+                <th>Date Rec.</th>
+              </tr>
+          </thead>
+          <tbody>
+          {currentOrderGroup.length === null && <tr>
+            <td>Your current</td>
+            <td>orders are</td>
+            <td>Please create a</td>
+            <td> new order</td>
+          </tr>}
+          {orders.map((order) => (
+            <tr key={order.order_id}
+            onClick={() => navigate(`/orders/${order.order_id}`)}
+                style={{cursor : "pointer"}}
+            >
+              <td>{order.order_id}</td>
+              <td>{order.created_date}</td>
+              {order.received_date && <td>{order.received_date}</td>}
+              {!order.received_date && <td>Order not yet received</td>}
+            </tr>
+              ))}
+              <tr>
 
-  const toggleEarlyClose = (id) => {
-    let updatedItems = [...currentOrderGroup]
-    updatedItems[id].itemStatus < 2 ? 
-      updatedItems[id].itemStatus = 2 : 
-      updatedItems[id].fufillment > 0 ? updatedItems[id].itemStatus = 1 : updatedItems[id].itemStatus = 0
-    setCurrentOrderGroup(updatedItems)
-    //handleUpdateOrder()
-  }
-  const handleUpdateOrder = async () => {
-    try {
-      await axios.patch(`http://localhost:3000/ordersItems`, {id: groupId, items: currentOrderGroup})
-      .then((response)=>{
-        setDbResponse(response.data)
-      })
-    } catch (error) {
-      console.log(error.message)
-    }
-  }
-  const handleExportOrder = (e)=>{
-    e.preventDefault();
-    let data = "Name,RequestedAmount,Fufilled\n"
-    currentOrderGroup.forEach((item)=>{
-      let newString = item.name + "," + item.requestedAmount + ", ,\n"
-      data = data.concat(newString)
-    })
-    const blob = new Blob([data], {type: "text/plain;charset=utf-8"});
-    saveAs(blob,"order.csv")
-  }
-
-  return (<div>
-    
-    <form action="">
-        <select name="orderGroup" id="orderGroup" onChange={handleOnChangeOrderGroup} >
-          {orders.map((group)=>(
-              <option key={group.order_id} value={group.order_id}>Group {group.order_id}</option>
-            ))}
-        </select>
-    </form>
-    <table>
-        <thead>
-            <tr><th>Status</th><th>Item</th><th>Amount</th><th>Cost</th></tr>
-        </thead>
-        <tbody>
-            {currentOrderGroup.length > 0 && currentOrderGroup.map((order)=>(
-                <OrdersCard key={order.id} {...order} toggleEarlyClose={toggleEarlyClose} handeleOnChangeFufillment={handeleOnChangeFufillment} handeleOnAddCost={handeleOnAddCost} />
-            ))}
-        </tbody>
-    </table>
-    <button onClick={handleUpdateOrder} >ApplyUpdates</button>
-    <button onClick={handleExportOrder} >Export</button>
+              </tr>
+          </tbody>
+        </table>
   </div>)
 }
 export default OrdersPg
-/*
-{PageHeader, Link, AuthenticationChecker, currentUser, updateUser}
-<PageHeader Link={Link} user={currentUser} />
-    <AuthenticationChecker updateUser={updateUser} />
-*/
