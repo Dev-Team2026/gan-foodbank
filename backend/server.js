@@ -103,7 +103,7 @@ server.post("/users", async (request, response) => {
     const {name, role, password} = request.body
     try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        users = db.addUser(name, "Lnameplaceholder", role, hashedPassword) //update placeholder last name!
+        users = db.AddUser(name, "Lnameplaceholder", role, hashedPassword) //update placeholder last name!
         refreshUserList()
         return response.status(200).send({
             message: `user added successfully!`
