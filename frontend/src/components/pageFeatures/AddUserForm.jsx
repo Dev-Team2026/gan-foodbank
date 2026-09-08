@@ -1,35 +1,61 @@
-const AddUserForm = ({handleOnSubmitUser, handleOnChangeUser, newUser}) => {
+const AddUserForm = ({
+                         handleOnSubmitUser,
+                         handleOnChangeUser,
+                         newUser
+                     }) => {
     return (
-        <div>
-             <form onSubmit={handleOnSubmitUser}>
-                <input 
+        <form className="userForm" onSubmit={handleOnSubmitUser}>
+
+            <div className="formGroup">
+                <label htmlFor="name">User Name</label>
+                <input
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="User Name"
+                    placeholder="Enter user's name"
                     value={newUser.name}
                     onChange={handleOnChangeUser}
+                    required
                 />
-                <input 
-                    type="text"
+            </div>
+
+            <div className="formGroup">
+                <label htmlFor="role">Role</label>
+                <select
                     id="role"
                     name="role"
-                    placeholder="Users Role"
                     value={newUser.role}
                     onChange={handleOnChangeUser}
-                />
-                <input 
-                    type="text"
+                    required
+                >
+                    <option value="">Select a role</option>
+                    <option value="1">Admin</option>
+                    <option value="0">Volunteer</option>
+                </select>
+            </div>
+
+            <div className="formGroup">
+                <label htmlFor="password">Password</label>
+                <input
+                    type="password"
                     id="password"
                     name="password"
-                    placeholder="Password"
+                    placeholder="Enter password"
                     value={newUser.password}
                     onChange={handleOnChangeUser}
+                    required
                 />
-                <button className="adminPgBtn" type="submit">Add</button>
-            </form>
-        </div>
-    )
-}
+            </div>
 
-export default AddUserForm
+            <button
+                className="submitUserBtn"
+                type="submit"
+            >
+                Add User
+            </button>
+
+        </form>
+    );
+};
+
+export default AddUserForm;

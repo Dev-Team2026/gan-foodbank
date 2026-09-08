@@ -1,8 +1,30 @@
-const UserCard = ({index, first_name, role, prepAction}) => {
+const UserCard = ({ index, first_name, role, prepAction }) => {
     return (
-        <div>
-            <p>{first_name} | {role}  <button className="adminPgBtn" onClick={()=>prepAction(index, "edit")} >edit</button> <button className="adminPgBtn" onClick={()=>prepAction(index, "delete")} >delete</button></p>
+        <div className="userCard">
+            <div className="userInfo">
+                <span className="userName">{first_name}</span>
+                <span className={`userRole ${role === 1 ? "adminRole" : "volunteerRole"}`}>
+                    {role === 1 ? "Admin" : "Volunteer"}
+                </span>
+            </div>
+
+            <div className="userActions">
+                <button
+                    className="userBtn editBtn"
+                    onClick={() => prepAction(index, "edit")}
+                >
+                    Edit
+                </button>
+
+                <button
+                    className="userBtn deleteBtn"
+                    onClick={() => prepAction(index, "delete")}
+                >
+                    Delete
+                </button>
+            </div>
         </div>
-    )
-}
-export default UserCard
+    );
+};
+
+export default UserCard;

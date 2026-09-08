@@ -107,39 +107,85 @@ const OrderPo = () => {
     }
 
     return (
-        <div className="ordersDiv">
-            <button onClick={() => {
-                navigate("/orders")
-            }}>Go Back
-            </button>
-            <table>
-                <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Amount</th>
-                    <th>Fulfillment</th>
-                    <th>Status</th>
-                </tr>
-                </thead>
-                <tbody>
-                {currentOrderGroup.length === 0 ? (
-                    <tr>
-                        <td colSpan="4">
-                            Your current order has no items.
-                        </td>
-                    </tr>
-                ) : (
-                    (currentOrderGroup.map((item) => (
-                            <OrdersCard key={item.id} {...item} toggleEarlyClose={toggleEarlyClose}
-                                        handeleOnChangeFufillment={handeleOnChangeFufillment}
-                                        handeleOnAddCost={handeleOnAddCost}/>
-                        )
-                    ))
-                )}
-                </tbody>
-            </table>
-            <button className="tableBtn" onClick={handleUpdateOrder}>Apply Updates</button>
-            <button className="tableBtn" onClick={handleExportOrder}>Export</button>
-        </div>)
+        <div className="ordersPage">
+
+            <div className="ordersHeader">
+                <div>
+                    <h2>Order Details</h2>
+                    <p>Review and update the items in this order.</p>
+                </div>
+
+                <button
+                    className="backBtn"
+                    onClick={() => navigate("/orders")}
+                >
+                    ← Back to Orders
+                </button>
+            </div>
+
+            <div className="ordersDiv">
+
+                <div className="orderTableHeader">
+                    <h3>Order #{id}</h3>
+                    <span>
+                    {currentOrderGroup.length} item
+                        {currentOrderGroup.length !== 1 ? "s" : ""}
+                </span>
+                </div>
+
+                <div className="orderTableWrapper">
+                    <table className="orderTable">
+                        <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Amount</th>
+                            <th>Fulfillment</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {currentOrderGroup.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" className="emptyOrder">
+                                    Your current order has no items.
+                                </td>
+                            </tr>
+                        ) : (
+                            currentOrderGroup.map((item) => (
+                                <OrdersCard
+                                    key={item.id}
+                                    {...item}
+                                    toggleEarlyClose={toggleEarlyClose}
+                                    handeleOnChangeFufillment={
+                                        handeleOnChangeFufillment
+                                    }
+                                    handeleOnAddCost={handeleOnAddCost}
+                                />
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="orderActions">
+                    <button
+                        className="secondaryActionBtn"
+                        onClick={handleExportOrder}
+                    >
+                        Export Excel
+                    </button>
+
+                    <button
+                        className="primaryActionBtn"
+                        onClick={handleUpdateOrder}
+                    >
+                        Apply Updates
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    )
 }
 export default OrderPo

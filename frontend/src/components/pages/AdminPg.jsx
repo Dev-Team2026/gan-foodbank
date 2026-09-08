@@ -155,22 +155,88 @@ const AdminPg = () => {
                 <title>Admin</title>
 
                 <h1>Welcome back {userData.name}</h1>
-                <button onClick={() => setCurrentAction("add")}>Add User</button>
-                {currentAction === "add" &&
-                    <AddUserForm handleOnChangeUser={handleOnChangeUser} handleOnSubmitUser={handleOnSubmitUser}
-                                 newUser={userForm}/>}
-                {currentAction === "edit" && <EditUserForm handleOnChangeUser={handleOnChangeUser}
-                                                           handleOnSubmitEditedUser={handleOnSubmitEditedUser}
-                                                           user={userForm}/>}
-                {currentAction === "delete" &&
-                    <p>Are you sure you want to delete this user
-                        <button className="adminPgBtn" onClick={handleOnDeleteUser}>Yes</button>
-                        <button className="adminPgBtn" onClick={() => setCurrentAction("")}>No</button>
-                    </p>}
-                {currentAction != "" &&
-                    <button className="adminPgBtn" onClick={() => setCurrentAction("")}>Cancel</button>}
-                <h2>Registered Users</h2>
-                <UserContainer users={users} prepAction={prepAction}/>
+                <div className="userManagement">
+                    <div className="userManagementHeader">
+                        <div>
+                            <h2>User Management</h2>
+                            <p>Add, edit, or remove registered users.</p>
+                        </div>
+
+                        <button
+                            className="addUserBtn"
+                            onClick={() => setCurrentAction("add")}
+                        >
+                            + Add User
+                        </button>
+                    </div>
+
+                    {currentAction === "add" && (
+                        <div className="actionPanel">
+                            <div className="actionPanelHeader">
+                                <h3>Add User</h3>
+                            </div>
+
+                            <AddUserForm
+                                handleOnChangeUser={handleOnChangeUser}
+                                handleOnSubmitUser={handleOnSubmitUser}
+                                newUser={userForm}
+                            />
+                        </div>
+                    )}
+
+                    {currentAction === "edit" && (
+                        <div className="actionPanel">
+                            <div className="actionPanelHeader">
+                                <h3>Edit User</h3>
+                            </div>
+
+                            <EditUserForm
+                                handleOnChangeUser={handleOnChangeUser}
+                                handleOnSubmitEditedUser={handleOnSubmitEditedUser}
+                                user={userForm}
+                            />
+                        </div>
+                    )}
+
+                    {currentAction === "delete" && (
+                        <div className="deletePanel">
+                            <h3>Delete User?</h3>
+
+                            <p>
+                                Are you sure you want to delete this user?
+                            </p>
+
+                            <div className="deleteActions">
+                                <button
+                                    className="confirmDeleteBtn"
+                                    onClick={handleOnDeleteUser}
+                                >
+                                    Yes, Delete
+                                </button>
+
+                                <button
+                                    className="cancelBtn"
+                                    onClick={() => setCurrentAction("")}
+                                >
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentAction !== "" && (
+                        <button
+                            className="cancelActionBtn"
+                            onClick={() => setCurrentAction("")}
+                        >
+                            Cancel
+                        </button>
+                    )}
+                </div>
+                <div className="usersDiv">
+                    <h2>Registered Users</h2>
+                    <UserContainer users={users} prepAction={prepAction}/>
+                </div>
             </div>
 
             <div>
